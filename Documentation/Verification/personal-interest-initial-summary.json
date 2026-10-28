@@ -1,0 +1,60 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "10CA07A7-A4CE-43F2-883C-4509AD350C27",
+        "deviceName" : "Kindred QA",
+        "modelName" : "iPhone 17",
+        "osBuildNumber" : "23B86",
+        "osVersion" : "26.1",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 2,
+      "passedTests" : 41,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "Kindred · Built with macOS 26.6.2",
+  "expectedFailures" : 0,
+  "failedTests" : 2,
+  "finishTime" : 1792350004.014,
+  "passedTests" : 41,
+  "result" : "Failed",
+  "runtimeWarnings" : [
+
+  ],
+  "skippedTests" : 0,
+  "startTime" : 1792349837.267,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertTrue failed",
+      "targetName" : "KindredUITests",
+      "testIdentifier" : 41,
+      "testIdentifierString" : "KindredUITests/testPhotoControlsCountBoundsResetAndSinglePhotoPreview()",
+      "testIdentifierURL" : "test://com.apple.xcode/Kindred/KindredUITests/KindredUITests/testPhotoControlsCountBoundsResetAndSinglePhotoPreview",
+      "testName" : "testPhotoControlsCountBoundsResetAndSinglePhotoPreview()"
+    },
+    {
+      "failureText" : "Failed to get matching snapshot: No matches found for Elements matching predicate '\"photoLike-amara-weekend-gallery\" IN identifiers' from input {(\n    Button, identifier: 'sparkles', label: 'Discover', Selected,\n    Button, identifier: 'heart', label: 'Likes',\n    Button, identifier: 'bubble.left.and.bubble.right', label: 'Chats',\n    Button, identifier: 'person.crop.circle', label: 'You',\n    Button, identifier: 'passProfile', label: 'Next introduction, skip Amara',\n    Button, identifier: 'likeProfile', label: 'I'm interested in Amara',\n    Button, identifier: 'discoveryPreferences', label: 'Discovery preferences',\n    Button, identifier: 'discoveryPortrait', label: 'Previous photo',\n    Button, identifier: 'discoveryPortrait', label: 'Next photo', Disabled,\n    Button, identifier: 'discoveryPortrait', label: 'Like Amara’s photo 2',\n    Button, identifier: 'openProfile', label: 'Meet Amara',\n    Button, identifier: 'promptLike-amara-amara-0', label: 'Like answer to My ideal Sabbath afternoon…', value: Amara’s answer\n)}",
+      "targetName" : "KindredUITests",
+      "testIdentifier" : 42,
+      "testIdentifierString" : "KindredUITests/testPhotoInterestMatchContextAndRemoval()",
+      "testIdentifierURL" : "test://com.apple.xcode/Kindred/KindredUITests/KindredUITests/testPhotoInterestMatchContextAndRemoval",
+      "testName" : "testPhotoInterestMatchContextAndRemoval()"
+    }
+  ],
+  "title" : "Test - Kindred",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 43
+}

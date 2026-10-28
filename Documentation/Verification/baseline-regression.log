@@ -1,0 +1,71 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project Kindred.xcodeproj -scheme Kindred -destination "platform=iOS Simulator,id=10CA07A7-A4CE-43F2-883C-4509AD350C27" -derivedDataPath /private/tmp/KindredPhase15Build -resultBundlePath /private/tmp/KindredPhase15BaselineUnits.xcresult -collect-test-diagnostics never "-only-testing:KindredTests"
+
+Writing result bundle at path:
+	/private/tmp/KindredPhase15BaselineUnits.xcresult
+
+Test Suite 'All tests' started at 2026-10-13 15:01:01.197.
+Test Suite 'All tests' passed at 2026-10-13 15:01:01.198.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64-apple-ios17.0-simulator
+◇ Suite KindredTests started.
+◇ Test profileEditsAndPublicPrivacyProjection() started.
+◇ Test profileAndPromptLikesAreIdempotentAndShareState() started.
+◇ Test invalidPreferencesLeavePriorSnapshotIntact() started.
+◇ Test optionalDetailsCanBeDeferredAndAddedLater() started.
+◇ Test reportsAreLocalAndSeparateFromBlocking() started.
+◇ Test validatesEveryRequiredOnboardingField() started.
+◇ Test blockingEnforcesAllViewsAndDoesNotRestoreHistory() started.
+◇ Test discoveryFiltersAgeGenderAndSyntheticDistance() started.
+◇ Test notificationPreferencesAreShared() started.
+◇ Test undoRestoresOnlyOneSkipAndCannotBypassBlocking() started.
+◇ Test onboardingCompletionCommitsProfileAndPreferences() started.
+◇ Test genderChoicesAndFixturesUseMaleOrFemale() started.
+◇ Test exactAdultBoundaryAndFutureDate() started.
+◇ Test messageInsertionAndValidation() started.
+◇ Test completionCannotBypassEligibility() started.
+◇ Test newMutualConversationAppearsBeforeOlderMessages() started.
+◇ Test invalidProfileEditIsAtomic() started.
+◇ Test nonexistentPromptCannotCreateLike() started.
+◇ Test passesAdvanceAndCanBeRevisited() started.
+✘ Test newMutualConversationAppearsBeforeOlderMessages() recorded an issue at KindredTests.swift:23:9: Expectation failed: s.conversations.first?.memberID == "amara"
+↳ s.conversations.first?.memberID == "amara" → false
+↳   s.conversations.first?.memberID → "eli"
+↳     some → "eli"
+↳     some → "amara"
+✔ Test validatesEveryRequiredOnboardingField() passed after 0.034 seconds.
+✔ Test blockingEnforcesAllViewsAndDoesNotRestoreHistory() passed after 0.034 seconds.
+✔ Test invalidPreferencesLeavePriorSnapshotIntact() passed after 0.034 seconds.
+✔ Test profileAndPromptLikesAreIdempotentAndShareState() passed after 0.034 seconds.
+✔ Test discoveryFiltersAgeGenderAndSyntheticDistance() passed after 0.034 seconds.
+✔ Test exactAdultBoundaryAndFutureDate() passed after 0.034 seconds.
+✔ Test nonexistentPromptCannotCreateLike() passed after 0.025 seconds.
+✔ Test genderChoicesAndFixturesUseMaleOrFemale() passed after 0.034 seconds.
+✔ Test optionalDetailsCanBeDeferredAndAddedLater() passed after 0.034 seconds.
+✔ Test profileEditsAndPublicPrivacyProjection() passed after 0.034 seconds.
+✔ Test invalidProfileEditIsAtomic() passed after 0.025 seconds.
+✘ Test newMutualConversationAppearsBeforeOlderMessages() failed after 0.025 seconds with 1 issue.
+✔ Test completionCannotBypassEligibility() passed after 0.025 seconds.
+✔ Test undoRestoresOnlyOneSkipAndCannotBypassBlocking() passed after 0.034 seconds.
+✔ Test onboardingCompletionCommitsProfileAndPreferences() passed after 0.034 seconds.
+✔ Test messageInsertionAndValidation() passed after 0.034 seconds.
+✔ Test passesAdvanceAndCanBeRevisited() passed after 0.026 seconds.
+✔ Test reportsAreLocalAndSeparateFromBlocking() passed after 0.035 seconds.
+✔ Test notificationPreferencesAreShared() passed after 0.035 seconds.
+✘ Suite KindredTests failed after 0.037 seconds with 1 issue.
+✘ Test run with 19 tests in 1 suite failed after 0.037 seconds with 1 issue.
+2026-10-13 15:01:01.623 xcodebuild[9773:332915] [MT] IDETestOperationsObserverDebug: 5.609 elapsed -- Testing started completed.
+2026-10-13 15:01:01.623 xcodebuild[9773:332915] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-13 15:01:01.623 xcodebuild[9773:332915] [MT] IDETestOperationsObserverDebug: 5.609 sec, +5.609 sec -- end
+
+Test session results, code coverage, and logs:
+	/tmp/KindredPhase15BaselineUnits.xcresult
+
+Failing tests:
+	KindredTests.newMutualConversationAppearsBeforeOlderMessages()
+
+** TEST EXECUTE FAILED **
+
+Testing started

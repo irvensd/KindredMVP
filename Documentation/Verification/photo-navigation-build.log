@@ -1,0 +1,942 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild build -project Kindred.xcodeproj -scheme Kindred -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -derivedDataPath /private/tmp/KindredPhotoBuild
+
+Build settings from command line:
+    SDKROOT = iphonesimulator27.1
+
+2026-10-18 13:14:58.425 xcodebuild[1590:21418]  DVTErrorPresenter: Unable to load simulator devices.
+Domain: DVTCoreSimulatorAdditionsErrorDomain
+Code: 3
+Failure Reason: The version of the CoreSimulator framework installed on this Mac is out-of-date and not supported by this version of Xcode.
+Recovery Suggestion: Please ensure that you have installed all available updates to your Mac's software, and that you are running the most recent version of Xcode supported by macOS.
+--
+CoreSimulator is out of date. Current version (1171.7.0) is older than build version (1174.9.2).
+Domain: DVTCoreSimulatorAdditionsErrorDomain
+Code: 3
+--
+
+2026-10-18 13:14:58.425 xcodebuild[1590:21418]  iOSSimulator: [SimServiceContext sharedServiceContextForDeveloperDir:error:] returned nil (Error Domain=DVTCoreSimulatorAdditionsErrorDomain Code=3 "CoreSimulator is out of date. Current version (1171.7.0) is older than build version (1174.9.2)." UserInfo={NSLocalizedDescription=CoreSimulator is out of date. Current version (1171.7.0) is older than build version (1174.9.2).}). Simulator device support disabled.
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'Kindred' in project 'Kindred' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 310dad2efbebf6996b62379be6f3ed84
+Build description path: /tmp/KindredPhotoBuild/Build/Intermediates.noindex/XCBuildData/310dad2efbebf6996b62379be6f3ed84.xcbuilddata
+CreateBuildDirectory /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    builtin-create-build-directory /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules
+
+CreateBuildDirectory /tmp/KindredPhotoBuild/CompilationCache.noindex
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    builtin-create-build-directory /tmp/KindredPhotoBuild/CompilationCache.noindex
+
+CreateBuildDirectory /tmp/KindredPhotoBuild/ModuleCache.noindex
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    builtin-create-build-directory /tmp/KindredPhotoBuild/ModuleCache.noindex
+
+CreateBuildDirectory /tmp/KindredPhotoBuild/Build/Intermediates.noindex
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    builtin-create-build-directory /tmp/KindredPhotoBuild/Build/Intermediates.noindex
+
+CreateBuildDirectory /tmp/KindredPhotoBuild/Build/Products
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    builtin-create-build-directory /tmp/KindredPhotoBuild/Build/Products
+
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk /tmp/KindredPhotoBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -o /tmp/KindredPhotoBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache
+
+CreateBuildDirectory /tmp/KindredPhotoBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    builtin-create-build-directory /tmp/KindredPhotoBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /tmp/KindredPhotoBuild/Build/Intermediates.noindex/PrecompiledHeaders
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    builtin-create-build-directory /tmp/KindredPhotoBuild/Build/Intermediates.noindex/PrecompiledHeaders
+
+CreateBuildDirectory /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    builtin-create-build-directory /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator
+
+CreateBuildDirectory /tmp/KindredPhotoBuild/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    builtin-create-build-directory /tmp/KindredPhotoBuild/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred-387e11d5acef3fc4d6244f72b79bba82-VFS-iphonesimulator/all-product-headers.yaml
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred-387e11d5acef3fc4d6244f72b79bba82-VFS-iphonesimulator/all-product-headers.yaml
+
+CreateBuildDirectory /tmp/KindredPhotoBuild/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    builtin-create-build-directory /tmp/KindredPhotoBuild/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/empty-Kindred.plist (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/empty-Kindred.plist
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred_const_extract_protocols.json (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred_const_extract_protocols.json
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred_const_extract_protocols.json (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred_const_extract_protocols.json
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.LinkFileList (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.LinkFileList
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-OutputFileMap.json (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-OutputFileMap.json
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.LinkFileList (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.LinkFileList
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.SwiftFileList (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.SwiftFileList
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.SwiftConstValuesFileList (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.SwiftFileList (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.SwiftFileList
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.SwiftConstValuesFileList (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-OutputFileMap.json (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-OutputFileMap.json
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.DependencyStaticMetadataFileList (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.DependencyMetadataFileList (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.DependencyMetadataFileList
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.hmap (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.hmap
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-project-headers.hmap (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-project-headers.hmap
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-own-target-headers.hmap (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-own-target-headers.hmap
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-generated-files.hmap (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-generated-files.hmap
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-all-target-headers.hmap (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-all-target-headers.hmap
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-all-non-framework-target-headers.hmap (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibPath-normal-x86_64.txt (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibPath-normal-x86_64.txt
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibPath-normal-arm64.txt (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibInstallName-normal-x86_64.txt (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibInstallName-normal-x86_64.txt
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibInstallName-normal-arm64.txt (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibInstallName-normal-arm64.txt
+
+MkDir /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /bin/mkdir -p /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app
+
+WriteAuxiliaryFile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/Entitlements-Simulated.plist (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    write-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/Entitlements-Simulated.plist
+
+ProcessProductPackaging "" /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    
+    Entitlements:
+    
+    {
+    "application-identifier" = "FAKETEAMID.com.kindred.prototype";
+}
+    
+    builtin-productPackagingUtility -entitlements -format xml -o /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent
+
+ProcessProductPackagingDER /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent.der (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /usr/bin/derq query -f xml -i /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent -o /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent.der --raw
+
+MkDir /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /bin/mkdir -p /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned
+
+Ld /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/__preview.dylib normal arm64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -install_name @rpath/Kindred.debug.dylib -Xlinker -dead_strip -rdynamic -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred_dependency_info.dat -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent.der -Xlinker -no_adhoc_codesign -o /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/__preview.dylib
+
+MkDir /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/unthinned (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /bin/mkdir -p /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/unthinned
+
+Ld /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/__preview.dylib normal x86_64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target x86_64-apple-ios26.0-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -install_name @rpath/Kindred.debug.dylib -Xlinker -dead_strip -rdynamic -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred_dependency_info.dat -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent.der -Xlinker -no_adhoc_codesign -o /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/__preview.dylib
+
+GenerateAssetSymbols /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets --compile /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app --output-format human-readable-text --notices --warnings --export-dependency-info /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_dependencies --output-partial-info-plist /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --minimum-deployment-target 26.0 --platform iphonesimulator --bundle-identifier com.kindred.prototype --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/GeneratedAssetSymbols.h
+/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CompileAssetCatalogVariant thinned /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets --compile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_dependencies_thinned --output-partial-info-plist /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --minimum-deployment-target 26.0 --platform iphonesimulator
+/* com.apple.actool.compilation-results */
+/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist_thinned
+/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned/Assets.car
+
+
+CreateUniversalBinary /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/__preview.dylib normal arm64\ x86_64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/lipo -create /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/__preview.dylib /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/__preview.dylib -output /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/__preview.dylib
+
+SwiftDriver Kindred normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Kindred -Onone @/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPhotoBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPhotoBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPhotoBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-generated-files.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-own-target-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-project-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources-normal/arm64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/arm64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver Kindred normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Kindred -Onone @/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target x86_64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPhotoBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPhotoBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPhotoBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-generated-files.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-own-target-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-project-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources-normal/x86_64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/x86_64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_stdbool-TXOMZWJEH5WPPBV4KZLR5TRG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_SwiftConcurrencyShims-8TO14GXHO9HHMURX67D4VC7XK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/ptrcheck-10O1DTNQ2SKX7N71GWEPSUCH6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_AvailabilityInternal-E4KUIWKOYFW3Q9BSRQU6H92DS.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_stdbool-10SXL14QLV9LSYY3GWG7C9RL8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_stddef-MTZ5AYNSMHVGEI7LONHYNNUH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/SwiftShims-8SXE31WT5XCW5V11HYTGQ1651.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_stdarg-ASAM5M63KOYD5MAIL06O8GGN0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_float-3GNHZD5TXPRS7QATGO9MIEIKG.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/ptrcheck-B6AO905YL11U79H4K6X201Y1J.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/DeveloperToolsSupport-8I0REYNVH5B6B391MJ1IGQBA4.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/DeveloperToolsSupport-2DY7LKOD734ZYVUMWLLUPGGHF.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_float-5LGBKDJOF6NEZFVNOIIMMJRRP.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/ptrauth-4PDXDE0NZ5O8ZX9U797WCQKS8.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_AvailabilityInternal-96AQ1CHHN0EMQ18PIA59M16AP.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_stddef-EJSVNE1HBEKBVSOAIVTYQKNQ2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_stdarg-5HUORGFGMHRQLZ4IKKAIOPY6N.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/SwiftShims-DL4Z1WZAVBSGPEZGKR82S10RG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_DarwinFoundation1-4LXITY38HE3YBL2HW4DXDAZ9X.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_SwiftConcurrencyShims-63UZVQJI36L6D8JY8XHFWAXBM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/ptrauth-6D0WAG04DFB2PUQTYWJWBQMA7.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_DarwinFoundation1-C5SNKYCF908LN83REPQM30N3Z.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_DarwinFoundation2-F1R22BN0263A793PI9BW2BCEV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_limits-4VXC0ZBYV3S6HH4G6V920AG4X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/ExtensionFoundation-D7OGCI8UHAEIP0ZEZ5INOPHVL.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_limits-28QA301T5XBNU2VGNNQWPPQUQ.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/ExtensionFoundation-2T5VEAU1TAPSJ9N1CDN9Y09JR.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_DarwinFoundation2-OUX60VZRM75T5DW9KIDUKOYY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/string_h-7ZE4R6PUGAOO1SHMDQIGUQM1O.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_tgmath-766UDZBZVYAM474TQQ7QFRLC9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/sys_types-DA7F2JXCTZM92LRZPI87QRRG2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_stdint-2KTA3TK5XGVE18Y34L7JD576F.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_stdint-BD44HK9H2SF8PM06FDUXNRBGS.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/string_h-4JEEFGWCGSJMYPFLC1DHJI9M2.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/sys_types-71RNLRESMWD843D0NN22D6ENQ.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_tgmath-BMVC3XXKQ8D98OQ9PZ9B4IMXR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_DarwinFoundation3-7NXK5F5KP73M6XD9EGHE166RY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_stdatomic-2NA8K8CW8AIW3U3VGXFI6TLZ3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_intrinsics-ZGJ4R10ZJWXUSTOJ2EEDRD31.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_stdatomic-92FWJHJ7WWQB91AAGG0RYRSV.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_DarwinFoundation3-7A0TPHGPWMHONAPTI4R2FXRKT.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_intrinsics-BKQ8GXYCJWQ346AB4D5TZBRLA.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_inttypes-3GV4SJO9CSD52AIE2HHA7TXUQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_Builtin_inttypes-9YXYFDA6F517GE5X9RKX57912.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Darwin-14J57U0SFEH95LOGYVCI95Z7M.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Darwin-64MX8NI9XCNCY08ITFQAV6M2.pcm
+
+LinkAssetCatalog /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-linkAssetCatalog --thinned /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned --thinned-dependencies /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist_thinned --unthinned /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/unthinned --unthinned-dependencies /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist_unthinned --output /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app --plist-output /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist
+note: Emplaced /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/AppIcon60x60@2x.png (in target 'Kindred' from project 'Kindred')
+note: Emplaced /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/AppIcon76x76@2x~ipad.png (in target 'Kindred' from project 'Kindred')
+note: Emplaced /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Assets.car (in target 'Kindred' from project 'Kindred')
+
+ProcessInfoPlistFile /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Info.plist /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/empty-Kindred.plist (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-infoPlistUtility /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/empty-Kindred.plist -producttype com.apple.product-type.application -genpkginfo /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist -o /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Info.plist
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/simd-7BZSQOIWAP5OYTYBDL3E8ETVG.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/MachO-C7MFUFIFI1HT99EM15LMEVOOI.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/ObjectiveC-9M75YLPCI9IT5MZM5FJXDL37I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/MachO-D9NMXTHFUKDTP38A3S7C9TCK5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/ObjectiveC-AAZF9I7RE9UT7BA1F0UPXWGTK.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/simd-5DH93652TNI88JE4UFQCSY2Z1.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/os_object-2O6R5IQOYDMXP6G6DCR3P505M.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/os_object-4JW2RYQS51G1D0QG2UEPXJJPT.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/os_workgroup-D3OOMBK06VJXGPTVP68I5RAZU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/os_workgroup-A195GFKINH8CYNHIEJDJNPQPV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Spatial-5GYZLM0BV6XH83123BJY93ADW.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Dispatch-2NGWHJDDZAM30IGEDONZBXXIW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Dispatch-EDJOXWKFK6YHVGCZ53KY0NCKM.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreFoundation-5ZQUFQOZ4NYCTCVGRDJIZVYHK.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/dnssd-590PPBFI0Z1JE2X9KOZ5IH5EQ.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/XPC-4QEJOUU057237HL6TYJBI09RW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/XPC-7Q204NMRXZ7UQDS8EHY34OTJF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreFoundation-5EO0DNELHQH7ZQAIQ7PXUVGC9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/dnssd-6JW4U10QE6DNZAHV5FP4R4TNA.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/os-APCN7C63GRIODFIRF5U37GXSV.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/os-9GCPXQ3K10Z3QTKWIZ7ROLK9Z.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreGraphics-87W9NA1HTGO32HT6NVYV65OZQ.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Security-DYEXYYNCBLFQ62EV47GO8O3TT.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CFNetwork-6X74JBFXZ749I7874LIOQPSKJ.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreAudioTypes-27KP79IM3I16OQA4180F2BZ8H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CFNetwork-BI7QT30I4X20LAUET0HX93SO5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreAudioTypes-1ST5AOD1P026AQIOGEYSUA72I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Security-6KH30CL0F3KYG5JXLHFQ6HBNQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreGraphics-438L2WWZEFXJ15OWL8KZ658SV.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreAudio-23GPZ9LI48OH3BH09B0YGM9TU.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Spatial-2W8Y1VA6MX8T8L4VRB1NU1H0G.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreAudio-FSM9B5X1ZWIQOJYYU9E0NYKY.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Foundation-4IGP5UQWLK0J6NLSUMUOR7V7U.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreText-C5CAMJR2OM7D64D1RT06XH5Y4.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/ImageIO-BOOQ7AQXUU8BWBKDWDGZZU7Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Foundation-780O48P77ZQRJQ8T7TP24Z103.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/ImageIO-CY0L0BESPBECJUE4QMXGE18N5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreText-9MKANL882G0QMSKTZQLIR8TXN.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/OSLog-UA3RW2FIG9FF7OPOEMNQYLH3.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/OpenGLES-DQFO8C4O87VNJ8S74XWVDXMJK.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreTransferable-6WOQ2LDDSBKNO31UV4XWWKG2Q.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/UniformTypeIdentifiers-1CQZ4DXIW2WO21N5803N5VMI0.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/DataDetection-1K2SKSMXXIK5SXB7MVDLE7WB9.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/UserNotifications-6HYD1V0FPC6SLQRQ555L9WWUA.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/FileProvider-3L5ELFVOPDGTRYV2D07UY7BOL.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/IOSurface-2X7CHBDB0XN59D2DGNW2T4HOP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Symbols-7D5JZB5PC75ZZXKM1NUETR4YC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Network-8NUN3ANN39UFS3Z8LB6RKA8P8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/FileProvider-4OFTTAG4L3XHHCZEKARC2ALBP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreMIDI-1M7RF1TDDB3TOW43HUAOFV1HF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/OpenGLES-B4Y303SWA0BKNI7RIOI482EHD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreTransferable-DFVM1IRPSGZGQ4JJMMH8F467Y.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/UniformTypeIdentifiers-BY37NSGU29IIIP7OKOA1ZYRQU.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Metal-7ZL6QBFDGPVRHB7ZE846RHGP5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/OSLog-6MDB1IG0X8QEJN6CP9CF4QUJ5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/IOSurface-6DX6W7O6M234GGLYA75J00R6A.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Accessibility-7SAMEKKPVDN4BTJ2I0A1DEUDV.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_LocationEssentials-CP9TOLRV4OPB7QBIA2A9YKLVO.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreMIDI-1PS6ELDLK7PGEDUFQH8ZJ98UC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/AVRouting-EUBXUCPGBXVQ7ZQHRVK3U8Q5A.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/AudioToolbox-5F5T6SE2AOKCDFDC0U9INOQIK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/DataDetection-3G3AS0WYMZ7SK0FDG34JCDPQS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/UIUtilities-D1R7OVT21ZVBF68E8OLGMWZZ6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Metal-54YZBCMHQ25INFZ34F11LGMFR.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreLocation-2NTGN2VHS0AF04CR7W7QZ571C.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreData-DWE057XZLXG2A8NST9NDP9AF5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreData-BDPPEBAZX5ELWNATZUPYPVVLD.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/UIUtilities-A2KFWOB1T462YWVJWI4963XUM.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Symbols-77ZWHP1YGSXCB8XS03LLVE2KX.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/AudioToolbox-9RP9ZZDJ6I1CNN5KDFLFTB3OO.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreVideo-87HGBKLQBUNBZNSMNAX75SZ4R.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreMotion-C3TSW6J3Q5S1ART0GAC2TTCU1.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CloudKit-69LBQRZ6K4HXZQOBSL0KICXMI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/_LocationEssentials-3DSF4ZMX99V4Z6LIEOL08JZYI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/UserNotifications-D0W3P1ENEWZC2499L3CEQ4VRM.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Accessibility-9DDUFG6N74E8GRO9MWF8JGZS1.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Network-5TJ29ZV2B9DTJTTDAG0NQCVGX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreVideo-267TUDBVBDUNK13HD3F7K99H1.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreImage-3Y9VR78RUWRN0QI1ZH3K4VHLT.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreMedia-A3BURCE2HURNWQHYAFK1K3596.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/QuartzCore-7BGD6JYX7OEMI949UGYY4AYYJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreLocation-DMF4HVZCWQ0YPR4PBZ49KOSRY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreMedia-EHBN1ZS0AGHID4AFNGTJUV0XM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreImage-7I4EHGYB91LXXYK4RQZMDCE0T.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/QuartzCore-3WUX3E14OVL0T6WH15VY666KB.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/AVRouting-AT0KPDKFZCVXXBI0EML6DUX6V.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/VideoToolbox-BW256SOZAMBU7EUJVQF2PXLVV.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/AVFAudio-3WJJ105OAXJX7AYD0UDZZ97LH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CloudKit-BJLPBUGCY5A5B0N4DSA4IGAIE.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/MediaToolbox-1J5XA92EW03F98SORCWYNP29T.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/SwiftUICore-BFUBLAVID2QPKVZVBN8BTET0M.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/UIKit-7JSGSI5HCWO1Y2O9XEU1T9WI2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/CoreMotion-OZJQF6GQAZUAXW96QU9WYEC3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/SwiftUICore-4Y82U3YTORECKDC5CYSEF1MSG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/AVFAudio-9XSVIWGJ9ANALRKA2YYRGB2TU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/VideoToolbox-4D8J1MKGJXD3CP2F77N4HJ65B.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/MediaToolbox-1PNM9WM13QHN82WDUH4TNIHFC.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/AVFoundation-92CDFDV80LUZO495I0FZPWG1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/UIKit-1U4WRTX9NKSZVLDB4UYVPULUB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/AVFoundation-KF04IQW6CU3M69D0O8EIZDG1.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Photos-68G7TSP1GPZG1IVFU1BQ3HSCB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/Photos-1UHGR1YFMKDZI9VHC8CWJJM0Y.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/SwiftUI-3UB1GUQYZWM2RLXRLBPZV7E09.pcm
+
+SwiftExplicitDependencyGeneratePcm x86_64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/PhotosUI-76FCNZSKFSZ1OJDKT75Y4C9D6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/PhotosUI-7DYMF5PV7EHRP2ARLMFRWGM4S.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules/SwiftUI-47N2WDRT7PZWCQBH46QJQLM6O.pcm
+
+SwiftEmitModule normal x86_64 Emitting\ module\ for\ Kindred (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal x86_64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    
+
+SwiftCompile normal x86_64 Compiling\ ExperienceModels.swift,\ Models.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/ExperienceModels.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/Models.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/ExperienceModels.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile ExperienceModels.swift
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/Models.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile Models.swift
+
+SwiftCompile normal x86_64 Compiling\ OnboardingView.swift,\ SettingsView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/OnboardingView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/SettingsView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/OnboardingView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile OnboardingView.swift
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/SettingsView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile SettingsView.swift
+
+SwiftCompile normal x86_64 Compiling\ LikesView.swift,\ MatchCelebrationView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/LikesView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/MatchCelebrationView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/LikesView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile LikesView.swift
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/MatchCelebrationView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile MatchCelebrationView.swift
+
+SwiftCompile normal x86_64 Compiling\ OnboardingDraft.swift,\ ChatsView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/OnboardingDraft.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/ChatsView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/OnboardingDraft.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile OnboardingDraft.swift
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/ChatsView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile ChatsView.swift
+
+SwiftCompile normal x86_64 Compiling\ DiscoveryPortrait.swift,\ DiscoveryView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/DiscoveryPortrait.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/DiscoveryView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/DiscoveryPortrait.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile DiscoveryPortrait.swift
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/DiscoveryView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile DiscoveryView.swift
+
+SwiftCompile normal x86_64 Compiling\ AppStore.swift,\ KindredApp.swift,\ DemoData.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/App/AppStore.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/App/KindredApp.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Data/DemoData.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/App/AppStore.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile AppStore.swift
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/App/KindredApp.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile KindredApp.swift
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Data/DemoData.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile DemoData.swift
+
+SwiftCompile normal x86_64 Compiling\ WelcomeView.swift,\ GeneratedAssetSymbols.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/WelcomeView.swift /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/WelcomeView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile WelcomeView.swift
+
+SwiftCompile normal x86_64 /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile GeneratedAssetSymbols.swift
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ Kindred (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    
+
+SwiftDriverJobDiscovery normal x86_64 Emitting module for Kindred (in target 'Kindred' from project 'Kindred')
+
+SwiftDriver\ Compilation\ Requirements Kindred normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Kindred -Onone @/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target x86_64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPhotoBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPhotoBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPhotoBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-generated-files.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-own-target-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-project-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources-normal/x86_64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/x86_64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal x86_64 Compiling ExperienceModels.swift, Models.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 Compiling\ OnboardingDraft.swift,\ ChatsView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/OnboardingDraft.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/ChatsView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/OnboardingDraft.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile OnboardingDraft.swift
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/ChatsView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile ChatsView.swift
+
+Copy /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/x86_64-apple-ios-simulator.swiftmodule /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.swiftmodule (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.swiftmodule /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/x86_64-apple-ios-simulator.swiftmodule
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for Kindred (in target 'Kindred' from project 'Kindred')
+
+SwiftDriver\ Compilation\ Requirements Kindred normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Kindred -Onone @/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPhotoBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPhotoBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPhotoBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-generated-files.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-own-target-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-project-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources-normal/arm64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/arm64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+Copy /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/x86_64-apple-ios-simulator.swiftdoc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.swiftdoc (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.swiftdoc /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/x86_64-apple-ios-simulator.swiftdoc
+
+SwiftMergeGeneratedHeaders /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/Kindred-Swift.h /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-Swift.h /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-Swift.h (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-swiftHeaderTool -arch arm64 /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-Swift.h -arch x86_64 /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-Swift.h -o /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/Kindred-Swift.h
+
+Copy /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/x86_64-apple-ios-simulator.abi.json /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.abi.json (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.abi.json /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/x86_64-apple-ios-simulator.abi.json
+
+Copy /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/arm64-apple-ios-simulator.swiftmodule /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.swiftmodule (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.swiftmodule /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/arm64-apple-ios-simulator.swiftdoc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.swiftdoc (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.swiftdoc /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/arm64-apple-ios-simulator.swiftdoc
+
+Copy /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/arm64-apple-ios-simulator.abi.json /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.abi.json (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.abi.json /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.swiftsourceinfo (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.swiftsourceinfo /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo
+
+Copy /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.swiftsourceinfo (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.swiftsourceinfo /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+SwiftCompile normal arm64 Compiling\ KindredRepository.swift,\ Components.swift,\ DiscoverySwipe.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Data/KindredRepository.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Design/Components.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/DiscoverySwipe.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Data/KindredRepository.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile KindredRepository.swift
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Design/Components.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile Components.swift
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/DiscoverySwipe.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile DiscoverySwipe.swift
+
+SwiftCompile normal arm64 Compiling\ WelcomeView.swift,\ GeneratedAssetSymbols.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/WelcomeView.swift /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/WelcomeView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile WelcomeView.swift
+
+SwiftCompile normal arm64 /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile GeneratedAssetSymbols.swift
+
+SwiftDriverJobDiscovery normal x86_64 Compiling WelcomeView.swift, GeneratedAssetSymbols.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 Compiling\ LikesView.swift,\ MatchCelebrationView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/LikesView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/MatchCelebrationView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/LikesView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile LikesView.swift
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/MatchCelebrationView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile MatchCelebrationView.swift
+
+SwiftCompile normal arm64 Compiling\ OnboardingView.swift,\ SettingsView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/OnboardingView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/SettingsView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/OnboardingView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile OnboardingView.swift
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/SettingsView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile SettingsView.swift
+
+SwiftDriverJobDiscovery normal x86_64 Compiling DiscoveryPortrait.swift, DiscoveryView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 Compiling\ AppStore.swift,\ KindredApp.swift,\ DemoData.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/App/AppStore.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/App/KindredApp.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Data/DemoData.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/App/AppStore.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile AppStore.swift
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/App/KindredApp.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile KindredApp.swift
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Data/DemoData.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile DemoData.swift
+
+SwiftDriverJobDiscovery normal x86_64 Compiling OnboardingDraft.swift, ChatsView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftDriverJobDiscovery normal x86_64 Compiling LikesView.swift, MatchCelebrationView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 Compiling\ DiscoveryPortrait.swift,\ DiscoveryView.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/DiscoveryPortrait.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/DiscoveryView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/DiscoveryPortrait.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile DiscoveryPortrait.swift
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Features/DiscoveryView.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile DiscoveryView.swift
+
+SwiftDriverJobDiscovery normal x86_64 Compiling AppStore.swift, KindredApp.swift, DemoData.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 Compiling\ ExperienceModels.swift,\ Models.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/ExperienceModels.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/Models.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/ExperienceModels.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile ExperienceModels.swift
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/Models.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile Models.swift
+
+SwiftDriverJobDiscovery normal x86_64 Compiling OnboardingView.swift, SettingsView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal x86_64 Compiling\ KindredRepository.swift,\ Components.swift,\ DiscoverySwipe.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Data/KindredRepository.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Design/Components.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/DiscoverySwipe.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Data/KindredRepository.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile KindredRepository.swift
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Design/Components.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile Components.swift
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Domain/DiscoverySwipe.swift (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile DiscoverySwipe.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling ExperienceModels.swift, Models.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftDriverJobDiscovery normal arm64 Compiling WelcomeView.swift, GeneratedAssetSymbols.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftDriverJobDiscovery normal arm64 Compiling KindredRepository.swift, Components.swift, DiscoverySwipe.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftDriverJobDiscovery normal arm64 Compiling LikesView.swift, MatchCelebrationView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftDriverJobDiscovery normal arm64 Compiling OnboardingDraft.swift, ChatsView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AppStore.swift, KindredApp.swift, DemoData.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftDriverJobDiscovery normal arm64 Compiling DiscoveryPortrait.swift, DiscoveryView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftDriverJobDiscovery normal x86_64 Compiling KindredRepository.swift, Components.swift, DiscoverySwipe.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftDriver\ Compilation Kindred normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Kindred -Onone @/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target x86_64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPhotoBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPhotoBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPhotoBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-generated-files.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-own-target-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-project-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources-normal/x86_64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/x86_64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+Ld /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/Kindred.debug.dylib normal x86_64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target x86_64-apple-ios26.0-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/tmp/KindredPhotoBuild/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F/tmp/KindredPhotoBuild/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -filelist /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.LinkFileList -install_name @rpath/Kindred.debug.dylib -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred_lto.o -rdynamic -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -Xlinker -no_adhoc_codesign -o /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/Kindred.debug.dylib
+
+SwiftDriverJobDiscovery normal arm64 Compiling OnboardingView.swift, SettingsView.swift (in target 'Kindred' from project 'Kindred')
+
+SwiftDriver\ Compilation Kindred normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Kindred -Onone @/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.SwiftFileList -DDEBUG -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPhotoBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPhotoBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPhotoBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPhotoBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-generated-files.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-own-target-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-project-headers.hmap -Xcc -I/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources-normal/arm64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources/arm64 -Xcc -I/tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+Ld /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/Kindred.debug.dylib normal arm64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/tmp/KindredPhotoBuild/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F/tmp/KindredPhotoBuild/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -filelist /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.LinkFileList -install_name @rpath/Kindred.debug.dylib -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred_lto.o -rdynamic -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -Xlinker -no_adhoc_codesign -o /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/Kindred.debug.dylib
+
+ConstructStubExecutorLinkFileList /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-ExecutorLinkFileList-normal-x86_64.txt (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    construct-stub-executor-link-file-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/Kindred.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-ExecutorLinkFileList-normal-x86_64.txt
+note: Using stub executor library with Swift entry point. (in target 'Kindred' from project 'Kindred')
+
+CreateUniversalBinary /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Kindred.debug.dylib normal arm64\ x86_64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/lipo -create /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/Kindred.debug.dylib /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/Kindred.debug.dylib -output /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Kindred.debug.dylib
+
+ConstructStubExecutorLinkFileList /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-ExecutorLinkFileList-normal-arm64.txt (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    construct-stub-executor-link-file-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/Kindred.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'Kindred' from project 'Kindred')
+
+Ld /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/Kindred normal x86_64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target x86_64-apple-ios26.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -Xlinker -rpath -Xlinker @executable_path -rdynamic -Xlinker -objc_abi_version -Xlinker 2 -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibPath-normal-x86_64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibInstallName-normal-x86_64.txt -Xlinker -filelist -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-ExecutorLinkFileList-normal-x86_64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent.der /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/Kindred.debug.dylib -Xlinker -no_adhoc_codesign -o /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/Kindred
+
+Ld /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/Kindred normal arm64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -F/tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator -Xlinker -rpath -Xlinker @executable_path -rdynamic -Xlinker -objc_abi_version -Xlinker 2 -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred-ExecutorLinkFileList-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.app-Simulated.xcent.der /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/Kindred.debug.dylib -Xlinker -no_adhoc_codesign -o /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/Kindred
+
+CreateUniversalBinary /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Kindred normal arm64\ x86_64 (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/lipo -create /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Binary/Kindred /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Binary/Kindred -output /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Kindred
+
+ExtractAppIntentsMetadata (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name Kindred --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 26.0 --bundle-identifier com.kindred.prototype --output /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app --target-triple arm64-apple-ios26.0-simulator --target-triple x86_64-apple-ios26.0-simulator --binary-file /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Kindred --dependency-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred_dependency_info.dat --dependency-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred_dependency_info.dat --stringsdata-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --stringsdata-file /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.SwiftFileList --source-file-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.SwiftFileList --metadata-file-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.DependencyMetadataFileList --static-metadata-file-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/arm64/Kindred.SwiftConstValuesFileList --swift-const-vals-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Objects-normal/x86_64/Kindred.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-18 13:15:18.185 appintentsmetadataprocessor[1843:22489] Starting appintentsmetadataprocessor export
+2026-10-18 13:15:18.193 appintentsmetadataprocessor[1843:22489] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+CopySwiftLibs /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Kindred.debug.dylib --scan-folder /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Frameworks --scan-folder /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns --scan-folder /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/SystemExtensions --scan-folder /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+AppIntentsSSUTraining (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Info.plist --temp-dir-path /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/ssu --bundle-id com.kindred.prototype --product-path /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app --extracted-metadata-path /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Metadata.appintents --metadata-file-list /tmp/KindredPhotoBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/Kindred.DependencyMetadataFileList --source-file /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Info.plist --archive-ssu-assets
+2026-10-18 13:15:18.224 appintentsnltrainingprocessor[1844:22511] Parsing options for appintentsnltrainingprocessor
+2026-10-18 13:15:18.224 appintentsnltrainingprocessor[1844:22511] Starting AppIntents SSU YAML Generation
+2026-10-18 13:15:18.226 appintentsnltrainingprocessor[1844:22511] No AppShortcuts found - Skipping.
+
+CodeSign /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Kindred.debug.dylib (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Kindred.debug.dylib
+
+CodeSign /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/__preview.dylib (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app/__preview.dylib
+
+CodeSign /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app
+
+RegisterExecutionPolicyException /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-RegisterExecutionPolicyException /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app
+
+Validate /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-validationUtility /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /usr/bin/touch -c /tmp/KindredPhotoBuild/Build/Products/Debug-iphonesimulator/Kindred.app
+
+PruneExplicitPrecompiledModules /tmp/KindredPhotoBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/KindredPhotoBuild/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/KindredPhotoBuild/SDKExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+
