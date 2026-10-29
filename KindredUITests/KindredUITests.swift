@@ -436,7 +436,7 @@ final class KindredUITests: XCTestCase {
         XCTAssertEqual(next.label, "Next introduction, skip Amara")
         XCTAssertEqual(interested.label, "Interest saved for Amara")
         next.tap(); next.tap(); next.tap()
-        XCTAssertTrue(app.staticTexts["You've met this little circle"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["You've seen everyone for now"].waitForExistence(timeout: 3))
         app.buttons["undoPass"].tap()
         XCTAssertTrue(next.waitForExistence(timeout: 3))
         XCTAssertEqual(next.label, "Next introduction, skip June")
@@ -670,7 +670,7 @@ final class KindredUITests: XCTestCase {
         app.buttons["Discard changes"].tap()
         XCTAssertTrue(app.buttons["savePreferences"].waitForNonExistence(timeout: 3))
         app.buttons["passProfile"].tap()
-        XCTAssertTrue(app.staticTexts["You've met this little circle"].waitForExistence(timeout: 3), "Canceled radius changes must not include more distant members")
+        XCTAssertTrue(app.staticTexts["You've seen everyone for now"].waitForExistence(timeout: 3), "Canceled radius changes must not include more distant members")
     }
     func testPreferenceControlsAppearanceAndAccessibility() throws {
         // Clipping audits of the combined age section retain an unidentified finding.
@@ -723,7 +723,7 @@ final class KindredUITests: XCTestCase {
         }
         XCTAssertEqual(precise.value as? String, "5 miles")
         app.buttons["savePreferences"].tap()
-        XCTAssertTrue(app.staticTexts["You've met this little circle"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["No profiles match your preferences"].waitForExistence(timeout: 3))
         app.buttons["discoveryPreferences"].tap()
         let restore = app.buttons["Restore default preferences"]; reveal(restore); restore.tap()
         app.buttons["savePreferences"].tap()

@@ -51,15 +51,20 @@ struct PhotoView: View {
     let photo: ProfilePhoto?
     var body: some View {
         GeometryReader { proxy in
-            Group {
-                if let data = photo?.localData, let image = UIImage(data: data) {
-                    Image(uiImage: image).resizable().scaledToFill()
-                } else if let asset = photo?.assetName {
-                    Image(asset).resizable().scaledToFill()
-                } else {
-                    ZStack { Color.sand; Image(systemName: "person.crop.rectangle").font(.largeTitle).foregroundStyle(Color.plum) }
-                }
-            }.frame(width: proxy.size.width, height: proxy.size.height).clipped()
+            let image = photo?.localData.flatMap { UIImage(data: $0) } ?? photo?.assetName.flatMap { UIImage(named: $0) }
+            if let image {
+                let zoom = min(3, max(1, photo?.cropZoom ?? 1))
+                let scale = max(proxy.size.width / image.size.width, proxy.size.height / image.size.height) * zoom
+                let width = image.size.width * scale
+                let height = image.size.height * scale
+                Image(uiImage: image).resizable()
+                    .frame(width: width, height: height)
+                    .offset(x: -max(-1, min(1, photo?.cropX ?? 0)) * (width - proxy.size.width) / 2,
+                            y: -max(-1, min(1, photo?.cropY ?? 0)) * (height - proxy.size.height) / 2)
+                    .frame(width: proxy.size.width, height: proxy.size.height).clipped()
+            } else {
+                ZStack { Color.sand; Image(systemName: "person.crop.rectangle").font(.largeTitle).foregroundStyle(Color.plum) }
+            }
         }.accessibilityLabel(photo?.caption ?? "Add a profile photo").accessibilityAddTraits(.isImage)
     }
 }

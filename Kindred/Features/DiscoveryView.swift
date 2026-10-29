@@ -63,12 +63,19 @@ struct DiscoverView: View {
                     }.id(profile.id)
                         .transition(reduceMotion ? .opacity : .opacity.combined(with: .offset(x: transitionDirection * 20)))
                 } else {
-                    EmptyState(symbol: store.state.privacy.discoveryPaused ? "pause.circle" : "sparkles", title: store.state.privacy.discoveryPaused ? "A little breathing room" : "You've met this little circle", message: store.state.privacy.discoveryPaused ? "Discovery is paused. Resume in Privacy when you're ready." : "Try a wider radius or revisit the profiles you passed. There are four fictional members in this demo.")
-                    if !store.state.privacy.discoveryPaused {
-                        PrimaryButton(title: "Adjust preferences") { showPreferences = true }
-                        if !store.state.passedIDs.isEmpty { Button("Revisit passed profiles") { store.resetPasses() }.frame(maxWidth: .infinity, minHeight: 44) }
-                    } else {
+                    switch store.discoveryEmptyReason {
+                    case .paused:
+                        EmptyState(symbol: "pause.circle", title: "A little breathing room", message: "Discovery is paused. Resume whenever you're ready.")
                         PrimaryButton(title: "Resume discovery") { var privacy = store.state.privacy; privacy.discoveryPaused = false; store.updatePrivacy(privacy) }
+                    case .filters:
+                        EmptyState(symbol: "slider.horizontal.3", title: "No profiles match your preferences", message: "None of the available fictional members fit your current age, gender and distance preferences. Adjust your filters to explore this demo circle.")
+                        PrimaryButton(title: "Adjust preferences") { showPreferences = true }
+                    case .seenEveryone:
+                        EmptyState(symbol: "checkmark.circle", title: "You've seen everyone for now", message: "You've passed every available profile that fits your preferences. Revisit them or adjust your filters to explore further.")
+                        PrimaryButton(title: "Revisit passed profiles") { store.resetPasses(); lastPassedID = nil }
+                        Button("Adjust preferences") { showPreferences = true }.frame(maxWidth: .infinity, minHeight: 44)
+                    case .unavailable, nil:
+                        EmptyState(symbol: "sparkles", title: "No profiles available", message: "There are no available members in this demo session. Changing your filters or revisiting passed profiles won't restore blocked members.")
                     }
                 }
                 NoteCard(symbol: "sparkles", text: "A thoughtfully simulated experience. All people and incoming activity are fictional; portraits are AI-generated.")

@@ -31,14 +31,24 @@ final class AppStore {
         }
         return state.members.first { $0.id == id && !blockedIDs.contains(id) }
     }
-    var discoveryProfiles: [MemberProfile] {
-        guard !state.privacy.discoveryPaused else { return [] }
-        return state.members.filter {
-            !blockedIDs.contains($0.id) && !state.passedIDs.contains($0.id)
+    enum DiscoveryEmptyReason { case paused, filters, seenEveryone, unavailable }
+    private var eligibleDiscoveryProfiles: [MemberProfile] {
+        state.members.filter {
+            !blockedIDs.contains($0.id)
             && state.discovery.dating.genders.contains($0.gender)
             && (state.discovery.dating.minimumAge...state.discovery.dating.maximumAge).contains($0.age)
             && $0.distanceMiles <= state.discovery.radiusMiles
         }
+    }
+    var discoveryProfiles: [MemberProfile] {
+        guard !state.privacy.discoveryPaused else { return [] }
+        return eligibleDiscoveryProfiles.filter { !state.passedIDs.contains($0.id) }
+    }
+    var discoveryEmptyReason: DiscoveryEmptyReason? {
+        if state.privacy.discoveryPaused { return .paused }
+        guard discoveryProfiles.isEmpty else { return nil }
+        if !eligibleDiscoveryProfiles.isEmpty { return .seenEveryone }
+        return state.members.contains { !blockedIDs.contains($0.id) } ? .filters : .unavailable
     }
     var outgoingProfiles: [MemberProfile] { state.members.filter { !blockedIDs.contains($0.id) && isLiked($0.id) } }
     var incomingProfiles: [MemberProfile] {

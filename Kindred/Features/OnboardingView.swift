@@ -193,6 +193,7 @@ struct PhotoEditor: View {
     @State private var items: [PhotosPickerItem] = []
     @State private var importing = false
     @State private var importError: String?
+    @State private var cropping: ProfilePhoto?
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             if !photos.isEmpty {
@@ -200,6 +201,13 @@ struct PhotoEditor: View {
                     ForEach(photos) { photo in
                         VStack {
                             PhotoView(photo: photo).frame(height: 130).clipShape(RoundedRectangle(cornerRadius: 18))
+                            Text(photos.first?.id == photo.id ? "Primary photo" : "Photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)").font(.caption)
+                            Menu("Edit photo") {
+                                Button("Make primary") { move(photo.id, to: 0) }.disabled(photos.first?.id == photo.id)
+                                Button("Move earlier") { move(photo.id, to: (photos.firstIndex { $0.id == photo.id } ?? 0) - 1) }.disabled(photos.first?.id == photo.id)
+                                Button("Move later") { move(photo.id, to: (photos.firstIndex { $0.id == photo.id } ?? 0) + 1) }.disabled(photos.last?.id == photo.id)
+                                Button("Adjust crop") { cropping = photo }
+                            }.frame(minHeight: 44).accessibilityLabel("Edit photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)")
                             Button("Remove", role: .destructive) { photos.removeAll { $0.id == photo.id } }.font(.caption).frame(minHeight: 44)
                         }
                     }
@@ -220,6 +228,10 @@ struct PhotoEditor: View {
             }
             NoteCard(symbol: "lock", text: "Photos stay in memory and are never uploaded. Imported images are resized and stripped of original metadata. AI portraits are for demo use only.")
             if let importError { Text(importError).font(.footnote).foregroundStyle(Color.plum) }
+        }.sheet(item: $cropping) { photo in
+            PhotoCropEditor(photo: photo) { updated in
+                if let index = photos.firstIndex(where: { $0.id == updated.id }) { photos[index] = updated }
+            }
         }.task(id: items) {
             guard !items.isEmpty else { return }
             importing = true
@@ -235,5 +247,38 @@ struct PhotoEditor: View {
             }
         }
     }
+    private func move(_ id: String, to destination: Int) {
+        guard let index = photos.firstIndex(where: { $0.id == id }), photos.indices.contains(destination) else { return }
+        let photo = photos.remove(at: index)
+        photos.insert(photo, at: destination)
+    }
+
 }
 @MainActor func dismissKeyboard() { UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil) }
+
+struct PhotoCropEditor: View {
+    @Environment(\.dismiss) private var dismiss
+    @State var photo: ProfilePhoto
+    let save: (ProfilePhoto) -> Void
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    PhotoView(photo: photo).aspectRatio(0.8, contentMode: .fit).clipShape(RoundedRectangle(cornerRadius: 24))
+                    Text("Adjust your framing. Avatars use a square crop of this photo.").font(.subheadline).foregroundStyle(Color.muted)
+                    Text("Zoom").font(.headline)
+                    Slider(value: $photo.cropZoom, in: 1...3, step: 0.05).accessibilityLabel("Photo zoom")
+                    Text("Horizontal position").font(.headline)
+                    Slider(value: $photo.cropX, in: -1...1, step: 0.05).accessibilityLabel("Horizontal crop position")
+                    Text("Vertical position").font(.headline)
+                    Slider(value: $photo.cropY, in: -1...1, step: 0.05).accessibilityLabel("Vertical crop position")
+                    Button("Reset crop") { photo.cropZoom = 1; photo.cropX = 0; photo.cropY = 0 }
+                }.padding(24)
+            }.background(Color.paper).navigationTitle("Adjust crop").navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                    ToolbarItem(placement: .confirmationAction) { Button("Apply") { save(photo); dismiss() } }
+                }
+        }
+    }
+}

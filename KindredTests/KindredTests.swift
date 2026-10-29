@@ -17,6 +17,28 @@ struct KindredTests {
         draft.photos = DemoData.people[0].photos
         return draft
     }
+    @Test func discoveryEmptyReasonsDistinguishFiltersPassesAndAvailability() {
+        let s = store()
+        #expect(s.discoveryEmptyReason == nil)
+        for profile in s.discoveryProfiles { s.pass(profile.id) }
+        #expect(s.discoveryEmptyReason == .seenEveryone)
+        var preferences = s.state.discovery; preferences.radiusMiles = 5
+        #expect(s.updateDiscovery(preferences))
+        #expect(s.discoveryEmptyReason == .filters)
+        s.resetPasses()
+        #expect(s.discoveryEmptyReason == .filters)
+        preferences.radiusMiles = 250
+        #expect(s.updateDiscovery(preferences))
+        #expect(s.discoveryEmptyReason == nil)
+        var privacy = s.state.privacy; privacy.discoveryPaused = true
+        s.updatePrivacy(privacy)
+        #expect(s.discoveryEmptyReason == .paused)
+        privacy.discoveryPaused = false; s.updatePrivacy(privacy)
+        for profile in s.state.members { s.block(profile.id) }
+        #expect(s.discoveryEmptyReason == .unavailable)
+        s.resetPasses()
+        #expect(s.discoveryEmptyReason == .unavailable)
+    }
     @Test func profileValidationIdentifiesFieldsAndPreservesOptionalBlanks() {
         let s = store(); var p = s.state.currentProfile
         p.name = " "; p.city = "x"; p.bio = String(repeating: "a", count: 501)

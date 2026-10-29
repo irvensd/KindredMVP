@@ -235,3 +235,17 @@ Evidence: conversation-polish-final-summary.json, conversation-polish-final-test
 - Files: AppStore.swift, KindredRepository.swift, LikesView.swift, DiscoveryView.swift (shared confirmation/menu), ChatsView.swift, KindredTests.swift and KindredUITests.swift. Existing large-text changes remain in the working tree.
 - Debug build and 44 tests passed (43 model tests and one UI scenario exercising standard light and largest-text dark/Reduce Motion), zero failures or runtime warnings. Covered removal preserving the connection, cancelling Unmatch, confirming from the chat menu, Likes/Chats removal, draft cleanup and stale operations. A follow-up UI run also passed, verifying native confirmation text scrolls to its final sentence at the largest text size; screenshots inspected. The confirmation keeps both actions available while its explanation scrolls.
 - Evidence: unmatch-summary.json, unmatch-tests.log, unmatch-readability-summary.json, unmatch-readability-tests.log and remove-interest/unmatch screenshots. No full UI-suite, physical-device or spoken VoiceOver certification. All behavior remains simulated and session-only. Changes saved locally, not pushed.
+
+
+## October 29 — Photo management
+
+PhotoEditor now exposes Make primary, Move earlier/later, and Adjust crop for each photo, shared by onboarding and profile editing. The first photo is explicitly labelled Primary photo. Crop metadata preserves source image data and supports zoom, horizontal/vertical position, reset, Cancel and Apply. Shared PhotoView applies framing across gallery and avatar aspect ratios without exposing blank edges; avatars may crop differently because they are square. Changes stay within the existing profile draft until Save.
+
+Files: Models.swift, Components.swift, OnboardingView.swift. Debug simulator build and existing model tests passed; no dedicated photo UI, import-library, physical-device or spoken VoiceOver test was run. These controls require further interaction/visual verification. Evidence: photo-management-tests.log. Changes local, not pushed.
+
+
+## October 29 — Helpful Discover empty states
+
+AppStore classifies empty discovery using eligible unblocked profiles before removing passed IDs. Filters excluding all available members offers Adjust preferences; passing every eligible profile offers Revisit passed profiles first and preferences second. Paused discovery retains Resume; no available members gets a separate explanation without ineffective filter/revisit actions. Revisiting clears the stale Undo slot. Blocking is never undone by recovery.
+
+Files: AppStore.swift, DiscoveryView.swift, KindredTests.swift, KindredUITests.swift. Debug build, all 44 model tests and two focused UI tests passed on iPhone 17 / iOS 26.1. Covered filter/pass precedence, reset, pause, all blocked, revisiting, preference changes, saved values and cancellation. Existing UI assertions updated for specific titles. No full UI suite or new large-text/VoiceOver verification in this pass. Logs saved as discovery-empty-*-tests.log. Local changes, not pushed.

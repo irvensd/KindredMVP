@@ -32,6 +32,9 @@ struct ProfilePhoto: Identifiable, Equatable, Sendable {
     var assetName: String?
     var localData: Data?
     var caption: String
+    var cropZoom: Double = 1
+    var cropX: Double = 0
+    var cropY: Double = 0
     static func bundled(_ name: String, caption: String) -> Self { .init(id: name, assetName: name, caption: caption) }
 }
 struct ProfilePrompt: Identifiable, Equatable, Sendable {
