@@ -1,0 +1,324 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test -project Kindred.xcodeproj -scheme Kindred -destination "platform=iOS Simulator,id=10CA07A7-A4CE-43F2-883C-4509AD350C27,arch=arm64" -derivedDataPath /private/tmp/KindredPersonalInterestBuild -resultBundlePath /private/tmp/KindredLargeTextFinal.xcresult -collect-test-diagnostics never -parallel-testing-enabled NO "-only-testing:KindredUITests/KindredUITests/testLargeTextSettingsUseFullWidth" "-only-testing:KindredUITests/KindredUITests/testDiscoveryActionsStayInPlaceWhenUndoAndInterestChange"
+
+Writing result bundle at path:
+	/private/tmp/KindredLargeTextFinal.xcresult
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (3 targets)
+    Target 'KindredUITests' in project 'Kindred'
+        ➜ Explicit dependency on target 'Kindred' in project 'Kindred'
+    Target 'KindredTests' in project 'Kindred'
+        ➜ Explicit dependency on target 'Kindred' in project 'Kindred'
+    Target 'Kindred' in project 'Kindred' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+Build description signature: cf099171af8f34a4c087c30fdfffb4cc
+Build description path: /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/XCBuildData/cf099171af8f34a4c087c30fdfffb4cc.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk /tmp/KindredPersonalInterestBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -o /tmp/KindredPersonalInterestBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache
+
+CompileAssetCatalogVariant thinned /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets --compile /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_dependencies_thinned --output-partial-info-plist /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --filter-for-thinning-device-configuration iPhone18,3 --filter-for-device-os-version 26.1 --development-region en --target-device iphone --minimum-deployment-target 26.0 --platform iphonesimulator
+/* com.apple.actool.compilation-results */
+/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist_thinned
+/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned/Assets.car
+
+
+LinkAssetCatalog /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-linkAssetCatalog --thinned /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/thinned --thinned-dependencies /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist_thinned --unthinned /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_output/unthinned --unthinned-dependencies /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist_unthinned --output /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app --plist-output /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist
+note: Emplaced /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/AppIcon60x60@2x.png (in target 'Kindred' from project 'Kindred')
+note: Emplaced /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Assets.car (in target 'Kindred' from project 'Kindred')
+note: Emplaced /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/AppIcon76x76@2x~ipad.png (in target 'Kindred' from project 'Kindred')
+
+ProcessInfoPlistFile /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Info.plist /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/empty-Kindred.plist (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-infoPlistUtility /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/empty-Kindred.plist -producttype com.apple.product-type.application -genpkginfo /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist -o /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Info.plist
+
+ProcessInfoPlistFile /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest/Info.plist /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredTests.build/empty-KindredTests.plist (in target 'KindredTests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-infoPlistUtility /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredTests.build/empty-KindredTests.plist -producttype com.apple.product-type.bundle.unit-test -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest/Info.plist
+
+ProcessInfoPlistFile /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/Info.plist /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/empty-KindredUITests.plist (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-infoPlistUtility /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/empty-KindredUITests.plist -producttype com.apple.product-type.bundle.ui-testing -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/ProductTypeInfoPlistAdditions.plist -o /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/Info.plist
+
+CopySwiftLibs /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/KindredUITests --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/Frameworks --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/PlugIns --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/SystemExtensions --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+PruneExplicitPrecompiledModules /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/KindredPersonalInterestBuild/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+2026-10-28 22:17:27.432 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:17:51.684890-0500 KindredUITests-Runner[19042:366657] [Default] Running tests...
+2026-10-28 22:17:51.834189-0500 KindredUITests-Runner[19042:366980] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2026-10-28 22:17:51.876251-0500 KindredUITests-Runner[19042:366980] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-28 22:17:52.306.
+Test Suite 'KindredUITests.xctest' started at 2026-10-28 22:17:52.306.
+Test Suite 'KindredUITests' started at 2026-10-28 22:17:52.306.
+Test Case '-[KindredUITests.KindredUITests testDiscoveryActionsStayInPlaceWhenUndoAndInterestChange]' started.
+    t =     0.00s Start Test at 2026-10-28 22:17:52.308
+    t =     0.36s Set Up
+    t =     0.37s Open com.kindred.prototype
+    t =     0.37s     Launch com.kindred.prototype
+2026-10-28 22:17:53.058 xcodebuild[18790:364322] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-28 22:17:53.058 xcodebuild[18790:364322] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-28 22:17:53.113 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     3.23s         Setting up automation session
+    t =     4.93s         Wait for com.kindred.prototype to idle
+    t =     8.63s Waiting 5.0s for "passProfile" Button to exist
+    t =     9.70s     Checking `Expect predicate `existsNoRetry == 1` for object "passProfile" Button`
+    t =     9.71s         Checking existence of `"passProfile" Button`
+    t =    10.08s Checking existence of `"undoPass" Button`
+    t =    10.12s Find the "passProfile" Button
+    t =    10.17s Find the "likeProfile" Button
+    t =    10.21s Find the Target Application 'com.kindred.prototype'
+    t =    10.50s Added attachment named 'Stable panel before skip []'
+    t =    10.52s Tap "passProfile" Button
+    t =    10.52s     Wait for com.kindred.prototype to idle
+    t =    10.52s     Find the "passProfile" Button
+    t =    10.58s     Check for interrupting elements affecting "passProfile" Button
+    t =    10.74s     Synthesize event
+    t =    11.20s     Wait for com.kindred.prototype to idle
+    t =    11.30s Waiting 3.0s for "undoPass" Button to exist
+    t =    12.37s     Checking `Expect predicate `existsNoRetry == 1` for object "undoPass" Button`
+    t =    12.38s         Checking existence of `"undoPass" Button`
+    t =    12.43s Find the "passProfile" Button
+    t =    12.47s Find the "undoPass" Button
+    t =    12.52s Find the "undoPass" Button
+    t =    12.59s Find the "undoPass" Button
+    t =    12.63s Find the "passProfile" Button
+    t =    12.69s Find the "likeProfile" Button
+    t =    12.74s Find the "passProfile" Button
+    t =    12.79s Find the "undoPass" Button
+    t =    12.84s Find the "undoPass" Button
+    t =    12.88s Find the "likeProfile" Button
+    t =    12.93s Find the Target Application 'com.kindred.prototype'
+    t =    13.12s Added attachment named 'Stable panel after skip []'
+    t =    13.97s Tap "likeProfile" Button
+    t =    13.97s     Wait for com.kindred.prototype to idle
+    t =    13.97s     Find the "likeProfile" Button
+    t =    14.03s     Check for interrupting elements affecting "likeProfile" Button
+    t =    14.07s     Synthesize event
+    t =    14.38s     Wait for com.kindred.prototype to idle
+    t =    14.44s Find the "likeProfile" Button
+    t =    14.50s Find the "likeProfile" Button
+    t =    14.58s Find the "passProfile" Button
+    t =    14.66s Find the "likeProfile" Button
+    t =    14.73s Tap "undoPass" Button
+    t =    14.73s     Wait for com.kindred.prototype to idle
+    t =    14.73s     Find the "undoPass" Button
+    t =    14.78s     Check for interrupting elements affecting "undoPass" Button
+    t =    14.83s     Synthesize event
+    t =    15.13s     Wait for com.kindred.prototype to idle
+    t =    15.15s Find the "passProfile" Button
+    t =    15.21s Checking existence of `"undoPass" Button`
+    t =    15.29s Find the "passProfile" Button
+    t =    15.35s Find the "likeProfile" Button
+    t =    15.42s Open com.kindred.prototype
+    t =    15.42s     Launch com.kindred.prototype
+    t =    15.42s         Terminate com.kindred.prototype:19071
+2026-10-28 22:18:07.794 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:18:07.802 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:18:08.777 xcodebuild[18790:364322] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-28 22:18:08.777 xcodebuild[18790:364322] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-28 22:18:08.920 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    17.03s         Setting up automation session
+    t =    18.98s         Wait for com.kindred.prototype to idle
+    t =    22.17s Waiting 5.0s for "passProfile" Button to exist
+    t =    23.24s     Checking `Expect predicate `existsNoRetry == 1` for object "passProfile" Button`
+    t =    23.25s         Checking existence of `"passProfile" Button`
+    t =    23.42s Checking existence of `"undoPass" Button`
+    t =    23.46s Find the "passProfile" Button
+    t =    23.50s Find the "likeProfile" Button
+    t =    23.54s Find the Target Application 'com.kindred.prototype'
+    t =    23.73s Added attachment named 'Stable panel before skip ["--dark"]'
+    t =    23.73s Tap "passProfile" Button
+    t =    23.73s     Wait for com.kindred.prototype to idle
+    t =    23.73s     Find the "passProfile" Button
+    t =    23.77s     Check for interrupting elements affecting "passProfile" Button
+    t =    23.82s     Synthesize event
+    t =    24.14s     Wait for com.kindred.prototype to idle
+    t =    24.14s Waiting 3.0s for "undoPass" Button to exist
+    t =    25.22s     Checking `Expect predicate `existsNoRetry == 1` for object "undoPass" Button`
+    t =    25.23s         Checking existence of `"undoPass" Button`
+    t =    25.29s Find the "passProfile" Button
+    t =    25.33s Find the "undoPass" Button
+    t =    25.37s Find the "undoPass" Button
+    t =    25.42s Find the "undoPass" Button
+    t =    25.45s Find the "passProfile" Button
+    t =    25.49s Find the "likeProfile" Button
+    t =    25.52s Find the "passProfile" Button
+    t =    25.56s Find the "undoPass" Button
+    t =    25.59s Find the "undoPass" Button
+    t =    25.63s Find the "likeProfile" Button
+    t =    25.66s Find the Target Application 'com.kindred.prototype'
+    t =    25.84s Added attachment named 'Stable panel after skip ["--dark"]'
+    t =    26.53s Tap "likeProfile" Button
+    t =    26.53s     Wait for com.kindred.prototype to idle
+    t =    26.53s     Find the "likeProfile" Button
+    t =    26.57s     Check for interrupting elements affecting "likeProfile" Button
+    t =    26.60s     Synthesize event
+    t =    26.89s     Wait for com.kindred.prototype to idle
+    t =    26.90s Find the "likeProfile" Button
+    t =    26.95s Find the "likeProfile" Button
+    t =    27.00s Find the "passProfile" Button
+    t =    27.04s Find the "likeProfile" Button
+    t =    27.08s Tap "undoPass" Button
+    t =    27.08s     Wait for com.kindred.prototype to idle
+    t =    27.09s     Find the "undoPass" Button
+    t =    27.13s     Check for interrupting elements affecting "undoPass" Button
+    t =    27.16s     Synthesize event
+    t =    27.45s     Wait for com.kindred.prototype to idle
+    t =    27.46s Find the "passProfile" Button
+    t =    27.51s Checking existence of `"undoPass" Button`
+    t =    27.55s Find the "passProfile" Button
+    t =    27.60s Find the "likeProfile" Button
+    t =    27.65s Open com.kindred.prototype
+    t =    27.65s     Launch com.kindred.prototype
+    t =    27.65s         Terminate com.kindred.prototype:19123
+2026-10-28 22:18:20.015 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:18:20.022 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:18:21.040 xcodebuild[18790:364322] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-28 22:18:21.040 xcodebuild[18790:364322] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-28 22:18:21.079 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =    29.79s         Setting up automation session
+    t =    31.67s         Wait for com.kindred.prototype to idle
+    t =    34.59s Waiting 5.0s for "passProfile" Button to exist
+    t =    35.66s     Checking `Expect predicate `existsNoRetry == 1` for object "passProfile" Button`
+    t =    35.67s         Checking existence of `"passProfile" Button`
+    t =    35.82s Checking existence of `"undoPass" Button`
+    t =    35.86s Find the "passProfile" Button
+    t =    35.90s Find the "likeProfile" Button
+    t =    35.93s Find the Target Application 'com.kindred.prototype'
+    t =    36.10s Added attachment named 'Stable panel before skip ["--large-text", "--reduce-motion"]'
+    t =    36.11s Tap "passProfile" Button
+    t =    36.11s     Wait for com.kindred.prototype to idle
+    t =    36.11s     Find the "passProfile" Button
+    t =    36.14s     Check for interrupting elements affecting "passProfile" Button
+    t =    36.24s     Synthesize event
+    t =    36.55s     Wait for com.kindred.prototype to idle
+    t =    36.55s Waiting 3.0s for "undoPass" Button to exist
+    t =    37.62s     Checking `Expect predicate `existsNoRetry == 1` for object "undoPass" Button`
+    t =    37.62s         Checking existence of `"undoPass" Button`
+    t =    37.69s Find the "passProfile" Button
+    t =    37.73s Find the "undoPass" Button
+    t =    37.77s Find the "undoPass" Button
+    t =    37.80s Find the "undoPass" Button
+    t =    37.83s Find the "passProfile" Button
+    t =    37.86s Find the "likeProfile" Button
+    t =    37.90s Find the Target Application 'com.kindred.prototype'
+    t =    38.05s Added attachment named 'Stable panel after skip ["--large-text", "--reduce-motion"]'
+    t =    38.56s Tap "likeProfile" Button
+    t =    38.56s     Wait for com.kindred.prototype to idle
+    t =    38.57s     Find the "likeProfile" Button
+    t =    38.60s     Check for interrupting elements affecting "likeProfile" Button
+    t =    38.63s     Synthesize event
+    t =    38.93s     Wait for com.kindred.prototype to idle
+    t =    38.93s Find the "likeProfile" Button
+    t =    38.98s Find the "likeProfile" Button
+    t =    39.03s Find the "passProfile" Button
+    t =    39.07s Find the "likeProfile" Button
+    t =    39.11s Tap "undoPass" Button
+    t =    39.11s     Wait for com.kindred.prototype to idle
+    t =    39.11s     Find the "undoPass" Button
+    t =    39.15s     Check for interrupting elements affecting "undoPass" Button
+    t =    39.18s     Synthesize event
+    t =    39.48s     Wait for com.kindred.prototype to idle
+    t =    39.49s Find the "passProfile" Button
+    t =    39.55s Checking existence of `"undoPass" Button`
+    t =    39.59s Find the "passProfile" Button
+    t =    39.63s Find the "likeProfile" Button
+    t =    39.67s Tear Down
+Test Case '-[KindredUITests.KindredUITests testDiscoveryActionsStayInPlaceWhenUndoAndInterestChange]' passed (41.397 seconds).
+Test Case '-[KindredUITests.KindredUITests testLargeTextSettingsUseFullWidth]' started.
+    t =     0.00s Start Test at 2026-10-28 22:18:33.707
+    t =     0.06s Set Up
+    t =     0.06s Open com.kindred.prototype
+    t =     0.06s     Launch com.kindred.prototype
+    t =     0.06s         Terminate com.kindred.prototype:19133
+2026-10-28 22:18:33.958 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:18:33.963 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:18:34.816 xcodebuild[18790:364322] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-28 22:18:34.817 xcodebuild[18790:364322] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-28 22:18:34.846 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.72s         Setting up automation session
+    t =     3.16s         Wait for com.kindred.prototype to idle
+    t =     5.60s Tap "You" Button
+    t =     5.60s     Wait for com.kindred.prototype to idle
+    t =     5.60s     Find the "You" Button
+    t =     5.75s     Check for interrupting elements affecting "You" Button
+    t =     5.80s     Synthesize event
+    t =     6.10s     Wait for com.kindred.prototype to idle
+    t =     7.30s Find the "datingPreferences" Button
+    t =     7.38s Swipe up Target Application 'com.kindred.prototype'
+    t =     7.38s     Wait for com.kindred.prototype to idle
+    t =     7.38s     Find the Target Application 'com.kindred.prototype'
+    t =     7.40s     Check for interrupting elements affecting "Kindred" Application
+    t =     7.43s     Synthesize event
+    t =     7.85s     Wait for com.kindred.prototype to idle
+    t =     9.96s Find the "datingPreferences" Button
+    t =    10.01s Find the "datingPreferences" Button
+    t =    10.05s Checking existence of `"Dating preferences" StaticText`
+    t =    10.08s Find the "Dating preferences" StaticText
+    t =    10.11s Find the Target Application 'com.kindred.prototype'
+/Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/KindredUITests/KindredUITests.swift:168: error: -[KindredUITests.KindredUITests testLargeTextSettingsUseFullWidth] : XCTAssertGreaterThan failed: ("214.66666666666663") is not greater than ("261.3")
+    t =    10.18s Tear Down
+Test Case '-[KindredUITests.KindredUITests testLargeTextSettingsUseFullWidth]' failed (10.549 seconds).
+Test Suite 'KindredUITests' failed at 2026-10-28 22:18:44.256.
+	 Executed 2 tests, with 1 failure (0 unexpected) in 51.946 (51.949) seconds
+Test Suite 'KindredUITests.xctest' failed at 2026-10-28 22:18:44.256.
+	 Executed 2 tests, with 1 failure (0 unexpected) in 51.946 (51.950) seconds
+Test Suite 'Selected tests' failed at 2026-10-28 22:18:44.257.
+	 Executed 2 tests, with 1 failure (0 unexpected) in 51.946 (51.951) seconds
+2026-10-28 22:18:44.357 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:18:44.361 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:18:44.387 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:18:44.388 xcodebuild[18790:364322] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 22:18:44.713 xcodebuild[18790:364322] [MT] IDETestOperationsObserverDebug: 80.492 elapsed -- Testing started completed.
+2026-10-28 22:18:44.714 xcodebuild[18790:364322] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-28 22:18:44.714 xcodebuild[18790:364322] [MT] IDETestOperationsObserverDebug: 80.492 sec, +80.492 sec -- end
+
+Test session results, code coverage, and logs:
+	/tmp/KindredLargeTextFinal.xcresult
+
+Failing tests:
+	KindredUITests.testLargeTextSettingsUseFullWidth()
+
+** TEST FAILED **
+
+Testing started

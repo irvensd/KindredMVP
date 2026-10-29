@@ -90,7 +90,18 @@ final class AppStore {
             feedback = nil // The celebration presents the saved detail instead.
         }
     }
-    func removeLike(_ id: String) { mutate({ repository.removeLike(memberID: id) }, feedback: "Like removed") }
+    func removeLike(_ id: String) {
+        let message = isMatched(id) ? "Interest removed. Your connection and chat remain." : "Interest removed"
+        mutate({ repository.removeLike(memberID: id) }, feedback: message)
+    }
+    @discardableResult
+    func unmatch(_ id: String) -> Bool {
+        guard mutate({ try repository.unmatch(memberID: id) }, feedback: "Connection ended in this demo") else { return false }
+        let available = Set(state.conversations.map(\.id))
+        conversationDrafts = conversationDrafts.filter { available.contains($0.key) }
+        if presentedMatch?.memberID == id { presentedMatch = nil }
+        return true
+    }
     @discardableResult
     func pass(_ id: String) -> Bool { mutate({ try repository.pass(memberID: id) }, feedback: "Next introduction") }
     @discardableResult

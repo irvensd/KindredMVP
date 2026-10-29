@@ -5,6 +5,7 @@ protocol KindredRepository: AnyObject {
     func snapshot() -> SessionSnapshot
     func like(memberID: String, promptID: String?, photoID: String?) throws
     func removeLike(memberID: String)
+    func unmatch(memberID: String) throws
     func pass(memberID: String) throws
     func undoPass(memberID: String) throws
     func resetPasses()
@@ -53,6 +54,13 @@ final class InMemoryKindredRepository: KindredRepository {
     func removeLike(memberID: String) {
         state.likes.removeAll { $0.senderID == "me" && $0.recipientID == memberID }
         // Removing a like does not delete an existing match or conversation.
+    }
+    func unmatch(memberID: String) throws {
+        try requireMember(memberID)
+        guard state.matches.contains(where: { $0.memberID == memberID }) else { throw KindredError.unavailable }
+        state.matches.removeAll { $0.memberID == memberID }
+        state.conversations.removeAll { $0.memberID == memberID }
+        state.likes.removeAll { $0.senderID == memberID || $0.recipientID == memberID }
     }
     func pass(memberID: String) throws { try requireMember(memberID); state.passedIDs.insert(memberID) }
     func undoPass(memberID: String) throws { try requireMember(memberID); state.passedIDs.remove(memberID) }

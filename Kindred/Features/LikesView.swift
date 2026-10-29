@@ -3,6 +3,7 @@ import SwiftUI
 struct LikesView: View {
     @Environment(AppStore.self) private var store
     @State private var showingIncoming = true
+    @State private var unmatchID: String?
     private var profiles: [MemberProfile] { showingIncoming ? store.incomingProfiles : store.outgoingProfiles }
     var body: some View {
         ScrollView {
@@ -58,12 +59,21 @@ struct LikesView: View {
                                 }.accessibilityLabel("Like back \(profile.name)")
                             }
                             if !showingIncoming {
-                                Button("Remove like") { store.removeLike(profile.id) }
+                                Button("Remove interest") { store.removeLike(profile.id) }
                                     .font(.footnote).foregroundStyle(Color.muted).buttonStyle(.plain)
                                     .frame(maxWidth: .infinity, minHeight: 44)
-                                    .accessibilityLabel("Remove like for \(profile.name)")
+                                    .accessibilityLabel("Remove interest for \(profile.name)")
                                     .accessibilityIdentifier("removeLike-\(profile.id)")
                                     .padding(.top, store.isMatched(profile.id) ? 8 : 0)
+                                Text(store.isMatched(profile.id) ? "Removes your saved interest, including photo and answer likes. Your connection and chat stay." : "Removes your saved interest in this person.")
+                                    .font(.caption).foregroundStyle(Color.muted)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            if store.isMatched(profile.id) {
+                                Button("Unmatch", role: .destructive) { unmatchID = profile.id }
+                                    .font(.footnote).frame(maxWidth: .infinity, minHeight: 44)
+                                    .accessibilityLabel("Unmatch with \(profile.name)")
+                                    .accessibilityIdentifier("unmatch-\(profile.id)")
                             }
                         }.padding(18).background(Color.surface, in: RoundedRectangle(cornerRadius: 26))
                     }
@@ -72,6 +82,7 @@ struct LikesView: View {
                 }
                 NoteCard(symbol: "sparkles", text: showingIncoming ? "Incoming likes are preloaded sample data. Liking back opens a simulated chat. Nobody receives a notification." : "Likes live in this session only. Removing a like keeps any existing demo conversation.")
             }.padding(24)
-        }.background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
+        }.modifier(UnmatchConfirmation(memberID: $unmatchID))
+            .background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
     }
 }

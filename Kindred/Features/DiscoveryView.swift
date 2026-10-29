@@ -137,9 +137,11 @@ private struct DiscoveryActionBar: View {
                         }.fixedSize(horizontal: true, vertical: false)
                     }
                     VStack(spacing: 8) {
-                        nextButton(name: name, compact: false)
+                        HStack(spacing: 8) {
+                            nextButton(name: name, compact: false)
+                            undoSlot(compact: true)
+                        }
                         interestButton(name: name, compact: false)
-                        undoSlot(compact: false)
                     }
                 }
             } else if let undoName {
@@ -312,11 +314,16 @@ struct SafetyMenu: View {
     let memberID: String
     @State private var report = false
     @State private var confirmBlock = false
+    @State private var unmatchID: String?
     var body: some View {
         Menu {
+            if store.isMatched(memberID) {
+                Button("Unmatch", systemImage: "person.crop.circle.badge.minus", role: .destructive) { unmatchID = memberID }
+            }
             Button("Report profile", systemImage: "flag") { report = true }
             Button("Block profile", systemImage: "hand.raised", role: .destructive) { confirmBlock = true }
         } label: { Image(systemName: "ellipsis").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("Profile safety options")
+            .modifier(UnmatchConfirmation(memberID: $unmatchID))
             .sheet(isPresented: $report) { ReportView(memberID: memberID) }
             .confirmationDialog("Block \(store.member(memberID)?.name ?? "this profile")?", isPresented: $confirmBlock, titleVisibility: .visible) {
                 Button("Block profile", role: .destructive) { store.block(memberID) }
@@ -341,6 +348,22 @@ struct ReportView: View {
                 Button("Save demo report") { saved = store.report(memberID, reason: reason, details: details) }.disabled(details.count > 1000)
             }.navigationTitle("Report profile").toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
                 .alert("Saved on this device", isPresented: $saved) { Button("Done") { dismiss() } } message: { Text("No report was transmitted. For immediate safety, you can also block this demo profile.") }
+        }
+    }
+}
+
+struct UnmatchConfirmation: ViewModifier {
+    @Environment(AppStore.self) private var store
+    @Binding var memberID: String?
+    func body(content: Content) -> some View {
+        content.alert("Unmatch with \(memberID.flatMap { store.member($0)?.name } ?? "this person")?", isPresented: Binding(get: { memberID != nil }, set: { if !$0 { memberID = nil } })) {
+            Button("Unmatch", role: .destructive) {
+                if let id = memberID { store.unmatch(id) }
+                memberID = nil
+            }
+            Button("Keep connection", role: .cancel) { memberID = nil }
+        } message: {
+            Text("This removes your connection, both sides’ saved interest, and this chat, including messages and your draft, from this demo session. It cannot be undone in this session. This does not block the person; their profile may still appear in Discover.")
         }
     }
 }

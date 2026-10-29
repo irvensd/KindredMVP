@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct YouView: View {
+    @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(AppStore.self) private var store
     @State private var editProfile = false
     @State private var preferences = false
@@ -10,16 +11,18 @@ struct YouView: View {
             VStack(alignment: .leading, spacing: 26) {
                 PageHeader(eyebrow: "Beautifully, unapologetically you", title: "Your story", subtitle: "A little care goes a long way.")
                 VStack(spacing: 20) {
-                    HStack(spacing: 18) {
+                    let identityLayout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 18)) : AnyLayout(HStackLayout(spacing: 18))
+                    identityLayout {
                         Avatar(profile: store.state.currentProfile, size: 92)
                         VStack(alignment: .leading, spacing: 7) {
                             Text("\(store.state.currentProfile.name), \(store.state.currentProfile.age)").font(.title2.weight(.semibold))
                             Text(store.state.privacy.showCity ? store.state.currentProfile.city : "Location private").font(.subheadline).foregroundStyle(Color.muted)
                             Text("YOUR LOCAL DEMO PROFILE").font(.caption2.weight(.semibold)).tracking(1).foregroundStyle(Color.plum)
                         }
-                        Spacer(minLength: 0)
-                    }
-                    HStack(spacing: 12) {
+                        if !typeSize.isAccessibilitySize { Spacer(minLength: 0) }
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                    let editLayout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 12)) : AnyLayout(HStackLayout(spacing: 12))
+                    editLayout {
                         Button("Edit profile") { editProfile = true }.buttonStyle(.borderedProminent).foregroundStyle(Color.onPlum).accessibilityIdentifier("editProfile")
                         NavigationLink("Preview") { ProfileDetailView(memberID: "me") }.buttonStyle(.bordered).accessibilityIdentifier("publicPreview").accessibilityHint("Shows your saved profile with your privacy preferences applied.")
                     }.controlSize(.large)
@@ -82,15 +85,32 @@ struct YouView: View {
     }
 }
 struct SettingsRow: View {
+    @Environment(\.dynamicTypeSize) private var typeSize
     let symbol: String
     let title: String
     let subtitle: String
     var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: symbol).font(.title3).foregroundStyle(Color.plum).frame(width: 30)
-            VStack(alignment: .leading, spacing: 5) { Text(title).font(.headline).foregroundStyle(Color.ink); Text(subtitle).font(.caption).foregroundStyle(Color.muted) }
-            Spacer(minLength: 4)
-            Image(systemName: "chevron.right").font(.caption).foregroundStyle(Color.muted)
+        Group {
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Image(systemName: symbol).foregroundStyle(Color.plum)
+                        Spacer()
+                        Image(systemName: "chevron.right").foregroundStyle(Color.muted)
+                    }.font(.body).accessibilityHidden(true)
+                    Text(title).font(.headline).foregroundStyle(Color.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(subtitle).font(.caption).foregroundStyle(Color.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } else {
+                HStack(spacing: 16) {
+                    Image(systemName: symbol).font(.title3).foregroundStyle(Color.plum).frame(width: 30)
+                    VStack(alignment: .leading, spacing: 5) { Text(title).font(.headline).foregroundStyle(Color.ink); Text(subtitle).font(.caption).foregroundStyle(Color.muted) }
+                    Spacer(minLength: 4)
+                    Image(systemName: "chevron.right").font(.caption).foregroundStyle(Color.muted)
+                }
+            }
         }.padding(.vertical, 20).contentShape(Rectangle())
     }
 }

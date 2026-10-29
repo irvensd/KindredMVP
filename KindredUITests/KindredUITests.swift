@@ -18,6 +18,40 @@ final class KindredUITests: XCTestCase {
         let attachment = XCTAttachment(screenshot: app.screenshot()); attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
     }
     func next() { let button = app.buttons["onboardingNext"]; XCTAssertTrue(button.waitForExistence(timeout: 3)); button.tap() }
+    func testRemoveInterestAndConfirmedUnmatch() {
+        for options in [[], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
+            launch(options: options)
+            app.buttons["likeProfile"].tap()
+            XCTAssertTrue(app.buttons["matchKeepDiscovering"].waitForExistence(timeout: 4))
+            app.buttons["matchKeepDiscovering"].tap()
+            app.tabBars.buttons["Likes"].tap(); app.buttons["Your likes"].tap()
+            let explanation = app.staticTexts["Removes your saved interest, including photo and answer likes. Your connection and chat stay."]
+            reveal(explanation, attempts: 12); XCTAssertTrue(explanation.exists)
+            capture("Remove interest explanation \(options.isEmpty ? "standard" : "large")")
+            let remove = app.buttons["removeLike-amara"]; reveal(remove, attempts: 12); remove.tap()
+            app.buttons["Liked you · sample"].tap()
+            let unmatch = app.buttons["unmatch-amara"]; reveal(unmatch, attempts: 12); unmatch.tap()
+            XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 3))
+            capture("Unmatch confirmation \(options.isEmpty ? "standard" : "large")")
+            if !options.isEmpty {
+                for _ in 0..<5 {
+                    let alert = app.alerts.firstMatch
+                    alert.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)).press(forDuration: 0.05, thenDragTo: alert.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)))
+                }
+                capture("Unmatch explanation scrolled large")
+            }
+            app.alerts.buttons["Keep connection"].tap()
+            let hello = app.buttons["sayHello-amara"]; reveal(hello, attempts: 12); hello.tap()
+            XCTAssertTrue(app.navigationBars["Amara"].waitForExistence(timeout: 3))
+            app.buttons["Profile safety options"].tap(); app.buttons["Unmatch"].tap()
+            app.alerts.buttons["Unmatch"].tap()
+            XCTAssertTrue(app.staticTexts["Conversation unavailable"].waitForExistence(timeout: 3))
+            app.tabBars.buttons["Chats"].tap()
+            XCTAssertFalse(app.buttons["conversation-amara"].exists)
+            app.tabBars.buttons["Likes"].tap()
+            XCTAssertFalse(app.buttons["unmatch-amara"].exists)
+        }
+    }
     func testScrollingReadability() {
         for options in [[], ["--dark"], ["--large-text"], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
             launch(options: options)
@@ -155,6 +189,63 @@ final class KindredUITests: XCTestCase {
         XCTAssertFalse(error.exists)
         app.buttons["saveProfile"].tap()
         XCTAssertTrue(app.buttons["editProfile"].waitForExistence(timeout: 3))
+    }
+
+    func testLargeTextSettingsRemainReadable() {
+        launch(options: ["--large-text", "--dark", "--reduce-motion"])
+        app.tabBars.buttons["You"].tap()
+        let preferences = app.buttons["datingPreferences"]
+        reveal(preferences, attempts: 12)
+        XCTAssertTrue(preferences.isHittable)
+        let title = app.staticTexts["Dating preferences"]
+        reveal(title, attempts: 12)
+        XCTAssertTrue(title.isHittable)
+        XCTAssertGreaterThanOrEqual(title.frame.minX, preferences.frame.minX - 1)
+        XCTAssertLessThanOrEqual(title.frame.maxX, preferences.frame.maxX + 1)
+        capture("Full-width large-text settings")
+        preferences.tap()
+        XCTAssertTrue(app.buttons["savePreferences"].waitForExistence(timeout: 3))
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(preferences.waitForExistence(timeout: 3))
+    }
+
+    func testResponsiveScreenSmoke() {
+        for options in [[], ["--large-text", "--dark", "--reduce-motion"]] as [[String]] {
+            let mode = options.isEmpty ? "standard" : "large-dark"
+            launch(demo: false, options: options)
+            capture("Responsive welcome " + mode)
+            reveal(app.buttons["getStarted"], attempts: 12)
+            XCTAssertTrue(app.buttons["getStarted"].isHittable)
+            launch(options: options)
+            XCTAssertTrue(app.buttons["passProfile"].waitForExistence(timeout: 5))
+            XCTAssertTrue(app.buttons["passProfile"].isHittable)
+            XCTAssertTrue(app.buttons["likeProfile"].isHittable)
+            capture("Responsive discover " + mode)
+            app.buttons["discoveryPreferences"].tap()
+            capture("Responsive preferences " + mode)
+            XCTAssertTrue(app.buttons["savePreferences"].isHittable)
+            app.buttons["Cancel"].tap()
+            app.buttons["likeProfile"].tap()
+            XCTAssertTrue(app.buttons["matchSayHello"].waitForExistence(timeout: 3))
+            capture("Responsive match " + mode)
+            app.buttons["matchKeepDiscovering"].tap()
+            app.tabBars.buttons["Likes"].tap(); capture("Responsive likes " + mode)
+            let hello = app.buttons["sayHello-amara"]; reveal(hello, attempts: 12)
+            XCTAssertTrue(hello.isHittable)
+            app.tabBars.buttons["You"].tap(); capture("Responsive story " + mode)
+            reveal(app.buttons["editProfile"], attempts: 12); app.buttons["editProfile"].tap()
+            capture("Responsive edit " + mode)
+            XCTAssertTrue(app.buttons["saveProfile"].isHittable)
+            app.buttons["Cancel"].tap()
+            app.tabBars.buttons["Chats"].tap(); capture("Responsive chats " + mode)
+            reveal(app.buttons["conversation-eli"], attempts: 12); app.buttons["conversation-eli"].tap()
+            let composer = app.textFields["messageComposer"]
+            composer.tap(); composer.typeText("Hello")
+            XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+            XCTAssertLessThanOrEqual(composer.frame.maxY, app.keyboards.firstMatch.frame.minY + 1)
+            XCTAssertTrue(app.buttons["sendMessage"].isHittable)
+            capture("Responsive keyboard " + mode)
+        }
     }
 
     func testWelcomeAndCompleteOnboarding() {

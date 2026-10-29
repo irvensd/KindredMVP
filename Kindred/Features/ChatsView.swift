@@ -137,7 +137,7 @@ struct ConversationView: View {
                     }.padding(.horizontal, 16).padding(.vertical, 10).background(Color.paper)
                 }
             } else {
-                EmptyState(symbol: "hand.raised", title: "Conversation unavailable", message: "This conversation was removed when the profile was blocked.")
+                EmptyState(symbol: "hand.raised", title: "Conversation unavailable", message: "This connection has ended or the profile was blocked. The chat is no longer available.")
             }
         }.background(Color.paper).navigationTitle(conversation.flatMap { store.member($0.memberID)?.name } ?? "Conversation").navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -33,6 +33,29 @@ struct KindredTests {
         #expect(p.validationIssues.map(\.id) == ["name", "city", "prompt-" + p.prompts[2].id])
     }
 
+    @Test func unmatchClearsConnectionWithoutBlockingOrImmediateRematch() {
+        let s = store(); s.like("amara")
+        s.updateDraft("Amara draft", conversationID: "chat-amara")
+        s.updateDraft("Eli draft", conversationID: "chat-eli")
+        s.removeLike("amara")
+        #expect(s.isMatched("amara"))
+        #expect(s.draft(for: "chat-amara") == "Amara draft")
+        #expect(s.unmatch("amara"))
+        #expect(!s.isMatched("amara")); #expect(!s.isLiked("amara"))
+        #expect(!s.incomingProfiles.contains { $0.id == "amara" })
+        #expect(!s.conversations.contains { $0.memberID == "amara" })
+        #expect(s.draft(for: "chat-amara").isEmpty)
+        #expect(s.draft(for: "chat-eli") == "Eli draft")
+        #expect(s.presentedMatch == nil); #expect(!s.blockedIDs.contains("amara"))
+        #expect(s.member("amara") != nil)
+        s.updateDraft("Stale draft", conversationID: "chat-amara")
+        #expect(s.draft(for: "chat-amara").isEmpty)
+        #expect(!s.send("Stale message", conversationID: "chat-amara"))
+        s.like("amara")
+        #expect(!s.isMatched("amara")); #expect(s.presentedMatch == nil)
+        #expect(!s.unmatch("amara"))
+        #expect(s.isLiked("amara"))
+    }
     @Test func conversationDraftsAreSeparateAndSessionOnly() {
         let s = store(); s.like("amara")
         let originalMessages = s.conversations.first { $0.id == "chat-eli" }!.messages
