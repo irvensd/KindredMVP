@@ -144,3 +144,30 @@ enum KindredError: LocalizedError, Equatable {
 extension String {
     var trimmed: String { trimmingCharacters(in: .whitespacesAndNewlines) }
 }
+
+struct ProfileValidationIssue: Identifiable, Equatable {
+    let id: String
+    let message: String
+}
+extension MemberProfile {
+    /// Ordered to match the profile editor; shared with the repository save boundary.
+    var validationIssues: [ProfileValidationIssue] {
+        var issues: [ProfileValidationIssue] = []
+        if !(1...40).contains(name.trimmed.count) {
+            issues.append(.init(id: "name", message: name.trimmed.isEmpty ? "Enter your first name." : "Keep your first name to 40 characters or fewer."))
+        }
+        if !(2...60).contains(city.trimmed.count) {
+            issues.append(.init(id: "city", message: "Enter a city or general area using 2–60 characters."))
+        }
+        if bio.count > 500 { issues.append(.init(id: "bio", message: "Shorten your bio to 500 characters or fewer (currently \(bio.count)).")) }
+        if interests.count > 8 { issues.append(.init(id: "interests", message: "Choose up to 8 interests.")) }
+        if faith.meaning.count > 300 { issues.append(.init(id: "faith", message: "Shorten your faith note to 300 characters or fewer (currently \(faith.meaning.count)).")) }
+        if prompts.count != 3 { issues.append(.init(id: "prompts", message: "Your profile needs three prompt slots. Answers can stay blank.")) }
+        for prompt in prompts where !prompt.answer.trimmed.isEmpty && !(5...240).contains(prompt.answer.trimmed.count) {
+            issues.append(.init(id: "prompt-" + prompt.id, message: "Use 5–240 characters for this answer, or leave it blank."))
+        }
+        if !(1...6).contains(photos.count) { issues.append(.init(id: "photos", message: photos.isEmpty ? "Add at least one profile photo." : "Keep up to 6 profile photos.")) }
+        if age < 18 { issues.append(.init(id: "age", message: "Your profile must have an age of 18 or older.")) }
+        return issues
+    }
+}

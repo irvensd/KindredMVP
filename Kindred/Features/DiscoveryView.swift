@@ -73,7 +73,7 @@ struct DiscoverView: View {
                 }
                 NoteCard(symbol: "sparkles", text: "A thoughtfully simulated experience. All people and incoming activity are fictional; portraits are AI-generated.")
             }.padding(24)
-        }.background(Color.paper).toolbar(.hidden, for: .navigationBar)
+        }.background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if current != nil || undoName != nil {
                     DiscoveryActionBar(name: current?.name, isLiked: current.map { store.isLiked($0.id) } ?? false, undoName: undoName,
@@ -146,7 +146,7 @@ private struct DiscoveryActionBar: View {
                 undoButton(name: undoName, compact: false)
             }
         }.frame(maxWidth: .infinity).padding(8)
-            .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 30))
+            .glassEffect(.regular.tint(Color.paper.opacity(0.65)), in: RoundedRectangle(cornerRadius: 30))
     }
 
     private func nextButton(name: String, compact: Bool) -> some View {

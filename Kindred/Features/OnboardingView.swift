@@ -152,8 +152,9 @@ struct RadiusControl: View {
 }
 struct FaithEditor: View {
     @Binding var faith: FaithPreferences
+    var validationMessage: String? = nil
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        Group {
             VStack(alignment: .leading) {
                 Text("My Sabbath rhythm").font(.headline)
                 Picker("Sabbath rhythm", selection: $faith.sabbath) { ForEach(SabbathPractice.allCases) { Text($0.rawValue).tag($0) } }.pickerStyle(.menu)
@@ -162,22 +163,27 @@ struct FaithEditor: View {
                 Text("Around the table").font(.headline)
                 Picker("Food preference", selection: $faith.food) { ForEach(FoodPreference.allCases) { Text($0.rawValue).tag($0) } }.pickerStyle(.menu)
             }
+            VStack(alignment: .leading, spacing: 8) {
             Text("What faith means to me (optional)").font(.headline)
             TextField("Your own words", text: $faith.meaning, axis: .vertical).lineLimit(3...6).padding(16).background(Color.surface, in: RoundedRectangle(cornerRadius: 16))
+            ProfileFieldError(message: validationMessage, field: "faith")
+            }.id("faith")
             Text("Shared values are a conversation, never a score.").font(.footnote).foregroundStyle(Color.muted)
         }
     }
 }
 struct PromptEditor: View {
     @Binding var prompts: [ProfilePrompt]
+    var issues: [ProfileValidationIssue] = []
     var body: some View {
-        VStack(spacing: 18) {
+        Group {
             ForEach($prompts) { $prompt in
                 VStack(alignment: .leading, spacing: 10) {
                     Text(prompt.question).font(.headline)
                     TextField("A little glimpse of you…", text: $prompt.answer, axis: .vertical).lineLimit(2...5).accessibilityIdentifier("prompt-\(prompt.id)")
                     Text("\(prompt.answer.count)/240").font(.caption).foregroundStyle(Color.muted)
-                }.padding(20).background(Color.surface, in: RoundedRectangle(cornerRadius: 20))
+                    ProfileFieldError(message: issues.first { $0.id == "prompt-" + prompt.id }?.message, field: "prompt-" + prompt.id)
+                }.padding(20).background(Color.surface, in: RoundedRectangle(cornerRadius: 20)).id("prompt-" + prompt.id)
             }
         }
     }

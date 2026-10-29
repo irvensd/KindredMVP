@@ -15,7 +15,16 @@ struct LikesView: View {
                 if profiles.isEmpty {
                     EmptyState(symbol: "heart", title: showingIncoming ? "Room for a new spark" : "Someone will catch your eye", message: showingIncoming ? "There are no incoming sample likes in this session." : "A photo, an answer, a little shared feeling. Save what catches your eye in Discover.")
                 } else {
-                    ForEach(profiles) { profile in
+                    ForEach([true, false], id: \.self) { matched in
+                        let members = profiles.filter { store.isMatched($0.id) == matched }
+                        if !members.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(matched ? "Mutual connections" : showingIncoming ? "Waiting for your interest" : "Interest sent")
+                                    .font(.headline).foregroundStyle(Color.ink).accessibilityAddTraits(.isHeader)
+                                Text(matched ? "You both felt a connection. Start with hello." : showingIncoming ? "Someone noticed you. Take a closer look." : "A little interest, with room to grow.")
+                                    .font(.subheadline).foregroundStyle(Color.muted)
+                            }
+                    ForEach(members) { profile in
                         VStack(alignment: .leading, spacing: 0) {
                             NavigationLink { ProfileDetailView(memberID: profile.id) } label: {
                                 HStack(spacing: 18) {
@@ -23,7 +32,7 @@ struct LikesView: View {
                                     VStack(alignment: .leading, spacing: 10) {
                                         Text("\(profile.name), \(profile.age)").font(.title2.weight(.semibold)).foregroundStyle(Color.ink)
                                         Text(profile.city).font(.subheadline).foregroundStyle(Color.muted)
-                                        Text(store.isMatched(profile.id) ? "A sample connection" : showingIncoming ? "Liked your profile · sample" : "You’re interested")
+                                        Text(store.isMatched(profile.id) ? "Mutual interest · sample" : showingIncoming ? "Liked you · sample" : "Awaiting mutual interest")
                                             .font(.caption.weight(.semibold)).foregroundStyle(Color.plum)
                                         Image(systemName: "arrow.up.right").foregroundStyle(Color.plum)
                                     }
@@ -36,20 +45,33 @@ struct LikesView: View {
                                 }
                             }
                             Divider().padding(.vertical, 18)
-                            if showingIncoming {
-                                if store.isMatched(profile.id) {
-                                    NavigationLink { ConversationView(conversationID: "chat-\(profile.id)") } label: { Label("Open demo chat", systemImage: "bubble.left").frame(maxWidth: .infinity, minHeight: 44) }
-                                } else {
-                                    Button { store.like(profile.id) } label: { Label("Like back", systemImage: "heart").font(.headline).frame(maxWidth: .infinity, minHeight: 44) }.accessibilityLabel("Like back \(profile.name)")
-                                }
-                            } else {
-                                Button("Remove like") { store.removeLike(profile.id) }.frame(maxWidth: .infinity, minHeight: 44)
+                            if store.isMatched(profile.id) {
+                                NavigationLink { ConversationView(conversationID: "chat-\(profile.id)") } label: {
+                                    Label("Say hello", systemImage: "bubble.left")
+                                        .font(.headline).frame(maxWidth: .infinity, minHeight: 44)
+                                }.buttonStyle(.borderedProminent).tint(Color.plum).foregroundStyle(Color.onPlum)
+                                    .accessibilityLabel("Say hello to \(profile.name)")
+                                    .accessibilityIdentifier("sayHello-\(profile.id)")
+                            } else if showingIncoming {
+                                Button { store.like(profile.id) } label: {
+                                    Label("Like back", systemImage: "heart").font(.headline).frame(maxWidth: .infinity, minHeight: 44)
+                                }.accessibilityLabel("Like back \(profile.name)")
+                            }
+                            if !showingIncoming {
+                                Button("Remove like") { store.removeLike(profile.id) }
+                                    .font(.footnote).foregroundStyle(Color.muted).buttonStyle(.plain)
+                                    .frame(maxWidth: .infinity, minHeight: 44)
+                                    .accessibilityLabel("Remove like for \(profile.name)")
+                                    .accessibilityIdentifier("removeLike-\(profile.id)")
+                                    .padding(.top, store.isMatched(profile.id) ? 8 : 0)
                             }
                         }.padding(18).background(Color.surface, in: RoundedRectangle(cornerRadius: 26))
+                    }
+                        }
                     }
                 }
                 NoteCard(symbol: "sparkles", text: showingIncoming ? "Incoming likes are preloaded sample data. Liking back opens a simulated chat. Nobody receives a notification." : "Likes live in this session only. Removing a like keeps any existing demo conversation.")
             }.padding(24)
-        }.background(Color.paper).toolbar(.hidden, for: .navigationBar)
+        }.background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
     }
 }

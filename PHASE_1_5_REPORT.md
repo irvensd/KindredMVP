@@ -162,3 +162,54 @@ The saved October 19 delivery log records a successful build, 38 passing unit te
 The October 27 screenshot-refresh run was interrupted during its largest-text launch; its partial log is retained and is not counted as a pass.
 
 The final October 27 appearance rerun passed in light, dark and largest accessibility text with Reduce Motion, with no runtime warnings. Accessibility-description audits passed; the unresolved clipping-audit qualification remains. Fresh screenshots of the final native age controls and radius presentation were inspected. `preferences-final-appearance-*` contains the final result and log.
+
+## October 28 — Likes hierarchy
+
+Mutual connections now appear first, followed by pending incoming or outgoing interest, with section headings and clear status labels. Matched profiles offer a prominent plum Say hello action in both segments. Remove like is a secondary footnote-sized action with a minimum 44-point height and member-specific accessibility label. Existing profile photography and saved photo/prompt context remain.
+
+Changed LikesView.swift and existing UI-test selectors. Debug simulator build and both focused matching/chat and photo-interest/removal scenarios passed. The final Likes screenshot was inspected. Dark mode, largest text and spoken VoiceOver were not rerun for this change. Evidence: likes-hierarchy-summary.json, likes-hierarchy-tests.log and likes-hierarchy.png. Changes are local; the prior GitHub commit remains unchanged.
+
+## October 28 — Conversation polish
+
+Chat previews now use a single list with consistent row spacing and inset dividers. Names and dates stack at accessibility text sizes, and previews can wrap fully there. The composer follows changes to the visible scroll area when the keyboard or multiline text resizes it. Short conversations align at the top; sending keeps the focused composer ready. Optional profile-based ideas have separators, can be hidden in empty chats, and collapse when composing or accepting a suggestion. Accepting a suggestion still fills only a draft and protects existing text with confirmation.
+
+The floating keyboard Done control visibly overlapped the demo footer in the initial screenshots. Done now appears in the conversation header while typing; the ideas control and routine demo note return after dismissal. The message bubble implementation is unchanged. Application changes are confined to ChatsView.swift, with focused changes/additions in KindredUITests.swift.
+
+Final Debug simulator build and all three focused UI scenarios passed on iPhone 17 / iOS 26.1, with zero runtime warnings. Checks include starter acceptance/cancellation without automatic sending, matching into a new chat, multiline typing, keyboard dismissal/reopening, composer visibility above the keyboard, focus after sending, and updated chat previews. Keyboard coverage includes standard light and largest-text dark with Reduce Motion; exported screenshots were inspected. The initial run's three negative-frame warnings did not recur after moving Done out of the keyboard toolbar; no claim is made that unrelated historical warnings are resolved. Physical keyboard/device behavior, spoken VoiceOver and the full suite were not tested in this pass.
+
+Evidence: conversation-polish-final-summary.json, conversation-polish-final-tests.log and conversation-polish-*.png. Initial run evidence is retained separately. Changes remain local and have not been pushed to GitHub.
+
+## Scrolling readability — October 28, 2026
+
+- Reproduced status icons overlapping scrolled photo actions/photography. Added a noninteractive, accessibility-hidden paper background sized to the actual top safe area on the four root screens. No content padding or navigation layout changes.
+- Reproduced enlarged content competing through bottom glass. Applied native hard bottom scroll-edge separation and a paper tint to the Discover action panel; the native floating four-tab navigation and glass remain intact.
+- Modified Components.swift, DiscoveryView.swift, LikesView.swift, SettingsView.swift, ChatsView.swift and KindredUITests.swift for this pass. Existing prior uncommitted refinements remain.
+- Added testScrollingReadability: scrolls each of four root tabs at standard and accessibility text sizes in light/dark, checks tab reachability, captures 16 screenshots. Large dark also uses Reduce Motion. Baseline and intermediate screenshots established that native top edge styling alone did not correct hidden-header overlap; final safe-area overlay does.
+- Final simulator build/test passed: 1 test covering 16 configurations, zero failures/skips/runtime warnings. Reviewed all 16 final captures; standard Chats has insufficient content to scroll, while large-text Chats exercises scrolling. Evidence in Documentation/Verification/scroll-readability-final-summary.json and scroll-readability-*-tests.log; screenshots named scroll-final-*.png, plus Discover baseline comparisons.
+- Scope: root scrolling surfaces on iPhone 17 / iOS 26.1 simulator. Not a full suite, physical-device, spoken VoiceOver, contrast-metric, or every-scroll-offset certification. Existing navigation-header detail screens were not changed. Saved locally; not pushed to GitHub.
+
+## Unsaved edits — October 28, 2026
+
+- Profile and discovery-preference Cancel actions now ask “Discard changes?” only when the draft differs from saved state. Keep editing preserves the draft; Discard changes closes without committing. Reverting every edit makes the form clean again. Save and validation retain their existing behavior.
+- A shared SheetDismissalGuard bridges iOS 26 interactive sheet dismissal to the same explicit two-button alert. It targets the actual presented sheet root; programmatic Save/Discard remain available. Unchanged sheets dismiss normally by gesture. No layout redesign or storage change.
+- Files: SettingsView.swift, Components.swift, KindredUITests.swift; existing Cancel tests updated to explicitly discard modified drafts.
+- Final build and both standard-light / large-text-dark (Reduce Motion) lifecycle tests passed, checking clean Cancel/swipe, modified Cancel/swipe, Keep editing, discard/reopen, reverting preferences, and profile Save. Four earlier focused regression scenarios passed for invalid edits, precise preferences, filters and profile cancellation before the final sheet-root hook correction. A separate corrected-hook standard lifecycle run also passed. This is not a full-suite pass.
+- Initial failures and test-interaction corrections are retained in unsaved-edits*-tests.log. The first confirmation dialog could omit the visible cancel option; it was replaced with an alert. Gesture targeting and waiting for dismissal were corrected in tests. Final appearance result: 2 passed, 0 failed, 2 negative/non-finite-frame runtime warnings (the previously observed profile-edit warning remains unresolved). No physical-device or spoken VoiceOver test was performed.
+- Final confirmation screenshots inspected in standard light and large dark. Results: unsaved-edits-appearance-summary.json. Changes remain local and unpushed.
+
+## Session conversation drafts — October 28, 2026
+
+- AppStore now owns in-memory drafts keyed by conversation ID. ConversationView binds directly to that state, preserving exact text across navigation/view recreation without sending or changing conversation previews. Empty chats with existing drafts do not automatically expand starters.
+- Successful sends clear only that conversation's draft; rejected sends preserve it. Blocking removes drafts for deleted conversations and stale views cannot recreate them. A new app session starts with no drafts; no disk or network storage was added.
+- Files: AppStore.swift, ChatsView.swift, KindredTests.swift, KindredUITests.swift. Documentation and verification evidence updated.
+- Build and 43 tests passed (41 model tests, 2 focused UI tests), zero failures/skips/runtime warnings. Covered separate drafts, exact whitespace, new-session reset, clearing, failed/successful sending, blocking, chat reopening after tab navigation, and starter replacement protection. Restored-draft screenshot inspected. This was not a full UI suite or a new dark-mode/VoiceOver/device check.
+- Evidence: conversation-drafts-summary.json, conversation-drafts-tests.log, restored-conversation-draft.png. Changes remain local and unpushed.
+
+## Field-specific profile validation — October 28, 2026
+
+- Profile Save now displays contextual inline errors and scrolls to the first invalid field in editor order, preserving the draft. Messages update after the first attempted save and disappear as values become valid; optional blank answers remain allowed. An accessibility announcement describes the first issue. Unexpected save errors retain a fallback alert.
+- MemberProfile.validationIssues is shared by the editor and repository; existing limits and atomic saves are preserved. Messages cover name, city, bio, interests, faith note, individual prompt answers, photos, and age. Prompt cards and faith-note content have individual scroll targets. No backend/storage changes.
+- Files: Models.swift, KindredRepository.swift, Components.swift, SettingsView.swift, OnboardingView.swift (shared editors), KindredTests.swift, KindredUITests.swift. Existing profile error test now checks inline validation and discard protection.
+- Build succeeded; all 42 model tests passed. Three focused UI scenarios passed across final runs: invalid-name/discard preserves saved profile; offscreen name and prompt correction then successful Save; large-text dark/Reduce Motion name-error scrolling and correction. Screenshots inspected. No full UI suite, physical device or spoken VoiceOver verification in this pass.
+- Earlier UI failures were retained: combined accessibility label children were not hittable; the prompt test's deletion did not reliably produce invalid content. The final prompt test asserts an over-limit value before Save, then corrects it. Earlier prompt failures therefore do not prove a pre-existing scroll defect. Final prompt run passed with one negative/non-finite-frame runtime warning; existing profile-edit warning remains unresolved.
+- Evidence: profile-inline-*-summary.json, profile-inline-*-tests.log, inline-profile-name-error.png, inline-profile-prompt-error.png, inline-error-large-dark.png. Changes saved locally, not pushed.

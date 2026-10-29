@@ -81,11 +81,9 @@ final class InMemoryKindredRepository: KindredRepository {
         state.conversations[index].unreadCount = 0
     }
     func updateProfile(_ profile: MemberProfile) throws {
-        guard profile.id == "me", (1...40).contains(profile.name.trimmed.count), profile.age >= 18,
-              (2...60).contains(profile.city.trimmed.count), profile.bio.count <= 500,
-              profile.interests.count <= 8, (1...6).contains(profile.photos.count),
-              profile.prompts.count == 3, profile.prompts.allSatisfy({ $0.answer.trimmed.isEmpty || (5...240).contains($0.answer.trimmed.count) }),
-              profile.faith.meaning.count <= 300 else { throw KindredError.invalid("Check your name, city and photos. Optional answers need 5–240 characters; choose up to 8 interests and keep your faith note to 300 characters.") }
+        guard profile.id == "me" else { throw KindredError.unavailable }
+        let issues = profile.validationIssues
+        guard issues.isEmpty else { throw KindredError.invalid(issues.map(\.message).joined(separator: "\n")) }
         var normalized = profile
         normalized.name = profile.name.trimmed
         normalized.city = profile.city.trimmed

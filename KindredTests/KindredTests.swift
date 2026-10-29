@@ -17,6 +17,60 @@ struct KindredTests {
         draft.photos = DemoData.people[0].photos
         return draft
     }
+    @Test func profileValidationIdentifiesFieldsAndPreservesOptionalBlanks() {
+        let s = store(); var p = s.state.currentProfile
+        p.name = " "; p.city = "x"; p.bio = String(repeating: "a", count: 501)
+        p.faith.meaning = String(repeating: "a", count: 301)
+        p.prompts[1].answer = "Hi"; p.photos = []
+        #expect(p.validationIssues.map(\.id) == ["name", "city", "bio", "faith", "prompt-" + p.prompts[1].id, "photos"])
+        #expect(!s.updateProfile(p)); #expect(s.state.currentProfile.name == "Alex")
+        p.name = String(repeating: "a", count: 40); p.city = "NY"
+        p.bio = String(repeating: "a", count: 500); p.faith.meaning = String(repeating: "a", count: 300)
+        p.prompts[0].answer = "     "; p.prompts[1].answer = "Hello"; p.prompts[2].answer = String(repeating: "a", count: 240)
+        p.photos = s.state.currentProfile.photos
+        #expect(p.validationIssues.isEmpty); #expect(s.updateProfile(p))
+        p.name += "a"; p.city = String(repeating: "a", count: 61); p.prompts[2].answer += "a"
+        #expect(p.validationIssues.map(\.id) == ["name", "city", "prompt-" + p.prompts[2].id])
+    }
+
+    @Test func conversationDraftsAreSeparateAndSessionOnly() {
+        let s = store(); s.like("amara")
+        let originalMessages = s.conversations.first { $0.id == "chat-eli" }!.messages
+        s.updateDraft("  Hello Eli\nA question…  ", conversationID: "chat-eli")
+        s.updateDraft("Hello Amara", conversationID: "chat-amara")
+        #expect(s.draft(for: "chat-eli") == "  Hello Eli\nA question…  ")
+        #expect(s.draft(for: "chat-amara") == "Hello Amara")
+        #expect(s.conversations.first { $0.id == "chat-eli" }!.messages == originalMessages)
+        #expect(store().draft(for: "chat-eli").isEmpty)
+        s.updateDraft("", conversationID: "chat-eli")
+        #expect(s.draft(for: "chat-eli").isEmpty)
+        #expect(s.draft(for: "chat-amara") == "Hello Amara")
+    }
+    @Test func onlySuccessfulSendClearsItsDraft() {
+        let s = store(); s.like("amara")
+        s.updateDraft("Hello", conversationID: "chat-amara")
+        let tooLong = String(repeating: "a", count: 2001)
+        s.updateDraft(tooLong, conversationID: "chat-eli")
+        #expect(!s.send(tooLong, conversationID: "chat-eli"))
+        #expect(s.draft(for: "chat-eli") == tooLong)
+        s.updateDraft("Hi Eli", conversationID: "chat-eli")
+        #expect(s.send(s.draft(for: "chat-eli"), conversationID: "chat-eli"))
+        #expect(s.draft(for: "chat-eli").isEmpty)
+        #expect(s.draft(for: "chat-amara") == "Hello")
+    }
+    @Test func blockingClearsOnlyRemovedConversationDrafts() {
+        let s = store(); s.like("amara")
+        s.updateDraft("Hello", conversationID: "chat-amara")
+        s.updateDraft("Hi Eli", conversationID: "chat-eli")
+        s.block("eli")
+        #expect(s.draft(for: "chat-eli").isEmpty)
+        #expect(s.draft(for: "chat-amara") == "Hello")
+        s.updateDraft("Stale view", conversationID: "chat-eli")
+        #expect(s.draft(for: "chat-eli").isEmpty)
+        s.unblock("eli")
+        #expect(s.draft(for: "chat-eli").isEmpty)
+    }
+
     @Test func photoInterestUsesRecipientAndPhotoNotJustSharedAsset() {
         let s = store()
         s.like("amara", photoID: "weekend")

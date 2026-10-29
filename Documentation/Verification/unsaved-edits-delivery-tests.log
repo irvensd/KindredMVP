@@ -1,0 +1,495 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test -project Kindred.xcodeproj -scheme Kindred -destination "platform=iOS Simulator,id=10CA07A7-A4CE-43F2-883C-4509AD350C27" -derivedDataPath /private/tmp/KindredPersonalInterestBuild -resultBundlePath /private/tmp/KindredUnsavedDelivery.xcresult -collect-test-diagnostics never -parallel-testing-enabled NO "-only-testing:KindredUITests/KindredUITests/testUnsavedSheetsProtectCancelAndSwipe" "-only-testing:KindredUITests/KindredUITests/testUnsavedSheetsLargeDark"
+
+Writing result bundle at path:
+	/private/tmp/KindredUnsavedDelivery.xcresult
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (3 targets)
+    Target 'KindredUITests' in project 'Kindred'
+        ➜ Explicit dependency on target 'Kindred' in project 'Kindred'
+    Target 'KindredTests' in project 'Kindred'
+        ➜ Explicit dependency on target 'Kindred' in project 'Kindred'
+    Target 'Kindred' in project 'Kindred' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred/Resources/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: bc1c6329773f788b16882162cb13a5c6
+Build description path: /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/XCBuildData/bc1c6329773f788b16882162cb13a5c6.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk /tmp/KindredPersonalInterestBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/Kindred.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -o /tmp/KindredPersonalInterestBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache
+
+ProcessInfoPlistFile /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Info.plist /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/empty-Kindred.plist (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-infoPlistUtility /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/empty-Kindred.plist -producttype com.apple.product-type.application -genpkginfo /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/assetcatalog_generated_info.plist -o /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Info.plist
+
+SwiftDriver KindredUITests normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name KindredUITests -Onone @/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.SwiftFileList -DDEBUG -module-alias Testing\=_Testing_Unavailable -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target x86_64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPersonalInterestBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPersonalInterestBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPersonalInterestBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPersonalInterestBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-generated-files.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-own-target-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-project-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources-normal/x86_64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources/x86_64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver KindredUITests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name KindredUITests -Onone @/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.SwiftFileList -DDEBUG -module-alias Testing\=_Testing_Unavailable -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPersonalInterestBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPersonalInterestBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPersonalInterestBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPersonalInterestBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-generated-files.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-own-target-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-project-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources-normal/arm64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources/arm64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+CopySwiftLibs /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app (in target 'Kindred' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Kindred.debug.dylib --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Frameworks --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/SystemExtensions --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/Kindred.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+ProcessInfoPlistFile /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest/Info.plist /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredTests.build/empty-KindredTests.plist (in target 'KindredTests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-infoPlistUtility /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredTests.build/empty-KindredTests.plist -producttype com.apple.product-type.bundle.unit-test -expandbuildsettings -format binary -platform iphonesimulator -o /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest/Info.plist
+
+CopySwiftLibs /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest (in target 'KindredTests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest/KindredTests --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest/Frameworks --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest/PlugIns --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest/SystemExtensions --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/Kindred.app/PlugIns/KindredTests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredTests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+ProcessInfoPlistFile /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/Info.plist /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/empty-KindredUITests.plist (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-infoPlistUtility /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/empty-KindredUITests.plist -producttype com.apple.product-type.bundle.ui-testing -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/ProductTypeInfoPlistAdditions.plist -o /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/Info.plist
+
+SwiftEmitModule normal x86_64 Emitting\ module\ for\ KindredUITests (in target 'KindredUITests' from project 'Kindred')
+
+SwiftCompile normal x86_64 (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ KindredUITests (in target 'KindredUITests' from project 'Kindred')
+
+SwiftCompile normal arm64 (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    
+
+SwiftCompile normal x86_64 Compiling\ KindredUITests.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/KindredUITests/KindredUITests.swift (in target 'KindredUITests' from project 'Kindred')
+
+SwiftCompile normal x86_64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/KindredUITests/KindredUITests.swift (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile KindredUITests.swift
+
+SwiftCompile normal arm64 Compiling\ KindredUITests.swift /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/KindredUITests/KindredUITests.swift (in target 'KindredUITests' from project 'Kindred')
+
+SwiftCompile normal arm64 /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/KindredUITests/KindredUITests.swift (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-SwiftPerFileCompile KindredUITests.swift
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for KindredUITests (in target 'KindredUITests' from project 'Kindred')
+
+SwiftDriver\ Compilation\ Requirements KindredUITests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name KindredUITests -Onone @/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.SwiftFileList -DDEBUG -module-alias Testing\=_Testing_Unavailable -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPersonalInterestBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPersonalInterestBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPersonalInterestBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPersonalInterestBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-generated-files.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-own-target-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-project-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources-normal/arm64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources/arm64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+Copy /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.swiftsourceinfo (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.swiftsourceinfo /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal x86_64 Emitting module for KindredUITests (in target 'KindredUITests' from project 'Kindred')
+
+Copy /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/arm64-apple-ios-simulator.swiftmodule /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.swiftmodule (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.swiftmodule /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+SwiftDriver\ Compilation\ Requirements KindredUITests normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name KindredUITests -Onone @/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.SwiftFileList -DDEBUG -module-alias Testing\=_Testing_Unavailable -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target x86_64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPersonalInterestBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPersonalInterestBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPersonalInterestBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPersonalInterestBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-generated-files.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-own-target-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-project-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources-normal/x86_64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources/x86_64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+Copy /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/arm64-apple-ios-simulator.abi.json /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.abi.json (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.abi.json /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/x86_64-apple-ios-simulator.abi.json /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.abi.json (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.abi.json /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/x86_64-apple-ios-simulator.abi.json
+
+Copy /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/x86_64-apple-ios-simulator.swiftmodule /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.swiftmodule (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.swiftmodule /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/x86_64-apple-ios-simulator.swiftmodule
+
+Copy /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.swiftsourceinfo (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.swiftsourceinfo /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal x86_64 Compiling KindredUITests.swift (in target 'KindredUITests' from project 'Kindred')
+
+SwiftDriver\ Compilation KindredUITests normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name KindredUITests -Onone @/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.SwiftFileList -DDEBUG -module-alias Testing\=_Testing_Unavailable -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target x86_64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPersonalInterestBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPersonalInterestBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPersonalInterestBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPersonalInterestBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-generated-files.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-own-target-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-project-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources-normal/x86_64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources/x86_64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+Ld /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/Binary/KindredUITests normal x86_64 (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target x86_64-apple-ios26.0-simulator -bundle -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -filelist /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.LinkFileList -Xlinker -rpath -Xlinker @loader_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests_lto.o -rdynamic -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.swiftmodule -Xlinker -needed_framework -Xlinker XCTest -framework XCTest -Xlinker -needed-lXCTestSwiftSupport -lXCTestSwiftSupport -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests.xctest-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests.xctest-Simulated.xcent.der -Xlinker -no_adhoc_codesign -o /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/Binary/KindredUITests
+
+SwiftDriverJobDiscovery normal arm64 Compiling KindredUITests.swift (in target 'KindredUITests' from project 'Kindred')
+
+SwiftDriver\ Compilation KindredUITests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name KindredUITests -Onone @/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.SwiftFileList -DDEBUG -module-alias Testing\=_Testing_Unavailable -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -target arm64-apple-ios26.0-simulator -g -module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/KindredPersonalInterestBuild/Index.noindex/DataStore -swift-version 6 -I /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -parse-as-library -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/KindredPersonalInterestBuild/SDKStatCaches.noindex/iphonesimulator27.1-24A94232-35d3147121984ba087c28d913653d626.sdkstatcache -output-file-map /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/KindredPersonalInterestBuild/ModuleCache.noindex -sdk-module-cache-path /tmp/KindredPersonalInterestBuild/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/KindredPersonalInterestBuild/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-generated-files.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-own-target-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests-project-headers.hmap -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/include -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources-normal/arm64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources/arm64 -Xcc -I/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests-Swift.h -working-directory /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred -experimental-emit-module-separately -disable-cmo
+
+Ld /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/Binary/KindredUITests normal arm64 (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.0-simulator -bundle -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F/tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk/Developer/Library/Frameworks -filelist /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.LinkFileList -Xlinker -rpath -Xlinker @loader_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests_lto.o -rdynamic -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.swiftmodule -Xlinker -needed_framework -Xlinker XCTest -framework XCTest -Xlinker -needed-lXCTestSwiftSupport -lXCTestSwiftSupport -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests.xctest-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests.xctest-Simulated.xcent.der -Xlinker -no_adhoc_codesign -o /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/Binary/KindredUITests
+
+CreateUniversalBinary /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/KindredUITests normal arm64\ x86_64 (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/lipo -create /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/Binary/KindredUITests /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/Binary/KindredUITests -output /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/KindredUITests
+
+CopySwiftLibs /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/KindredUITests --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/Frameworks --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/PlugIns --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/SystemExtensions --scan-folder /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+ExtractAppIntentsMetadata (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name KindredUITests --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 26.0 --bundle-identifier com.kindred.prototype.KindredUITests --output /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest --target-triple arm64-apple-ios26.0-simulator --target-triple x86_64-apple-ios26.0-simulator --binary-file /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest/KindredUITests --dependency-file /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests_dependency_info.dat --dependency-file /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests_dependency_info.dat --stringsdata-file /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --stringsdata-file /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.SwiftFileList --source-file-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.SwiftFileList --metadata-file-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests.DependencyMetadataFileList --static-metadata-file-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/KindredUITests.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/arm64/KindredUITests.SwiftConstValuesFileList --swift-const-vals-list /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/Kindred.build/Debug-iphonesimulator/KindredUITests.build/Objects-normal/x86_64/KindredUITests.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-28 11:53:59.321 appintentsmetadataprocessor[4427:62002] Starting appintentsmetadataprocessor export
+2026-10-28 11:53:59.326 appintentsmetadataprocessor[4427:62002] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+CodeSign /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app/PlugIns/KindredUITests.xctest
+
+CodeSign /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app (in target 'KindredUITests' from project 'Kindred')
+    cd /Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app
+/tmp/KindredPersonalInterestBuild/Build/Products/Debug-iphonesimulator/KindredUITests-Runner.app: replacing existing signature
+
+PruneExplicitPrecompiledModules /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/KindredPersonalInterestBuild/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /tmp/KindredPersonalInterestBuild/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+2026-10-28 11:53:59.483 xcodebuild[4392:61672] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 11:54:02.565878-0500 KindredUITests-Runner[4430:62189] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-28 11:54:03.659.
+Test Suite 'KindredUITests.xctest' started at 2026-10-28 11:54:03.662.
+Test Suite 'KindredUITests' started at 2026-10-28 11:54:03.662.
+Test Case '-[KindredUITests.KindredUITests testUnsavedSheetsLargeDark]' started.
+    t =     0.00s Start Test at 2026-10-28 11:54:03.663
+    t =     0.07s Set Up
+    t =     0.07s Open com.kindred.prototype
+    t =     0.08s     Launch com.kindred.prototype
+2026-10-28 11:54:03.984 xcodebuild[4392:61672] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-28 11:54:03.984 xcodebuild[4392:61672] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-28 11:54:03.999 xcodebuild[4392:61672] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.23s         Setting up automation session
+    t =     2.31s         Wait for com.kindred.prototype to idle
+    t =     4.93s Tap "discoveryPreferences" Button
+    t =     4.93s     Wait for com.kindred.prototype to idle
+    t =     4.94s     Find the "discoveryPreferences" Button
+    t =     5.08s     Check for interrupting elements affecting "discoveryPreferences" Button
+    t =     5.14s     Synthesize event
+    t =     5.44s     Wait for com.kindred.prototype to idle
+    t =     5.56s Tap "Cancel" Button
+    t =     5.56s     Wait for com.kindred.prototype to idle
+    t =     6.42s     Find the "Cancel" Button
+    t =     6.52s     Check for interrupting elements affecting "Cancel" Button
+    t =     6.57s     Synthesize event
+    t =     6.86s     Wait for com.kindred.prototype to idle
+    t =     7.50s Find the "discoveryPreferences" Button
+    t =     7.56s Tap "discoveryPreferences" Button
+    t =     7.56s     Wait for com.kindred.prototype to idle
+    t =     7.56s     Find the "discoveryPreferences" Button
+    t =     7.59s     Check for interrupting elements affecting "discoveryPreferences" Button
+    t =     7.62s     Synthesize event
+    t =     7.92s     Wait for com.kindred.prototype to idle
+    t =     8.67s Press NavigationBar (First Match)[0.50, 0.50] for 0.1 seconds, then drag to Target Application 'com.kindred.prototype'[0.50, 0.95] with velocity of 500.00 pixels per second, and then hold for 0.0 seconds 
+    t =     8.67s     Wait for com.kindred.prototype to idle
+    t =     8.67s     Find the NavigationBar (First Match)
+    t =     8.72s     Check for interrupting elements affecting "Preferences" NavigationBar
+    t =     8.78s     Synthesize event
+    t =     8.78s         Find the "Preferences" NavigationBar
+    t =     8.80s         Find the "Preferences" NavigationBar
+    t =     8.81s         Find the Target Application 'com.kindred.prototype'
+    t =     8.85s         Find the Target Application 'com.kindred.prototype'
+    t =     8.89s         Find the "Preferences" NavigationBar
+    t =    10.71s     Wait for com.kindred.prototype to idle
+    t =    10.72s Waiting 3.0s for "savePreferences" Button to not exist
+    t =    11.75s     Checking `Expect predicate `existsNoRetry == 0` for object "savePreferences" Button`
+    t =    11.75s         Checking existence of `"savePreferences" Button`
+    t =    11.84s         Capturing element debug description
+    t =    12.77s     Checking `Expect predicate `existsNoRetry == 0` for object "savePreferences" Button`
+    t =    12.77s         Checking existence of `"savePreferences" Button`
+    t =    12.85s         Capturing element debug description
+    t =    13.72s     Checking `Expect predicate `existsNoRetry == 0` for object "savePreferences" Button`
+    t =    13.72s         Checking existence of `"savePreferences" Button`
+    t =    13.81s         Capturing element debug description
+    t =    13.81s     Checking existence of `"savePreferences" Button`
+    t =    13.86s Collecting debug information to assist test failure triage
+    t =    13.86s     Requesting snapshot of accessibility hierarchy for app with pid 4435
+/Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/KindredUITests/KindredUITests.swift:44: error: -[KindredUITests.KindredUITests testUnsavedSheetsLargeDark] : XCTAssertTrue failed
+    t =    13.97s Tear Down
+Test Case '-[KindredUITests.KindredUITests testUnsavedSheetsLargeDark]' failed (14.319 seconds).
+Test Case '-[KindredUITests.KindredUITests testUnsavedSheetsProtectCancelAndSwipe]' started.
+    t =     0.00s Start Test at 2026-10-28 11:54:17.984
+    t =     0.05s Set Up
+    t =     0.05s Open com.kindred.prototype
+    t =     0.05s     Launch com.kindred.prototype
+    t =     0.05s         Terminate com.kindred.prototype:4435
+2026-10-28 11:54:18.171 xcodebuild[4392:61672] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 11:54:18.175 xcodebuild[4392:61672] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 11:54:19.108 xcodebuild[4392:61672] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-10-28 11:54:19.109 xcodebuild[4392:61672] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-10-28 11:54:19.139 xcodebuild[4392:61672] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     1.34s         Setting up automation session
+    t =     2.36s         Wait for com.kindred.prototype to idle
+    t =     4.20s Tap "discoveryPreferences" Button
+    t =     4.20s     Wait for com.kindred.prototype to idle
+    t =     4.20s     Find the "discoveryPreferences" Button
+    t =     4.31s     Check for interrupting elements affecting "discoveryPreferences" Button
+    t =     4.35s     Synthesize event
+    t =     4.65s     Wait for com.kindred.prototype to idle
+    t =     4.85s Tap "Cancel" Button
+    t =     4.85s     Wait for com.kindred.prototype to idle
+    t =     5.36s     Find the "Cancel" Button
+    t =     5.48s     Check for interrupting elements affecting "Cancel" Button
+    t =     5.54s     Synthesize event
+    t =     5.85s     Wait for com.kindred.prototype to idle
+    t =     6.60s Find the "discoveryPreferences" Button
+    t =     6.66s Tap "discoveryPreferences" Button
+    t =     6.66s     Wait for com.kindred.prototype to idle
+    t =     6.67s     Find the "discoveryPreferences" Button
+    t =     6.70s     Check for interrupting elements affecting "discoveryPreferences" Button
+    t =     6.73s     Synthesize event
+    t =     7.02s     Wait for com.kindred.prototype to idle
+    t =     7.44s Press NavigationBar (First Match)[0.50, 0.50] for 0.1 seconds, then drag to Target Application 'com.kindred.prototype'[0.50, 0.95] with velocity of 500.00 pixels per second, and then hold for 0.0 seconds 
+    t =     7.44s     Wait for com.kindred.prototype to idle
+    t =     7.45s     Find the NavigationBar (First Match)
+    t =     7.48s     Check for interrupting elements affecting "Discovery preferences" NavigationBar
+    t =     7.55s     Synthesize event
+    t =     7.55s         Find the "Discovery preferences" NavigationBar
+    t =     7.58s         Find the "Discovery preferences" NavigationBar
+    t =     7.60s         Find the Target Application 'com.kindred.prototype'
+    t =     7.65s         Find the Target Application 'com.kindred.prototype'
+    t =     7.71s         Find the "Discovery preferences" NavigationBar
+    t =     9.53s     Wait for com.kindred.prototype to idle
+    t =     9.88s Waiting 3.0s for "savePreferences" Button to not exist
+    t =    10.92s     Checking `Expect predicate `existsNoRetry == 0` for object "savePreferences" Button`
+    t =    10.92s         Checking existence of `"savePreferences" Button`
+    t =    10.98s Tap "discoveryPreferences" Button
+    t =    10.98s     Wait for com.kindred.prototype to idle
+    t =    10.98s     Find the "discoveryPreferences" Button
+    t =    11.02s     Check for interrupting elements affecting "discoveryPreferences" Button
+    t =    11.06s     Synthesize event
+    t =    11.35s     Wait for com.kindred.prototype to idle
+    t =    11.80s Find the "Female" Switch
+    t =    11.91s Tap "Female" Switch[0.90, 0.50]
+    t =    11.91s     Wait for com.kindred.prototype to idle
+    t =    11.92s     Find the "Female" Switch
+    t =    11.99s     Check for interrupting elements affecting "Female" Switch
+    t =    12.05s     Synthesize event
+    t =    12.05s         Find the "Female" Switch
+    t =    12.12s         Find the "Female" Switch
+    t =    12.19s         Find the "Female" Switch
+    t =    12.55s     Wait for com.kindred.prototype to idle
+    t =    13.85s Tap "Cancel" Button
+    t =    13.85s     Wait for com.kindred.prototype to idle
+    t =    13.86s     Find the "Cancel" Button
+    t =    13.96s     Check for interrupting elements affecting "Cancel" Button
+    t =    14.01s     Synthesize event
+    t =    14.31s     Wait for com.kindred.prototype to idle
+    t =    15.08s Waiting 3.0s for "Discard changes?" StaticText to exist
+    t =    16.11s     Checking `Expect predicate `existsNoRetry == 1` for object "Discard changes?" StaticText`
+    t =    16.11s         Checking existence of `"Discard changes?" StaticText`
+    t =    16.20s Tap "Keep editing" Button
+    t =    16.20s     Wait for com.kindred.prototype to idle
+    t =    16.21s     Find the "Keep editing" Button
+    t =    16.28s     Check for interrupting elements affecting "Keep editing" Button
+    t =    16.35s     Synthesize event
+    t =    16.64s     Wait for com.kindred.prototype to idle
+    t =    16.95s Find the "Female" Switch
+    t =    17.02s Press NavigationBar (First Match)[0.50, 0.50] for 0.1 seconds, then drag to Target Application 'com.kindred.prototype'[0.50, 0.90] with velocity of 500.00 pixels per second, and then hold for 0.0 seconds 
+    t =    17.02s     Wait for com.kindred.prototype to idle
+    t =    17.02s     Find the NavigationBar (First Match)
+    t =    17.04s     Check for interrupting elements affecting "Discovery preferences" NavigationBar
+    t =    17.09s     Synthesize event
+    t =    17.09s         Find the "Discovery preferences" NavigationBar
+    t =    17.11s         Find the "Discovery preferences" NavigationBar
+    t =    17.13s         Find the Target Application 'com.kindred.prototype'
+    t =    17.18s         Find the Target Application 'com.kindred.prototype'
+    t =    17.23s         Find the "Discovery preferences" NavigationBar
+    t =    18.95s     Wait for com.kindred.prototype to idle
+    t =    19.28s Waiting 3.0s for "Discard changes" Button to exist
+    t =    20.31s     Checking `Expect predicate `existsNoRetry == 1` for object "Discard changes" Button`
+    t =    20.31s         Checking existence of `"Discard changes" Button`
+    t =    20.43s Find the Target Application 'com.kindred.prototype'
+    t =    20.60s Added attachment named 'Preferences discard confirmation'
+    t =    20.60s Tap "Discard changes" Button
+    t =    20.60s     Wait for com.kindred.prototype to idle
+    t =    20.60s     Find the "Discard changes" Button
+    t =    20.68s     Check for interrupting elements affecting "Discard changes" Button
+    t =    20.75s     Synthesize event
+    t =    21.04s     Wait for com.kindred.prototype to idle
+    t =    21.36s Tap "discoveryPreferences" Button
+    t =    21.36s     Wait for com.kindred.prototype to idle
+    t =    21.89s     Find the "discoveryPreferences" Button
+    t =    21.95s     Check for interrupting elements affecting "discoveryPreferences" Button
+    t =    21.98s     Synthesize event
+    t =    22.28s     Wait for com.kindred.prototype to idle
+    t =    22.70s Find the "Female" Switch
+    t =    22.80s Find the "Female" Switch
+    t =    22.87s Tap "Female" Switch[0.90, 0.50]
+    t =    22.87s     Wait for com.kindred.prototype to idle
+    t =    22.87s     Find the "Female" Switch
+    t =    22.94s     Check for interrupting elements affecting "Female" Switch
+    t =    23.00s     Synthesize event
+    t =    23.00s         Find the "Female" Switch
+    t =    23.07s         Find the "Female" Switch
+    t =    23.14s         Find the "Female" Switch
+    t =    23.49s     Wait for com.kindred.prototype to idle
+    t =    24.78s Tap "Female" Switch[0.90, 0.50]
+    t =    24.79s     Wait for com.kindred.prototype to idle
+    t =    24.79s     Find the "Female" Switch
+    t =    24.89s     Check for interrupting elements affecting "Female" Switch
+    t =    24.95s     Synthesize event
+    t =    24.95s         Find the "Female" Switch
+    t =    25.02s         Find the "Female" Switch
+    t =    25.09s         Find the "Female" Switch
+    t =    25.44s     Wait for com.kindred.prototype to idle
+    t =    26.73s Tap "Cancel" Button
+    t =    26.73s     Wait for com.kindred.prototype to idle
+    t =    26.74s     Find the "Cancel" Button
+    t =    26.84s     Check for interrupting elements affecting "Cancel" Button
+    t =    26.90s     Synthesize event
+    t =    27.20s     Wait for com.kindred.prototype to idle
+    t =    27.95s Find the "discoveryPreferences" Button
+    t =    28.01s Tap "You" Button
+    t =    28.01s     Wait for com.kindred.prototype to idle
+    t =    28.02s     Find the "You" Button
+    t =    28.05s     Check for interrupting elements affecting "person.crop.circle" Button
+    t =    28.08s     Synthesize event
+    t =    28.37s     Wait for com.kindred.prototype to idle
+    t =    29.54s Tap "editProfile" Button
+    t =    29.55s     Wait for com.kindred.prototype to idle
+    t =    29.55s     Find the "editProfile" Button
+    t =    29.61s     Check for interrupting elements affecting "editProfile" Button
+    t =    29.64s     Synthesize event
+    t =    29.93s     Wait for com.kindred.prototype to idle
+    t =    30.17s Tap "editName" TextField
+    t =    30.17s     Wait for com.kindred.prototype to idle
+    t =    30.68s     Find the "editName" TextField
+    t =    30.83s     Check for interrupting elements affecting "editName" TextField
+    t =    30.89s     Synthesize event
+    t =    31.18s     Wait for com.kindred.prototype to idle
+<unknown>:0: warning: -[KindredUITests.KindredUITests testUnsavedSheetsProtectCancelAndSwipe] : Invalid frame dimension (negative or non-finite).
+    t =    31.69s Type ' revised' into "editName" TextField
+    t =    31.69s     Wait for com.kindred.prototype to idle
+    t =    31.87s     Find the "editName" TextField
+    t =    31.98s     Check for interrupting elements affecting "editName" TextField
+    t =    32.05s     Synthesize event
+    t =    32.39s     Wait for com.kindred.prototype to idle
+    t =    32.56s Tap "Done" Button
+    t =    32.56s     Wait for com.kindred.prototype to idle
+    t =    32.56s     Find the "Done" Button
+    t =    32.67s     Check for interrupting elements affecting "Done" Button
+    t =    32.76s     Synthesize event
+    t =    33.05s     Wait for com.kindred.prototype to idle
+    t =    33.86s Press NavigationBar (First Match)[0.50, 0.50] for 0.1 seconds, then drag to Target Application 'com.kindred.prototype'[0.50, 0.90] with velocity of 500.00 pixels per second, and then hold for 0.0 seconds 
+    t =    33.86s     Wait for com.kindred.prototype to idle
+    t =    33.87s     Find the NavigationBar (First Match)
+    t =    33.91s     Check for interrupting elements affecting "Edit your story" NavigationBar
+    t =    33.98s     Synthesize event
+    t =    33.98s         Find the "Edit your story" NavigationBar
+    t =    34.01s         Find the "Edit your story" NavigationBar
+    t =    34.02s         Find the Target Application 'com.kindred.prototype'
+    t =    34.07s         Find the Target Application 'com.kindred.prototype'
+    t =    34.12s         Find the "Edit your story" NavigationBar
+    t =    35.84s     Wait for com.kindred.prototype to idle
+    t =    36.25s Waiting 3.0s for "Keep editing" Button to exist
+    t =    37.28s     Checking `Expect predicate `existsNoRetry == 1` for object "Keep editing" Button`
+    t =    37.28s         Checking existence of `"Keep editing" Button`
+    t =    37.39s Tap "Keep editing" Button
+    t =    37.39s     Wait for com.kindred.prototype to idle
+    t =    37.39s     Find the "Keep editing" Button
+    t =    37.47s     Check for interrupting elements affecting "Keep editing" Button
+    t =    37.54s     Synthesize event
+    t =    37.84s     Wait for com.kindred.prototype to idle
+    t =    38.17s Find the "editName" TextField
+    t =    38.24s Tap "Cancel" Button
+    t =    38.24s     Wait for com.kindred.prototype to idle
+    t =    38.24s     Find the "Cancel" Button
+    t =    38.31s     Check for interrupting elements affecting "Cancel" Button
+    t =    38.37s     Synthesize event
+    t =    38.68s     Wait for com.kindred.prototype to idle
+    t =    39.38s Find the Target Application 'com.kindred.prototype'
+    t =    39.56s Added attachment named 'Profile discard confirmation'
+    t =    39.56s Tap "Discard changes" Button
+    t =    39.56s     Wait for com.kindred.prototype to idle
+    t =    39.56s     Find the "Discard changes" Button
+    t =    39.63s     Check for interrupting elements affecting "Discard changes" Button
+    t =    39.71s     Synthesize event
+    t =    40.00s     Wait for com.kindred.prototype to idle
+    t =    40.32s Tap "editProfile" Button
+    t =    40.32s     Wait for com.kindred.prototype to idle
+    t =    40.36s     Find the "editProfile" Button
+    t =    40.43s     Check for interrupting elements affecting "editProfile" Button
+    t =    40.48s     Synthesize event
+    t =    40.49s         Scroll element to visible
+    t =    40.49s         Find the "editProfile" Button
+    t =    40.57s         Computed hit point {-1, -1} after scrolling to visible
+    t =    40.86s     Wait for com.kindred.prototype to idle
+    t =    40.89s Find the "editName" TextField
+    t =    41.95s     Find the "editName" TextField (retry 1)
+    t =    42.99s     Find the "editName" TextField (retry 2)
+    t =    43.03s     Collecting debug information to assist test failure triage
+    t =    43.03s         Requesting snapshot of accessibility hierarchy for app with pid 4450
+    t =    43.10s     Requesting snapshot of accessibility hierarchy for app with pid 4450
+    t =    43.13s     Find: Descendants matching type TextField
+    t =    43.13s     Requesting snapshot of accessibility hierarchy for app with pid 4450
+<unknown>:0: error: -[KindredUITests.KindredUITests testUnsavedSheetsProtectCancelAndSwipe] : Failed to get matching snapshot: No matches found for Descendants matching type TextField from input {(
+    Application, pid: 4450, label: 'Kindred'
+)}
+    t =    43.18s Tear Down
+Test Case '-[KindredUITests.KindredUITests testUnsavedSheetsProtectCancelAndSwipe]' failed (43.573 seconds).
+Test Suite 'KindredUITests' failed at 2026-10-28 11:55:01.557.
+	 Executed 2 tests, with 2 failures (0 unexpected) in 57.892 (57.895) seconds
+Test Suite 'KindredUITests.xctest' failed at 2026-10-28 11:55:01.558.
+	 Executed 2 tests, with 2 failures (0 unexpected) in 57.892 (57.896) seconds
+Test Suite 'Selected tests' failed at 2026-10-28 11:55:01.559.
+	 Executed 2 tests, with 2 failures (0 unexpected) in 57.892 (57.900) seconds
+2026-10-28 11:55:01.650 xcodebuild[4392:61672] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 11:55:01.670 xcodebuild[4392:61672] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 11:55:01.691 xcodebuild[4392:61672] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 11:55:01.692 xcodebuild[4392:61672] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-10-28 11:55:02.010 xcodebuild[4392:61672] [MT] IDETestOperationsObserverDebug: 62.626 elapsed -- Testing started completed.
+2026-10-28 11:55:02.010 xcodebuild[4392:61672] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-28 11:55:02.010 xcodebuild[4392:61672] [MT] IDETestOperationsObserverDebug: 62.626 sec, +62.626 sec -- end
+
+Test session results, code coverage, and logs:
+	/tmp/KindredUnsavedDelivery.xcresult
+
+Failing tests:
+	KindredUITests.testUnsavedSheetsLargeDark()
+	KindredUITests.testUnsavedSheetsProtectCancelAndSwipe()
+
+** TEST FAILED **
+
+Testing started

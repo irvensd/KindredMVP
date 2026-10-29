@@ -18,6 +18,145 @@ final class KindredUITests: XCTestCase {
         let attachment = XCTAttachment(screenshot: app.screenshot()); attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
     }
     func next() { let button = app.buttons["onboardingNext"]; XCTAssertTrue(button.waitForExistence(timeout: 3)); button.tap() }
+    func testScrollingReadability() {
+        for options in [[], ["--dark"], ["--large-text"], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
+            launch(options: options)
+            let mode = (options.contains("--large-text") ? "large" : "standard") + (options.contains("--dark") ? " dark" : " light")
+            XCTAssertTrue(app.tabBars.buttons["Discover"].waitForExistence(timeout: 5))
+            for tab in ["Discover", "Likes", "You", "Chats"] {
+                app.tabBars.buttons[tab].tap()
+                app.swipeUp()
+                capture("Scroll readability \(tab) \(mode)")
+                XCTAssertTrue(app.tabBars.buttons[tab].isHittable)
+            }
+        }
+    }
+
+    func testUnsavedSheetsProtectCancelAndSwipe() { checkUnsavedSheets(options: []) }
+    func testUnsavedSheetsLargeDark() { checkUnsavedSheets(options: ["--dark", "--large-text", "--reduce-motion"]) }
+    private func checkUnsavedSheets(options: [String]) {
+        launch(options: options)
+        app.buttons["discoveryPreferences"].tap()
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.buttons["discoveryPreferences"].isHittable)
+        app.buttons["discoveryPreferences"].tap()
+        swipeSheetDown()
+        XCTAssertTrue(app.buttons["savePreferences"].waitForNonExistence(timeout: 3))
+        app.buttons["discoveryPreferences"].tap()
+        let female = app.switches["Female"]
+        reveal(female)
+        female.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.staticTexts["Discard changes?"].waitForExistence(timeout: 3))
+        app.buttons["Keep editing"].tap()
+        XCTAssertEqual(female.value as? String, "0")
+        swipeSheetDown()
+        XCTAssertTrue(app.buttons["Discard changes"].waitForExistence(timeout: 3))
+        capture("Preferences discard confirmation")
+        app.buttons["Discard changes"].tap()
+        XCTAssertTrue(app.buttons["savePreferences"].waitForNonExistence(timeout: 3))
+        app.buttons["discoveryPreferences"].tap()
+        reveal(female)
+        XCTAssertEqual(female.value as? String, "1")
+        female.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap(); female.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap() // Reverting to the saved value is clean.
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.buttons["discoveryPreferences"].isHittable)
+        app.tabBars.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        let name = app.textFields["editName"]
+        name.tap(); name.typeText(" revised")
+        app.buttons["Done"].tap()
+        swipeSheetDown()
+        XCTAssertTrue(app.buttons["Keep editing"].waitForExistence(timeout: 3))
+        app.buttons["Keep editing"].tap()
+        XCTAssertEqual(name.value as? String, "Alex revised")
+        app.buttons["Cancel"].tap()
+        capture("Profile discard confirmation")
+        app.buttons["Discard changes"].tap()
+        XCTAssertTrue(name.waitForNonExistence(timeout: 3))
+        app.buttons["editProfile"].tap()
+        XCTAssertTrue(name.waitForExistence(timeout: 3))
+        XCTAssertEqual(name.value as? String, "Alex")
+        name.tap(); name.typeText(" saved")
+        app.buttons["saveProfile"].tap()
+        XCTAssertTrue(app.staticTexts["Alex saved, 28"].waitForExistence(timeout: 3))
+    }
+
+    private func swipeSheetDown() {
+        let top = app.navigationBars.firstMatch.frame.minY - 8
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0))
+            .withOffset(CGVector(dx: 0, dy: top))
+            .press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)))
+    }
+
+    func testConversationDraftSurvivesReopeningAndClearsAfterSend() {
+        launch()
+        app.tabBars.buttons["Chats"].tap()
+        app.buttons["conversation-eli"].tap()
+        let composer = app.textFields["messageComposer"]
+        composer.tap(); composer.typeText("A question for Eli")
+        app.buttons["Done"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.tabBars.buttons["You"].tap(); app.tabBars.buttons["Chats"].tap()
+        app.buttons["conversation-eli"].tap()
+        XCTAssertEqual(composer.value as? String, "A question for Eli")
+        capture("Restored conversation draft")
+        app.buttons["sendMessage"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.buttons["conversation-eli"].tap()
+        XCTAssertFalse(app.buttons["sendMessage"].isEnabled)
+        XCTAssertTrue(app.staticTexts["A question for Eli"].exists)
+    }
+
+    func testProfileErrorsScrollAndClearWhenCorrected() {
+        launch(); app.tabBars.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        let name = app.textFields["editName"]
+        name.tap(); name.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 4))
+        app.buttons["Done"].tap()
+        for _ in 0..<4 { app.swipeUp() }
+        app.buttons["saveProfile"].tap()
+        let error = app.descendants(matching: .any).matching(identifier: "profileError-name").firstMatch
+        XCTAssertTrue(error.waitForExistence(timeout: 3)); capture("Inline profile name error")
+        XCTAssertTrue(error.isHittable)
+        name.tap(); name.typeText("Jordan")
+        XCTAssertFalse(error.exists)
+        app.buttons["Done"].tap()
+        let prompt = app.textFields.matching(NSPredicate(format: "identifier BEGINSWITH 'prompt-'")).firstMatch
+        reveal(prompt, attempts: 12)
+        XCTAssertTrue(prompt.isHittable)
+        let promptID = prompt.identifier
+        let answer = app.textFields[promptID]
+        answer.tap(); answer.typeText(String(repeating: "a", count: 241))
+        XCTAssertGreaterThan((answer.value as? String ?? "").count, 240)
+        app.buttons["Done"].tap()
+        for _ in 0..<4 { app.swipeDown() }
+        app.buttons["saveProfile"].tap()
+        let promptError = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'profileError-prompt-'")).firstMatch
+        capture("Prompt validation after save")
+        XCTAssertTrue(promptError.waitForExistence(timeout: 3)); capture("Inline profile prompt error")
+        XCTAssertTrue(promptError.isHittable)
+        answer.tap(); answer.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 241))
+        XCTAssertFalse(promptError.exists)
+        app.buttons["saveProfile"].tap()
+        XCTAssertTrue(app.staticTexts["Jordan, 28"].waitForExistence(timeout: 3))
+    }
+
+    func testProfileInlineErrorsLargeDark() {
+        launch(options: ["--large-text", "--dark", "--reduce-motion"])
+        app.tabBars.buttons["You"].tap(); reveal(app.buttons["editProfile"]); app.buttons["editProfile"].tap()
+        let name = app.textFields["editName"]
+        name.tap(); name.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 4))
+        app.buttons["Done"].tap()
+        app.swipeUp(); app.swipeUp()
+        app.buttons["saveProfile"].tap()
+        let error = app.descendants(matching: .any).matching(identifier: "profileError-name").firstMatch
+        XCTAssertTrue(error.waitForExistence(timeout: 3)); XCTAssertTrue(error.isHittable)
+        capture("Inline error large dark")
+        name.tap(); name.typeText("Alex")
+        XCTAssertFalse(error.exists)
+        app.buttons["saveProfile"].tap()
+        XCTAssertTrue(app.buttons["editProfile"].waitForExistence(timeout: 3))
+    }
+
     func testWelcomeAndCompleteOnboarding() {
         launch(demo: false)
         XCTAssertTrue(app.buttons["getStarted"].waitForExistence(timeout: 5)); capture("Welcome")
@@ -90,7 +229,7 @@ final class KindredUITests: XCTestCase {
         app.tabBars.buttons["Likes"].tap(); app.buttons["Your likes"].tap()
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Amara’s photo 2")).firstMatch.exists)
         capture("Photo context in Likes")
-        let remove = app.buttons["Remove like"]; reveal(remove); remove.tap()
+        let remove = app.buttons["removeLike-amara"]; reveal(remove); remove.tap()
         app.tabBars.buttons["Discover"].tap(); reveal(photo)
         XCTAssertTrue(photo.isEnabled)
         photo.tap()
@@ -370,8 +509,11 @@ final class KindredUITests: XCTestCase {
         let field = app.textFields["editName"]; XCTAssertTrue(field.waitForExistence(timeout: 3)); field.tap()
         field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 4))
         app.buttons["saveProfile"].tap()
-        XCTAssertTrue(app.alerts["Check your story"].waitForExistence(timeout: 3))
-        app.alerts.buttons["OK"].tap(); app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.staticTexts["Enter your first name."].waitForExistence(timeout: 3))
+        capture("Invalid name field")
+        XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "profileError-name").firstMatch.isHittable)
+        app.buttons["Cancel"].tap()
+        app.buttons["Discard changes"].tap()
         XCTAssertTrue(app.staticTexts["Alex, 28"].exists)
     }
     func testMutualMatchRoutesToChatAndSuggestionRequiresSend() throws {
@@ -396,7 +538,7 @@ final class KindredUITests: XCTestCase {
         XCTAssertEqual(app.buttons.matching(identifier: "conversation-amara").count, 1)
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'You: Hi Amara!'")).firstMatch.exists)
         app.tabBars.buttons["Likes"].tap()
-        XCTAssertTrue(app.buttons["Open demo chat"].exists)
+        XCTAssertTrue(app.buttons["sayHello-amara"].exists)
     }
     func testPreferencePrecisionAndSavedRange() {
         launch(); app.buttons["discoveryPreferences"].tap()
@@ -434,6 +576,8 @@ final class KindredUITests: XCTestCase {
         app.steppers["radiusAdjustment"].buttons["radiusAdjustment-Increment"].tap()
         XCTAssertEqual(app.steppers["radiusAdjustment"].value as? String, "250 miles")
         app.buttons["Cancel"].tap()
+        app.buttons["Discard changes"].tap()
+        XCTAssertTrue(app.buttons["savePreferences"].waitForNonExistence(timeout: 3))
         app.buttons["passProfile"].tap()
         XCTAssertTrue(app.staticTexts["You've met this little circle"].waitForExistence(timeout: 3), "Canceled radius changes must not include more distant members")
     }
@@ -474,6 +618,7 @@ final class KindredUITests: XCTestCase {
         app.buttons["discoveryPreferences"].tap()
         XCTAssertEqual(app.switches["Female"].value as? String, "0")
         app.switches["Female"].coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap(); app.buttons["Cancel"].tap()
+        app.buttons["Discard changes"].tap()
         XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Eli")
         app.buttons["discoveryPreferences"].tap()
         let radius = app.sliders["Discovery radius"]; reveal(radius)
@@ -557,6 +702,7 @@ final class KindredUITests: XCTestCase {
         app.buttons["editProfile"].tap()
         let field = app.textFields["editName"]; field.tap(); field.typeText(" changed")
         app.buttons["Cancel"].tap()
+        app.buttons["Discard changes"].tap()
         XCTAssertTrue(app.staticTexts["Alex, 28"].exists)
     }
     func testDarkLargeTypeReduceMotionAndAccessibleActions() throws {
@@ -589,9 +735,37 @@ final class KindredUITests: XCTestCase {
         XCTAssertEqual(field.value as? String, "My own draft")
         starter.tap(); app.buttons["Use suggestion"].tap()
         XCTAssertTrue((field.value as? String)?.contains("Hi Eli!") == true)
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+        XCTAssertFalse(starter.exists, "Choosing an idea returns attention to the editable draft")
+        XCTAssertLessThanOrEqual(field.frame.maxY, app.keyboards.firstMatch.frame.minY + 1)
+        capture("Conversation starter focused composer")
         app.buttons["Done"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.staticTexts["That sounds like my kind of afternoon. I'd bring something homemade!"].exists)
+    }
+    func testConversationKeyboardKeepsComposerVisible() {
+        for options in [[], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
+            launch(options: options)
+            app.tabBars.buttons["Chats"].tap()
+            capture("Refined chat previews \(options)")
+            app.buttons["conversation-eli"].tap()
+            let field = app.textFields["messageComposer"]
+            field.tap(); field.typeText("A thoughtful question\nAnd a little more")
+            XCTAssertTrue(app.keyboards.firstMatch.exists)
+            XCTAssertLessThanOrEqual(field.frame.maxY, app.keyboards.firstMatch.frame.minY + 1)
+            XCTAssertTrue(app.buttons["sendMessage"].isHittable)
+            capture("Refined multiline composer \(options)")
+            app.buttons["Done"].tap()
+            XCTAssertTrue(field.isHittable)
+            field.tap()
+            XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
+            XCTAssertTrue((field.value as? String)?.contains("thoughtful question") == true)
+            app.buttons["sendMessage"].tap()
+            XCTAssertTrue(app.keyboards.firstMatch.exists)
+            app.buttons["Done"].tap()
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'You: A thoughtful question'")).firstMatch.exists)
+        }
     }
     func testPreferencesAndChatsLargeTextVisualChecks() throws {
         launch(options: ["--dark", "--large-text", "--reduce-motion"])

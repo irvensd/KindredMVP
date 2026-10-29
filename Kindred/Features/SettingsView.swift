@@ -76,7 +76,7 @@ struct YouView: View {
                 HStack(spacing: 8) { BrandMark(size: 18); Text("Shared faith. Genuine connection.").font(.footnote).foregroundStyle(Color.muted) }.frame(maxWidth: .infinity).padding(.top, 12)
                 Text("KINDRED · PHASE 1.5 · ALL CHANGES RESET ON RELAUNCH").font(.caption2).tracking(1).foregroundStyle(Color.muted).frame(maxWidth: .infinity).multilineTextAlignment(.center)
             }.padding(24)
-        }.background(Color.paper).toolbar(.hidden, for: .navigationBar)
+        }.background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $editProfile) { EditProfileView(profile: store.state.currentProfile) }
             .sheet(isPresented: $preferences) { DiscoveryPreferencesView() }
     }
@@ -100,6 +100,8 @@ struct DiscoveryPreferencesView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var preferences = DiscoveryPreferences()
     @State private var validation: String?
+    @State private var confirmDiscard = false
+    private var hasChanges: Bool { preferences != store.state.discovery }
     var body: some View {
         NavigationStack {
             Form {
@@ -118,9 +120,14 @@ struct DiscoveryPreferencesView: View {
                 Section { Button("Restore default preferences") { preferences = DiscoveryPreferences() } }
             }.scrollContentBackground(.hidden).background(Color.paper).navigationTitle(typeSize.isAccessibilitySize ? "Preferences" : "Discovery preferences").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { if hasChanges { confirmDiscard = true } else { dismiss() } } }
                     ToolbarItem(placement: .confirmationAction) { Button("Save") { if store.updateDiscovery(preferences) { dismiss() } else { validation = store.errorMessage; store.errorMessage = nil } }.fontWeight(.semibold).accessibilityIdentifier("savePreferences") }
                 }.onAppear { preferences = store.state.discovery }
+                .background(SheetDismissalGuard(hasChanges: hasChanges) { confirmDiscard = true })
+                .alert("Discard changes?", isPresented: $confirmDiscard) {
+                    Button("Discard changes", role: .destructive) { dismiss() }
+                    Button("Keep editing", role: .cancel) { }
+                } message: { Text("Your unsaved changes will be lost.") }
                 .alert("Check your preferences", isPresented: Binding(get: { validation != nil }, set: { if !$0 { validation = nil } })) { Button("OK") { validation = nil } } message: { Text(validation ?? "") }
         }
     }
@@ -132,30 +139,61 @@ struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @State var profile: MemberProfile
     @State private var validation: String?
+    @State private var attemptedSave = false
+    private var issues: [ProfileValidationIssue] { attemptedSave ? profile.validationIssues : [] }
+    private func error(_ field: String) -> String? { issues.first { $0.id == field }?.message }
+    @State private var confirmDiscard = false
+    private var hasChanges: Bool { profile != store.state.currentProfile }
     var body: some View {
         NavigationStack {
+            ScrollViewReader { proxy in
             Form {
                 Section("The essentials") {
-                    TextField("First name", text: $profile.name).textContentType(.givenName).accessibilityIdentifier("editName")
-                    TextField("City or general area", text: $profile.city)
+                    VStack(alignment: .leading, spacing: 6) {
+                        TextField("First name", text: $profile.name).textContentType(.givenName).accessibilityIdentifier("editName")
+                        ProfileFieldError(message: error("name"), field: "name")
+                    }.id("name")
+                    VStack(alignment: .leading, spacing: 6) {
+                        TextField("City or general area", text: $profile.city).accessibilityIdentifier("editCity")
+                        ProfileFieldError(message: error("city"), field: "city")
+                    }.id("city")
                     TextField("What fills your days?", text: $profile.occupation)
-                    TextField("Your bio (up to 500 characters)", text: $profile.bio, axis: .vertical).lineLimit(3...6)
+                    VStack(alignment: .leading, spacing: 6) {
+                        TextField("Your bio (up to 500 characters)", text: $profile.bio, axis: .vertical).lineLimit(3...6).accessibilityIdentifier("editBio")
+                        ProfileFieldError(message: error("bio"), field: "bio")
+                    }.id("bio")
                     Picker("Gender", selection: $profile.gender) { ForEach(Gender.allCases) { Text($0.rawValue).tag($0) } }
                     Picker("I'm looking for", selection: $profile.intention) { ForEach(Intention.allCases) { Text($0.rawValue).tag($0) } }
                 }
                 Section { Text("Only save what feels like you. Optional sections can stay blank; Cancel keeps your saved profile unchanged.").font(.footnote).foregroundStyle(Color.muted) }
-                Section("Your interests · optional") { InterestPicker(selected: $profile.interests) }
-                Section("Faith & lifestyle · optional") { FaithEditor(faith: $profile.faith) }
-                Section("Your voice · optional") { PromptEditor(prompts: $profile.prompts) }
-                Section("Your photos") { PhotoEditor(photos: $profile.photos) }
-                Section { Text("Your age is set during onboarding. Changes to date of birth will require verified account support in a production app.").font(.footnote).foregroundStyle(Color.muted) }
+                Section("Your interests · optional") { InterestPicker(selected: $profile.interests); ProfileFieldError(message: error("interests"), field: "interests") }.id("interests")
+                Section("Faith & lifestyle · optional") { FaithEditor(faith: $profile.faith, validationMessage: error("faith")) }
+                Section("Your voice · optional") { ProfileFieldError(message: error("prompts"), field: "prompts"); PromptEditor(prompts: $profile.prompts, issues: issues) }.id("prompts")
+                Section("Your photos") { ProfileFieldError(message: error("photos"), field: "photos"); PhotoEditor(photos: $profile.photos) }.id("photos")
+                Section { ProfileFieldError(message: error("age"), field: "age"); Text("Your age is set during onboarding. Changes to date of birth will require verified account support in a production app.").font(.footnote).foregroundStyle(Color.muted) }.id("age")
             }.scrollDismissesKeyboard(.interactively).scrollContentBackground(.hidden).background(Color.paper).navigationTitle("Edit your story").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                    ToolbarItem(placement: .confirmationAction) { Button("Save") { if store.updateProfile(profile) { dismiss() } else { validation = store.errorMessage; store.errorMessage = nil } }.fontWeight(.semibold).accessibilityIdentifier("saveProfile") }
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { if hasChanges { confirmDiscard = true } else { dismiss() } } }
+                    ToolbarItem(placement: .confirmationAction) { Button("Save") {
+                        attemptedSave = true
+                        if let first = profile.validationIssues.first {
+                            dismissKeyboard()
+                            DispatchQueue.main.async {
+                                proxy.scrollTo(first.id, anchor: .top)
+                                UIAccessibility.post(notification: .announcement, argument: first.message)
+                            }
+                        } else if store.updateProfile(profile) { dismiss() }
+                        else { validation = store.errorMessage; store.errorMessage = nil }
+                    }.fontWeight(.semibold).accessibilityIdentifier("saveProfile") }
                     ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("Done") { dismissKeyboard() } }
                 }
+                .background(SheetDismissalGuard(hasChanges: hasChanges) { confirmDiscard = true })
+                .alert("Discard changes?", isPresented: $confirmDiscard) {
+                    Button("Discard changes", role: .destructive) { dismiss() }
+                    Button("Keep editing", role: .cancel) { }
+                } message: { Text("Your unsaved changes will be lost.") }
                 .alert("Check your story", isPresented: Binding(get: { validation != nil }, set: { if !$0 { validation = nil } })) { Button("OK") { validation = nil } } message: { Text(validation ?? "") }
+            }
         }
     }
 }

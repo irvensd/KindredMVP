@@ -10,6 +10,7 @@ final class AppStore {
     var isOnboarding = false
     var hasCompletedOnboarding = false
     var errorMessage: String?
+    private var conversationDrafts: [String: String] = [:]
     var feedback: String?
     var feedbackCount = 0
     var presentedMatch: Match?
@@ -96,13 +97,26 @@ final class AppStore {
     func undoPass(_ id: String) -> Bool { mutate({ try repository.undoPass(memberID: id) }, feedback: "Introduction restored") }
     func resetPasses() { mutate({ repository.resetPasses() }, feedback: "Passed profiles restored") }
     func block(_ id: String) {
-        if mutate({ try repository.block(memberID: id) }, feedback: "Profile blocked in this demo"), presentedMatch?.memberID == id { presentedMatch = nil }
+        if mutate({ try repository.block(memberID: id) }, feedback: "Profile blocked in this demo") {
+            let available = Set(state.conversations.map(\.id))
+            conversationDrafts = conversationDrafts.filter { available.contains($0.key) }
+            if presentedMatch?.memberID == id { presentedMatch = nil }
+        }
     }
     func unblock(_ id: String) { mutate({ repository.unblock(memberID: id) }, feedback: "Profile unblocked") }
     func report(_ id: String, reason: ReportReason, details: String) -> Bool {
         mutate({ try repository.report(memberID: id, reason: reason, details: details) }, feedback: "Report saved locally. No report was sent.")
     }
-    func send(_ text: String, conversationID: String) -> Bool { mutate { try repository.send(text: text, conversationID: conversationID) } }
+    func draft(for conversationID: String) -> String { conversationDrafts[conversationID] ?? "" }
+    func updateDraft(_ text: String, conversationID: String) {
+        guard conversations.contains(where: { $0.id == conversationID }) else { return }
+        conversationDrafts[conversationID] = text.isEmpty ? nil : text
+    }
+    func send(_ text: String, conversationID: String) -> Bool {
+        guard mutate({ try repository.send(text: text, conversationID: conversationID) }) else { return false }
+        conversationDrafts[conversationID] = nil
+        return true
+    }
     func markRead(_ id: String) { mutate { repository.markRead(conversationID: id) } }
     func updateProfile(_ profile: MemberProfile) -> Bool { mutate({ try repository.updateProfile(profile) }, feedback: "Profile updated") }
     func updateDiscovery(_ preferences: DiscoveryPreferences) -> Bool { mutate({ try repository.updateDiscovery(preferences) }, feedback: "Preferences updated") }

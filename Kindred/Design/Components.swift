@@ -350,3 +350,72 @@ extension EnvironmentValues {
         #endif
     }
 }
+
+/// Hidden navigation headers need their own status-area background while content scrolls.
+/// This overlay follows the actual safe area without changing layout or intercepting touches.
+struct StatusAreaProtection: ViewModifier {
+    func body(content: Content) -> some View {
+        content.overlay(alignment: .top) {
+            GeometryReader { geometry in
+                Color.paper
+                    .frame(height: geometry.safeAreaInsets.top)
+                    .offset(y: -geometry.safeAreaInsets.top)
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+}
+
+/// Bridges attempted interactive sheet dismissal on iOS 26, which lacks SwiftUI's
+/// dismissalConfirmationDialog. Programmatic Save/Discard dismissal remains available.
+struct SheetDismissalGuard: UIViewControllerRepresentable {
+    var hasChanges: Bool
+    var onAttempt: () -> Void
+
+    func makeUIViewController(context: Context) -> Controller { Controller() }
+    func updateUIViewController(_ controller: Controller, context: Context) {
+        controller.hasChanges = hasChanges
+        controller.onAttempt = onAttempt
+        controller.install()
+        DispatchQueue.main.async { [weak controller] in controller?.install() }
+    }
+
+    final class Controller: UIViewController, UIAdaptivePresentationControllerDelegate {
+        var hasChanges = false
+        var onAttempt: () -> Void = { }
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            install()
+        }
+        override func viewDidLayoutSubviews() {
+            super.viewDidLayoutSubviews()
+            install()
+        }
+        func install() {
+            // presentingViewController can be inherited by child controllers;
+            // install on the actual sheet root, not the embedded bridge.
+            var sheet: UIViewController = self
+            while let parent = sheet.parent { sheet = parent }
+            guard sheet.presentingViewController != nil else { return }
+            sheet.presentationController?.delegate = self
+            sheet.isModalInPresentation = hasChanges
+        }
+        func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool { !hasChanges }
+        func presentationControllerDidAttemptToDismiss(_ presentationController: UIPresentationController) { onAttempt() }
+    }
+}
+
+struct ProfileFieldError: View {
+    let message: String?
+    let field: String
+    var body: some View {
+        if let message {
+            Label(message, systemImage: "exclamationmark.circle")
+                .font(.footnote).foregroundStyle(Color.plum)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("profileError-" + field)
+        }
+    }
+}
