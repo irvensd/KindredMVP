@@ -129,6 +129,7 @@ struct SessionSnapshot: Sendable {
     var matches: [Match]
     var conversations: [Conversation]
     var passedIDs: Set<String> = []
+    var unmatchedIDs: Set<String> = []
     var blocks: [Block] = []
     var reports: [Report] = []
     var discovery = DiscoveryPreferences()

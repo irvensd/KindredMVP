@@ -194,6 +194,7 @@ struct PhotoEditor: View {
     @State private var importing = false
     @State private var importError: String?
     @State private var cropping: ProfilePhoto?
+    @State private var removedPhotos: [(photo: ProfilePhoto, index: Int)] = []
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             if !photos.isEmpty {
@@ -207,11 +208,31 @@ struct PhotoEditor: View {
                                 Button("Move earlier") { move(photo.id, to: (photos.firstIndex { $0.id == photo.id } ?? 0) - 1) }.disabled(photos.first?.id == photo.id)
                                 Button("Move later") { move(photo.id, to: (photos.firstIndex { $0.id == photo.id } ?? 0) + 1) }.disabled(photos.last?.id == photo.id)
                                 Button("Adjust crop") { cropping = photo }
-                            }.frame(minHeight: 44).accessibilityLabel("Edit photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)")
-                            Button("Remove", role: .destructive) { photos.removeAll { $0.id == photo.id } }.font(.caption).frame(minHeight: 44)
+                            }.frame(minHeight: 44).accessibilityLabel("Edit photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)").accessibilityIdentifier("editPhoto-\(photo.id)")
+                            Button("Remove", role: .destructive) {
+                                guard let index = photos.firstIndex(where: { $0.id == photo.id }) else { return }
+                                removedPhotos.append((photos.remove(at: index), index))
+                                UIAccessibility.post(notification: .announcement, argument: "Photo \(index + 1) removed. Undo is available below your photos.")
+                            }.buttonStyle(.borderless).font(.caption).frame(minHeight: 44).accessibilityLabel("Remove photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)").accessibilityHint(photos.first?.id == photo.id ? "Primary photo. Undo can restore it after removal." : "Undo can restore this photo after removal.").accessibilityIdentifier("removePhoto-\(photo.id)")
                         }
                     }
                 }
+            }
+            if let removed = removedPhotos.last {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(removed.index == 0 ? "Primary photo removed" : "Photo \(removed.index + 1) removed").font(.subheadline)
+                    Button("Undo removal", systemImage: "arrow.uturn.backward") {
+                        guard photos.count < 6, !photos.contains(where: { $0.id == removed.photo.id }) else { return }
+                        photos.insert(removed.photo, at: min(removed.index, photos.count))
+                        removedPhotos.removeLast()
+                        UIAccessibility.post(notification: .announcement, argument: "Photo restored.")
+                    }.buttonStyle(.borderless).frame(minHeight: 44)
+                        .accessibilityIdentifier("undoPhotoRemoval")
+                        .accessibilityLabel("Undo removal of photo \(removed.index + 1)")
+                        .disabled(importing || photos.count >= 6)
+                    if photos.count >= 6 { Text("Remove a photo to make room before restoring.").font(.caption) }
+                }.foregroundStyle(Color.plum).padding(12).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.sand, in: RoundedRectangle(cornerRadius: 16))
             }
             PhotosPicker(selection: $items, maxSelectionCount: max(1, 6 - photos.count), matching: .images) {
                 Label("Choose from photo library", systemImage: "photo.badge.plus").font(.headline).frame(maxWidth: .infinity, minHeight: 50)
@@ -228,6 +249,8 @@ struct PhotoEditor: View {
             }
             NoteCard(symbol: "lock", text: "Photos stay in memory and are never uploaded. Imported images are resized and stripped of original metadata. AI portraits are for demo use only.")
             if let importError { Text(importError).font(.footnote).foregroundStyle(Color.plum) }
+        }.onChange(of: photos.map(\.id)) { _, ids in
+            removedPhotos.removeAll { ids.contains($0.photo.id) }
         }.sheet(item: $cropping) { photo in
             PhotoCropEditor(photo: photo) { updated in
                 if let index = photos.firstIndex(where: { $0.id == updated.id }) { photos[index] = updated }
@@ -258,14 +281,46 @@ struct PhotoEditor: View {
 
 struct PhotoCropEditor: View {
     @Environment(\.dismiss) private var dismiss
-    @State var photo: ProfilePhoto
+    @State private var photo: ProfilePhoto
+    @State private var dragOrigin: CGPoint?
+    @State private var zoomOrigin: Double?
+    private let original: ProfilePhoto
+    @State private var confirmDiscard = false
+    private var hasChanges: Bool { photo != original }
     let save: (ProfilePhoto) -> Void
+    init(photo: ProfilePhoto, save: @escaping (ProfilePhoto) -> Void) {
+        self.original = photo
+        self._photo = State(initialValue: photo)
+        self.save = save
+    }
+    private func cropOverflow(in size: CGSize) -> CGSize {
+        guard let image = photo.localData.flatMap({ UIImage(data: $0) }) ?? photo.assetName.flatMap({ UIImage(named: $0) }) else { return .zero }
+        let scale = max(size.width / image.size.width, size.height / image.size.height) * photo.cropZoom
+        return CGSize(width: max(0, image.size.width * scale - size.width), height: max(0, image.size.height * scale - size.height))
+    }
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    PhotoView(photo: photo).aspectRatio(0.8, contentMode: .fit).clipShape(RoundedRectangle(cornerRadius: 24))
-                    Text("Adjust your framing. Avatars use a square crop of this photo.").font(.subheadline).foregroundStyle(Color.muted)
+                    GeometryReader { geometry in
+                        PhotoView(photo: photo).contentShape(Rectangle())
+                            .gesture(DragGesture(minimumDistance: 4)
+                                .onChanged { value in
+                                    if dragOrigin == nil { dragOrigin = CGPoint(x: photo.cropX, y: photo.cropY) }
+                                    let overflow = cropOverflow(in: geometry.size)
+                                    photo.cropX = overflow.width > 0 ? min(1, max(-1, (dragOrigin?.x ?? 0) - value.translation.width * 2 / overflow.width)) : 0
+                                    photo.cropY = overflow.height > 0 ? min(1, max(-1, (dragOrigin?.y ?? 0) - value.translation.height * 2 / overflow.height)) : 0
+                                }.onEnded { _ in dragOrigin = nil })
+                            .simultaneousGesture(MagnifyGesture()
+                                .onChanged { value in
+                                    if zoomOrigin == nil { zoomOrigin = photo.cropZoom }
+                                    photo.cropZoom = min(3, max(1, (zoomOrigin ?? 1) * value.magnification))
+                                }.onEnded { _ in zoomOrigin = nil })
+                            .accessibilityIdentifier("cropCanvas")
+                    }.aspectRatio(0.8, contentMode: .fit).clipShape(RoundedRectangle(cornerRadius: 24))
+                    PhotoView(photo: photo).frame(width: 100, height: 100).clipShape(Circle())
+                        .accessibilityLabel("Avatar preview").accessibilityIdentifier("cropAvatarPreview")
+                    Text("Drag to position. Pinch to zoom. You can also use the sliders below. The circle previews your avatar.").font(.subheadline).foregroundStyle(Color.muted)
                     Text("Zoom").font(.headline)
                     Slider(value: $photo.cropZoom, in: 1...3, step: 0.05).accessibilityLabel("Photo zoom")
                     Text("Horizontal position").font(.headline)
@@ -276,9 +331,14 @@ struct PhotoCropEditor: View {
                 }.padding(24)
             }.background(Color.paper).navigationTitle("Adjust crop").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { if hasChanges { confirmDiscard = true } else { dismiss() } } }
                     ToolbarItem(placement: .confirmationAction) { Button("Apply") { save(photo); dismiss() } }
                 }
+                .background(SheetDismissalGuard(hasChanges: hasChanges) { confirmDiscard = true })
+                .alert("Discard changes?", isPresented: $confirmDiscard) {
+                    Button("Discard changes", role: .destructive) { dismiss() }
+                    Button("Keep editing", role: .cancel) { }
+                } message: { Text("Your crop adjustments will be lost. The previous crop will stay unchanged.") }
         }
     }
 }

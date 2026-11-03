@@ -58,6 +58,7 @@ final class InMemoryKindredRepository: KindredRepository {
     func unmatch(memberID: String) throws {
         try requireMember(memberID)
         guard state.matches.contains(where: { $0.memberID == memberID }) else { throw KindredError.unavailable }
+        state.unmatchedIDs.insert(memberID)
         state.matches.removeAll { $0.memberID == memberID }
         state.conversations.removeAll { $0.memberID == memberID }
         state.likes.removeAll { $0.senderID == memberID || $0.recipientID == memberID }

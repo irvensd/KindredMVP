@@ -52,6 +52,104 @@ final class KindredUITests: XCTestCase {
             XCTAssertFalse(app.buttons["unmatch-amara"].exists)
         }
     }
+    func testMatchedProfileLeavesDiscoverAndKeepsChat() {
+        launch()
+        app.buttons["likeProfile"].tap()
+        XCTAssertTrue(app.buttons["matchKeepDiscovering"].waitForExistence(timeout: 4))
+        app.buttons["matchKeepDiscovering"].tap()
+        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
+        app.tabBars.buttons["Chats"].tap()
+        XCTAssertTrue(app.buttons["conversation-amara"].exists)
+        app.tabBars.buttons["Discover"].tap()
+        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
+    }
+    func testCropChangesProtectCancelAndSwipe() {
+        launch()
+        app.tabBars.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        func openCrop() {
+            let menu = app.buttons["Edit photo 1"]; reveal(menu, attempts: 20); menu.tap()
+            app.buttons["Adjust crop"].tap()
+            XCTAssertTrue(app.navigationBars["Adjust crop"].waitForExistence(timeout: 3))
+        }
+        openCrop()
+        app.navigationBars["Adjust crop"].buttons["Cancel"].tap()
+        XCTAssertTrue(app.navigationBars["Adjust crop"].waitForNonExistence(timeout: 3))
+        openCrop()
+        let zoom = app.sliders["Photo zoom"]; reveal(zoom); zoom.adjust(toNormalizedSliderPosition: 0.6)
+        let changed = zoom.value as? String
+        app.navigationBars["Adjust crop"].buttons["Cancel"].tap()
+        XCTAssertTrue(app.alerts["Discard changes?"].waitForExistence(timeout: 3))
+        app.alerts.buttons["Keep editing"].tap()
+        XCTAssertEqual(zoom.value as? String, changed)
+        swipeSheetDown()
+        XCTAssertTrue(app.alerts["Discard changes?"].waitForExistence(timeout: 3))
+        app.alerts.buttons["Discard changes"].tap()
+        XCTAssertTrue(app.navigationBars["Adjust crop"].waitForNonExistence(timeout: 3))
+        openCrop(); reveal(zoom)
+        XCTAssertNotEqual(zoom.value as? String, changed)
+        zoom.adjust(toNormalizedSliderPosition: 0.6)
+        let applied = zoom.value as? String
+        app.buttons["Apply"].tap()
+        openCrop(); reveal(zoom)
+        XCTAssertEqual(zoom.value as? String, applied)
+        app.navigationBars["Adjust crop"].buttons["Cancel"].tap()
+        XCTAssertFalse(app.alerts["Discard changes?"].exists)
+    }
+    func testPhotoOrderingCropGesturesAndSavedPreview() {
+        launch()
+        app.tabBars.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        let add = app.buttons["Use demo portrait Amara"]; reveal(add, attempts: 20); add.tap()
+        func menu(_ id: String) { let item = app.buttons["editPhoto-" + id]; reveal(item, attempts: 20); item.tap() }
+        menu("amara"); app.buttons["Make primary"].tap()
+        XCTAssertEqual(app.buttons["editPhoto-amara"].label, "Edit photo 1")
+        menu("amara"); app.buttons["Move later"].tap()
+        XCTAssertEqual(app.buttons["editPhoto-amara"].label, "Edit photo 2")
+        menu("amara"); app.buttons["Move earlier"].tap()
+        menu("amara"); app.buttons["Adjust crop"].tap()
+        let canvas = app.images["cropCanvas"]
+        XCTAssertTrue(canvas.waitForExistence(timeout: 3))
+        canvas.pinch(withScale: 1.6, velocity: 1)
+        canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 0.05, thenDragTo: canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.7, dy: 0.6)))
+        let avatar = app.images["cropAvatarPreview"]; reveal(avatar); XCTAssertTrue(avatar.exists)
+        capture("Photo crop and circular avatar")
+        let zoom = app.sliders["Photo zoom"]; reveal(zoom); let zoomValue = zoom.value as? String
+        XCTAssertNotEqual(zoomValue, "0%")
+        app.buttons["Apply"].tap()
+        let remove = app.buttons["removePhoto-rowan"]; reveal(remove); remove.tap()
+        XCTAssertFalse(app.buttons["editPhoto-rowan"].exists)
+        XCTAssertTrue(app.buttons["editPhoto-amara"].exists, "Removing Rowan must preserve Amara")
+        app.buttons["saveProfile"].tap()
+        XCTAssertTrue(app.buttons["saveProfile"].waitForNonExistence(timeout: 3))
+        let preview = app.buttons["publicPreview"]
+        XCTAssertTrue(preview.waitForExistence(timeout: 3))
+        for _ in 0..<8 { if preview.isHittable { break }; app.swipeDown() }
+        XCTAssertTrue(preview.isHittable); preview.tap()
+        XCTAssertTrue(app.navigationBars["Your story"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons["Next photo"].exists)
+        capture("Saved primary photo profile preview")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.buttons["editProfile"].tap(); menu("amara"); app.buttons["Adjust crop"].tap()
+        reveal(zoom); XCTAssertEqual(zoom.value as? String, zoomValue)
+    }
+    func testPhotoRemovalUndoRestoresPrimaryAndOrder() {
+        launch()
+        app.tabBars.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        let add = app.buttons["Use demo portrait Amara"]; reveal(add, attempts: 20); add.tap()
+        let primary = app.buttons["removePhoto-rowan"]
+        reveal(primary); XCTAssertEqual(primary.label, "Remove photo 1"); primary.tap()
+        XCTAssertTrue(app.buttons["editPhoto-amara"].exists)
+        let undo = app.buttons["undoPhotoRemoval"]; reveal(undo); undo.tap()
+        XCTAssertEqual(app.buttons["editPhoto-rowan"].label, "Edit photo 1")
+        XCTAssertEqual(app.buttons["editPhoto-amara"].label, "Edit photo 2")
+        primary.tap()
+        let second = app.buttons["removePhoto-amara"]; reveal(second); second.tap()
+        reveal(undo); undo.tap(); reveal(undo); undo.tap()
+        XCTAssertEqual(app.buttons["editPhoto-rowan"].label, "Edit photo 1")
+        XCTAssertEqual(app.buttons["editPhoto-amara"].label, "Edit photo 2")
+        XCTAssertFalse(undo.exists)
+        app.buttons["saveProfile"].tap()
+        XCTAssertTrue(app.buttons["saveProfile"].waitForNonExistence(timeout: 3))
+    }
     func testScrollingReadability() {
         for options in [[], ["--dark"], ["--large-text"], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
             launch(options: options)

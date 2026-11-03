@@ -249,3 +249,35 @@ Files: Models.swift, Components.swift, OnboardingView.swift. Debug simulator bui
 AppStore classifies empty discovery using eligible unblocked profiles before removing passed IDs. Filters excluding all available members offers Adjust preferences; passing every eligible profile offers Revisit passed profiles first and preferences second. Paused discovery retains Resume; no available members gets a separate explanation without ineffective filter/revisit actions. Revisiting clears the stale Undo slot. Blocking is never undone by recovery.
 
 Files: AppStore.swift, DiscoveryView.swift, KindredTests.swift, KindredUITests.swift. Debug build, all 44 model tests and two focused UI tests passed on iPhone 17 / iOS 26.1. Covered filter/pass precedence, reset, pause, all blocked, revisiting, preference changes, saved values and cancellation. Existing UI assertions updated for specific titles. No full UI suite or new large-text/VoiceOver verification in this pass. Logs saved as discovery-empty-*-tests.log. Local changes, not pushed.
+
+
+## October 30 — Discover after interest
+
+Approved policy change: pending outgoing interest sorts after new eligible profiles, preserving demo order within each group. Discover briefly retains the current interested member for saved feedback (900 ms) before releasing selection; cancellation checks prevent a delayed task from advancing a different selected profile. Matched members are excluded and remain accessible through Likes/Chats. Unmatch records a separate session exclusion, unaffected by Revisit, Undo or removing interest. Fresh sessions reset it. Confirmation copy and no-available-profiles copy reflect this policy.
+
+Files: Models.swift, KindredRepository.swift, AppStore.swift, DiscoveryView.swift and both test files. Final build and all 45 model tests passed. One focused UI test passed: matching Amara opens the celebration, Keep discovering shows June (Eli is already matched), chat remains present, and switching tabs does not restore Amara. Initial test run used obsolete eligibility expectations and a pending-interest fixture outside the default radius; corrected fixtures/expectations passed. Logs retained. Existing broader UI tests that assumed Eli or matched Amara stays discoverable require updating before a full-suite claim; no full suite, new large-text/spoken VoiceOver or visual timing verification was performed. Saved locally, not pushed.
+
+
+## October 30 — Protect unfinished crop adjustments
+
+PhotoCropEditor captures its initial photo and compares its local draft against that baseline. Cancel and interactive sheet dismissal use the existing SheetDismissalGuard and Discard changes?/Keep editing alert. Discard leaves the parent photo unchanged, Keep editing retains adjustments, and Apply commits to the parent draft and dismisses. Unmodified crops close immediately.
+
+Files: OnboardingView.swift, KindredUITests.swift. Debug build and focused nested-sheet UI test passed on iPhone 17 / iOS 26.1: clean Cancel, modified Cancel/Keep editing, modified swipe/discard, reopen without discarded crop, Apply and reopen, then clean Cancel. Evidence: crop-dismissal-tests.log. No full suite, large-text or spoken VoiceOver rerun. Local changes, not pushed.
+
+
+## October 31 — Photo editor completion
+
+Added circular avatar preview, bounded drag positioning and pinch zoom, retaining accessible sliders and existing Apply/Cancel protection. Photo controls have stable identifiers and member-position removal labels. Dedicated tests cover primary selection, earlier/later ordering, adding a demo portrait, removing one photo while retaining another, crop gestures, saving and viewing the profile, and reopening the saved crop.
+
+The interrupted preview test had failed. Recording inspection confirmed a real defect: automatic SwiftUI Form button handling invoked multiple photo Remove actions, leaving no photos and preventing Save. Each Remove now uses borderless button styling to isolate its action. Added an explicit remaining-photo assertion and a wait for profile-editor dismissal. Earlier test navigation/single-photo counter assumptions were also corrected; their logs are retained.
+
+Final Debug build and both focused UI tests passed on iPhone 17 / iOS 26.1. Crop cancellation/swipe/discard/Apply regression passed, and the full photo flow passed. Inspected final crop/avatar and saved-preview screenshots; the intentionally strong test crop is reflected in saved preview. Two runtime warnings about UIKit _UIReparentingView in UIHostingController were recorded and remain unresolved; no observed functional failure in this run. No full-suite, real photo-library import, physical-device or new large-text/VoiceOver pass.
+
+Files: OnboardingView.swift and KindredUITests.swift, plus report/evidence/source manifest. Evidence: photo-delivery-summary.json, photo-delivery-tests.log, photo-polish-*-tests.log, photo-crop-and-circular-avatar.png and saved-primary-photo-profile-preview.png. Changes local, not pushed.
+
+
+## November 1 — Recoverable photo removal
+
+Photo removal retains its numbered accessibility label and now identifies primary status through its hint. Removal announces that Undo is available. A compact inline Undo panel remains while editing (no timeout), stores removed photo values including crop metadata, and restores original indices. Multiple removals undo in reverse order. Duplicate re-added IDs are pruned from history; restoration respects the six-photo cap and pauses during import. History is local to this editor. Existing borderless removal styling is preserved.
+
+Debug build and focused UI test passed on iPhone 17 / iOS 26.1: numbered label, primary restoration, retaining the other image, sequential removals/undos, original order and final Save. Evidence: photo-removal-undo-tests.log. No new full-suite, large-text, spoken VoiceOver or capacity/import interaction verification. Files: OnboardingView.swift, KindredUITests.swift, source manifest and this report. Local changes, not pushed.

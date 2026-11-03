@@ -75,7 +75,7 @@ struct DiscoverView: View {
                         PrimaryButton(title: "Revisit passed profiles") { store.resetPasses(); lastPassedID = nil }
                         Button("Adjust preferences") { showPreferences = true }.frame(maxWidth: .infinity, minHeight: 44)
                     case .unavailable, nil:
-                        EmptyState(symbol: "sparkles", title: "No profiles available", message: "There are no available members in this demo session. Changing your filters or revisiting passed profiles won't restore blocked members.")
+                        EmptyState(symbol: "sparkles", title: "No profiles available", message: "There are no new introductions available in this demo session. Find your connections in Likes or Chats. Matched, unmatched and blocked members stay out of Discover.")
                     }
                 }
                 NoteCard(symbol: "sparkles", text: "A thoughtfully simulated experience. All people and incoming activity are fictional; portraits are AI-generated.")
@@ -88,7 +88,14 @@ struct DiscoverView: View {
                         .padding(.horizontal, 20).padding(.top, 8).padding(.bottom, 8)
                 }
             }
-            .onChange(of: current?.id) { _, _ in proxy.scrollTo("discoveryTop", anchor: .top) }
+            .onAppear { selectedID = current?.id }
+            .task(id: store.state.likes.count) {
+                guard let id = selectedID, store.isLiked(id), !store.isMatched(id) else { return }
+                try? await Task.sleep(for: .milliseconds(900))
+                guard !Task.isCancelled, selectedID == id, store.isLiked(id) else { return }
+                withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) { selectedID = nil }
+            }
+            .onChange(of: current?.id) { _, id in selectedID = id; proxy.scrollTo("discoveryTop", anchor: .top) }
             .onChange(of: store.state.discovery) { _, _ in lastPassedID = nil }
             .onChange(of: store.state.privacy.discoveryPaused) { _, _ in lastPassedID = nil }
             .sheet(isPresented: $showPreferences) { DiscoveryPreferencesView() }
@@ -370,7 +377,7 @@ struct UnmatchConfirmation: ViewModifier {
             }
             Button("Keep connection", role: .cancel) { memberID = nil }
         } message: {
-            Text("This removes your connection, both sides’ saved interest, and this chat, including messages and your draft, from this demo session. It cannot be undone in this session. This does not block the person; their profile may still appear in Discover.")
+            Text("This removes your connection, both sides’ saved interest, and this chat, including messages and your draft, from this demo session. It cannot be undone in this session. This does not block the person. They will stay out of Discover for the rest of this session.")
         }
     }
 }

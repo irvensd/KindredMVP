@@ -17,6 +17,23 @@ struct KindredTests {
         draft.photos = DemoData.people[0].photos
         return draft
     }
+    @Test func discoveryPrioritizesNewInterestAndExcludesConnections() {
+        let s = store()
+        var preferences = s.state.discovery; preferences.radiusMiles = 250; preferences.dating.genders = [.male, .female]
+        #expect(s.updateDiscovery(preferences))
+        let candidate = s.discoveryProfiles.first { !s.incomingProfiles.map(\.id).contains($0.id) }!
+        s.like(candidate.id)
+        #expect(s.discoveryProfiles.last?.id == candidate.id)
+        s.like("amara")
+        #expect(!s.discoveryProfiles.contains { $0.id == "amara" })
+        s.removeLike("amara")
+        #expect(!s.discoveryProfiles.contains { $0.id == "amara" })
+        #expect(s.unmatch("amara"))
+        s.resetPasses()
+        #expect(!s.discoveryProfiles.contains { $0.id == "amara" })
+        #expect(!s.blockedIDs.contains("amara"))
+        #expect(store().state.unmatchedIDs.isEmpty)
+    }
     @Test func discoveryEmptyReasonsDistinguishFiltersPassesAndAvailability() {
         let s = store()
         #expect(s.discoveryEmptyReason == nil)
@@ -323,7 +340,7 @@ struct KindredTests {
         #expect(s.updateDiscovery(preferences))
         let reopened = AppStore(repository: repo)
         #expect(reopened.state.discovery == preferences)
-        #expect(reopened.discoveryProfiles.map(\.id) == ["eli", "rowan"])
+        #expect(reopened.discoveryProfiles.map(\.id) == ["rowan"])
         #expect(store().state.discovery == DiscoveryPreferences())
     }
     @Test func dateGroupsUseCalendarBoundariesAndPreviewsNameOutgoingMessages() {
@@ -411,7 +428,7 @@ struct KindredTests {
         #expect(!s.completeOnboarding()); #expect(!s.hasCompletedOnboarding); #expect(s.onboardingStep == 0)
     }
     @Test func discoveryFiltersAgeGenderAndSyntheticDistance() {
-        let s = store(); #expect(s.discoveryProfiles.count == 3)
+        let s = store(); #expect(s.discoveryProfiles.count == 2)
         var preferences = s.state.discovery
         preferences.dating.genders = [.female]; preferences.dating.minimumAge = 28; preferences.radiusMiles = 15
         #expect(s.updateDiscovery(preferences))
@@ -427,7 +444,7 @@ struct KindredTests {
         p.radiusMiles = 11
         #expect(s.updateDiscovery(p)); #expect(s.discoveryProfiles.isEmpty)
         p.radiusMiles = 250; p.dating.minimumAge = 18; p.dating.maximumAge = 100
-        #expect(s.updateDiscovery(p)); #expect(s.discoveryProfiles.count == 4)
+        #expect(s.updateDiscovery(p)); #expect(s.discoveryProfiles.count == 3)
         p.radiusMiles = 5
         #expect(s.updateDiscovery(p)); #expect(s.discoveryProfiles.isEmpty)
         let saved = s.state.discovery
@@ -473,7 +490,7 @@ struct KindredTests {
         #expect(s.pass("amara")); #expect(s.pass("eli"))
         #expect(s.undoPass("eli"))
         #expect(s.state.passedIDs == ["amara"])
-        #expect(s.discoveryProfiles.contains { $0.id == "eli" })
+        #expect(!s.discoveryProfiles.contains { $0.id == "eli" })
         s.block("amara")
         #expect(!s.undoPass("amara"))
         #expect(s.member("amara") == nil)
