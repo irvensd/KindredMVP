@@ -1,0 +1,130 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project Kindred.xcodeproj -scheme Kindred -destination "platform=iOS Simulator,id=03117E37-CBFA-457D-AB12-C90E340A646B,arch=arm64" -derivedDataPath /private/tmp/KindredPersonalInterestBuild -resultBundlePath ../../work/DuoResponsiveNov5.xcresult -collect-test-diagnostics never -parallel-testing-enabled NO "-only-testing:KindredUITests/KindredUITests/testResponsiveScreenSmoke"
+
+Writing result bundle at path:
+	/Users/irvensdupuy/Developer/Kindred-Phase-1.5/work/DuoResponsiveNov5.xcresult
+
+2026-11-05 17:26:26.683 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:26:26.684 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+2026-11-05 17:26:39.521030-0600 KindredUITests-Runner[9573:139029] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-11-05 17:26:56.455.
+Test Suite 'KindredUITests.xctest' started at 2026-11-05 17:26:56.515.
+Test Suite 'KindredUITests' started at 2026-11-05 17:26:56.515.
+Test Case '-[KindredUITests.KindredUITests testResponsiveScreenSmoke]' started.
+    t =     0.03s Start Test at 2026-11-05 17:26:56.550
+    t =     0.95s Set Up
+    t =     0.97s Open com.kindred.prototype
+    t =     0.98s     Launch com.kindred.prototype
+    t =     0.98s         Terminate com.kindred.prototype:9363
+objc[9573]: Class UIAccessibilityLoaderWebShared is implemented in both /private/var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.0rU2aw/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x104700310) and /private/var/run/com.apple.security.cryptexd/mnt/com.apple.iPhoneOS.SimulatorRuntime-v24.1.94425.0.0rU2aw/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x105708398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+2026-11-05 17:27:04.209 xcodebuild[9434:138049] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-11-05 17:27:04.209 xcodebuild[9434:138049] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-11-05 17:27:04.351 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:04.353 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+    t =    13.89s         Setting up automation session
+    t =    17.62s         Wait for com.kindred.prototype to idle
+    t =    21.79s Find the Target Application 'com.kindred.prototype'
+    t =    22.71s Added attachment named 'Responsive welcome standard'
+    t =    22.73s Find the "getStarted" Button
+    t =    23.03s Find the "getStarted" Button
+    t =    23.06s Open com.kindred.prototype
+    t =    23.06s     Launch com.kindred.prototype
+    t =    23.06s         Terminate com.kindred.prototype:9639
+2026-11-05 17:27:19.654 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:19.655 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+2026-11-05 17:27:19.661 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:19.662 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+2026-11-05 17:27:19.676 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:19.677 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+2026-11-05 17:27:22.674 xcodebuild[9434:138049] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-11-05 17:27:22.675 xcodebuild[9434:138049] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-11-05 17:27:22.712 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:22.712 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+    t =    29.56s         Setting up automation session
+    t =    35.29s         Wait for com.kindred.prototype to idle
+    t =    42.73s Waiting 5.0s for "passProfile" Button to exist
+    t =    43.76s     Checking `Expect predicate `existsNoRetry == 1` for object "passProfile" Button`
+    t =    43.78s         Checking existence of `"passProfile" Button`
+    t =    44.63s Find the "passProfile" Button
+    t =    44.76s Find the "likeProfile" Button
+    t =    44.80s Find the Target Application 'com.kindred.prototype'
+    t =    45.04s Added attachment named 'Responsive discover standard'
+    t =    45.05s Tap "discoveryPreferences" Button
+    t =    45.05s     Wait for com.kindred.prototype to idle
+    t =    45.05s     Find the "discoveryPreferences" Button
+    t =    45.10s     Check for interrupting elements affecting "discoveryPreferences" Button
+    t =    45.39s         Wait for com.apple.springboard to idle
+    t =    46.67s     Synthesize event
+    t =    47.85s     Wait for com.kindred.prototype to idle
+    t =    49.35s Find the Target Application 'com.kindred.prototype'
+    t =    49.63s Added attachment named 'Responsive preferences standard'
+    t =    49.63s Find the "savePreferences" Button
+    t =    49.77s Tap "Cancel" Button
+    t =    49.77s     Wait for com.kindred.prototype to idle
+    t =    49.87s     Find the "Cancel" Button
+    t =    50.02s     Check for interrupting elements affecting "Cancel" Button
+    t =    50.10s         Wait for com.apple.springboard to idle
+    t =    50.16s     Synthesize event
+    t =    50.52s     Wait for com.kindred.prototype to idle
+    t =    50.70s Tap "likeProfile" Button
+    t =    50.70s     Wait for com.kindred.prototype to idle
+    t =    51.38s     Find the "likeProfile" Button
+    t =    51.44s     Check for interrupting elements affecting "likeProfile" Button
+    t =    51.48s         Wait for com.apple.springboard to idle
+    t =    51.54s     Synthesize event
+    t =    51.84s     Wait for com.kindred.prototype to idle
+    t =    52.07s Waiting 3.0s for "matchSayHello" Button to exist
+    t =    53.09s     Checking `Expect predicate `existsNoRetry == 1` for object "matchSayHello" Button`
+    t =    53.09s         Checking existence of `"matchSayHello" Button`
+    t =    53.22s Find the Target Application 'com.kindred.prototype'
+    t =    53.37s Added attachment named 'Responsive match standard'
+    t =    53.37s Tap "matchKeepDiscovering" Button
+    t =    53.37s     Wait for com.kindred.prototype to idle
+    t =    53.38s     Find the "matchKeepDiscovering" Button
+    t =    53.42s     Check for interrupting elements affecting "matchKeepDiscovering" Button
+    t =    53.47s         Wait for com.apple.springboard to idle
+    t =    53.52s     Synthesize event
+    t =    53.83s     Wait for com.kindred.prototype to idle
+    t =    54.29s Tap "Likes" Button
+    t =    54.29s     Wait for com.kindred.prototype to idle
+    t =    54.33s     Find the "Likes" Button
+    t =    55.45s         Find the "Likes" Button (retry 1)
+    t =    56.55s         Find the "Likes" Button (retry 2)
+    t =    56.86s Requesting snapshot of accessibility hierarchy for app with pid 9696
+/Users/irvensdupuy/Developer/Kindred-Phase-1.5/outputs/Kindred/KindredUITests/KindredUITests.swift:424: error: -[KindredUITests.KindredUITests testResponsiveScreenSmoke] : Failed to tap "Likes" Button: No matches found for Descendants matching type TabBar from input {(
+    Application, pid: 9696, label: 'Kindred'
+)}
+    t =    57.65s Tear Down
+Test Case '-[KindredUITests.KindredUITests testResponsiveScreenSmoke]' failed (57.991 seconds).
+Test Suite 'KindredUITests' failed at 2026-11-05 17:27:54.541.
+	 Executed 1 test, with 1 failure (0 unexpected) in 57.991 (58.026) seconds
+Test Suite 'KindredUITests.xctest' failed at 2026-11-05 17:27:54.545.
+	 Executed 1 test, with 1 failure (0 unexpected) in 57.991 (58.030) seconds
+Test Suite 'Selected tests' failed at 2026-11-05 17:27:54.545.
+	 Executed 1 test, with 1 failure (0 unexpected) in 57.991 (58.091) seconds
+2026-11-05 17:27:54.762 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:54.764 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+2026-11-05 17:27:54.769 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:54.769 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+2026-11-05 17:27:54.775 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:54.775 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+2026-11-05 17:27:54.803 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:54.803 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+2026-11-05 17:27:54.803 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:54.804 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+2026-11-05 17:27:54.808 xcodebuild[9434:138049] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 17:27:54.808 xcodebuild[9434:138049] [MT] IDESchemeActionDeviceRecord: versionAndBuild = 27.1 (24A94425), error = invalidDigitCount(94425).
+2026-11-05 17:27:55.084 xcodebuild[9434:138049] [MT] IDETestOperationsObserverDebug: 92.885 elapsed -- Testing started completed.
+2026-11-05 17:27:55.084 xcodebuild[9434:138049] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-11-05 17:27:55.084 xcodebuild[9434:138049] [MT] IDETestOperationsObserverDebug: 92.885 sec, +92.885 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/irvensdupuy/Developer/Kindred-Phase-1.5/work/DuoResponsiveNov5.xcresult
+
+Failing tests:
+	KindredUITests.testResponsiveScreenSmoke()
+
+** TEST EXECUTE FAILED **
+
+Testing started

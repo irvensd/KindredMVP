@@ -327,3 +327,12 @@ Full-run checks also passed keyboard dismissal/reopening/composer visibility, dr
 **Files.** DiscoveryView.swift, SettingsView.swift, OnboardingView.swift, KindredUITests.swift, this report and verification artifacts/source hashes. No backend work or navigation redesign.
 
 **Remaining manual verification.** Spoken VoiceOver traversal and announcements could not be operated/listened to with available tools; automated description/trait audits do not substitute for speech testing. On an iPhone, enable VoiceOver and traverse photo arrows/position, prompt likes/announcements, preferences steppers/slider values, field errors, crop actions, and composer/Done/Send; confirm focus returns sensibly after sheets and confirmations. Dual-screen/fold transitions and physical-device keyboard behavior remain unverified. Local changes are not pushed.
+
+
+## Duo simulator attempt — November 5, 2026
+
+Opened Kindred Duo QA (iPhone Duo / iOS 27.1) in Xcode DeviceHub and installed/launched the latest build. Boot initially reported data-migration failure; subsequent launch and UI-test execution succeeded partially. Reviewed XCTest captures of welcome, Discover, preferences and match celebration. Direct framebuffer captures were blank/incomplete while XCTest composite captures showed the application.
+
+iOS 27.1 presents the native four tabs as an icon rail on the right, rather than the approved bottom pill. The original smoke test reached matching then failed because it queried a TabBar container; the hierarchy includes accessible Discover/Likes/Chats/You buttons outside that container. Explicit `.tabViewStyle(.tabBarOnly)` did not change that behavior and was reverted. No application layout change retained. Updated only the responsive smoke test to locate tab buttons without assuming their native container.
+
+The adapted rerun stalled during runtime/test startup and was interrupted after several minutes without advancing; duplicate system accessibility-class warnings were logged. A fresh Duo device was created for diagnosis then shut down. Existing devices were not erased. Fold/unfold transitions, inner/outer continuity, remaining Likes/Chats/Profile screens and large text were not verified on Duo. This is partial visual evidence, not Duo readiness certification. Raw artifacts retained outside Git in project-level work.

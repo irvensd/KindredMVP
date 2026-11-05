@@ -40,5 +40,5 @@
   "Kindred/Resources/Assets.xcassets/weekend.imageset/Contents.json": "943e199ac2a1c14d7c87ca71239aaa798c98111fa9ec57dad2d31eeaf656a58d",
   "Kindred/Resources/Assets.xcassets/weekend.imageset/weekend.jpg": "11cf8b0e6011e085fd5ea208e5f115161144704c9debd25fac6a31cc8105a280",
   "KindredTests/KindredTests.swift": "58e806ed19ed4e3a360ae371e223ead0920a1557b2efdf899e072481632017cb",
-  "KindredUITests/KindredUITests.swift": "8f0f1c1912aa7f1b2f2241130bbd74cc0bd8bdd7e1219be6ca74c5b2f1408b3b"
+  "KindredUITests/KindredUITests.swift": "d8ef32f6938926fc5f758ffcc729e7cb3914d3704f6b4dc96c182f6d2868bac9"
 }
