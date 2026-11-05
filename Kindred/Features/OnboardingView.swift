@@ -189,26 +189,25 @@ struct PromptEditor: View {
     }
 }
 struct PhotoEditor: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Binding var photos: [ProfilePhoto]
     @State private var items: [PhotosPickerItem] = []
     @State private var importing = false
     @State private var importError: String?
+    @State private var editingPhoto: ProfilePhoto?
     @State private var cropping: ProfilePhoto?
     @State private var removedPhotos: [(photo: ProfilePhoto, index: Int)] = []
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             if !photos.isEmpty {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 12) {
+                LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [GridItem(.adaptive(minimum: 100))], spacing: 12) {
                     ForEach(photos) { photo in
                         VStack {
-                            PhotoView(photo: photo).frame(height: 130).clipShape(RoundedRectangle(cornerRadius: 18))
+                            PhotoView(photo: photo).frame(width: dynamicTypeSize.isAccessibilitySize ? 110 : nil, height: 130).clipShape(RoundedRectangle(cornerRadius: 18))
                             Text(photos.first?.id == photo.id ? "Primary photo" : "Photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)").font(.caption)
-                            Menu("Edit photo") {
-                                Button("Make primary") { move(photo.id, to: 0) }.disabled(photos.first?.id == photo.id)
-                                Button("Move earlier") { move(photo.id, to: (photos.firstIndex { $0.id == photo.id } ?? 0) - 1) }.disabled(photos.first?.id == photo.id)
-                                Button("Move later") { move(photo.id, to: (photos.firstIndex { $0.id == photo.id } ?? 0) + 1) }.disabled(photos.last?.id == photo.id)
-                                Button("Adjust crop") { cropping = photo }
-                            }.frame(minHeight: 44).accessibilityLabel("Edit photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)").accessibilityIdentifier("editPhoto-\(photo.id)")
+                            Button("Edit photo") { editingPhoto = photo }
+                                .buttonStyle(.borderless).frame(minHeight: 44)
+                                .accessibilityLabel("Edit photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)").accessibilityIdentifier("editPhoto-\(photo.id)")
                             Button("Remove", role: .destructive) {
                                 guard let index = photos.firstIndex(where: { $0.id == photo.id }) else { return }
                                 removedPhotos.append((photos.remove(at: index), index))
@@ -249,6 +248,14 @@ struct PhotoEditor: View {
             }
             NoteCard(symbol: "lock", text: "Photos stay in memory and are never uploaded. Imported images are resized and stripped of original metadata. AI portraits are for demo use only.")
             if let importError { Text(importError).font(.footnote).foregroundStyle(Color.plum) }
+        }.confirmationDialog("Edit photo", isPresented: Binding(get: { editingPhoto != nil }, set: { if !$0 { editingPhoto = nil } }), titleVisibility: .visible) {
+            if let photo = editingPhoto {
+                Button("Make primary") { move(photo.id, to: 0) }.disabled(photos.first?.id == photo.id)
+                Button("Move earlier") { move(photo.id, to: (photos.firstIndex { $0.id == photo.id } ?? 0) - 1) }.disabled(photos.first?.id == photo.id)
+                Button("Move later") { move(photo.id, to: (photos.firstIndex { $0.id == photo.id } ?? 0) + 1) }.disabled(photos.last?.id == photo.id)
+                Button("Adjust crop") { cropping = photo }
+            }
+            Button("Cancel", role: .cancel) { editingPhoto = nil }
         }.onChange(of: photos.map(\.id)) { _, ids in
             removedPhotos.removeAll { ids.contains($0.photo.id) }
         }.sheet(item: $cropping) { photo in

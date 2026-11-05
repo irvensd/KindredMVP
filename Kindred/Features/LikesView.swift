@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LikesView: View {
     @Environment(AppStore.self) private var store
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var showingIncoming = true
     @State private var unmatchID: String?
     private var profiles: [MemberProfile] { showingIncoming ? store.incomingProfiles : store.outgoingProfiles }
@@ -10,7 +11,7 @@ struct LikesView: View {
             VStack(alignment: .leading, spacing: 24) {
                 PageHeader(eyebrow: "A little possibility", title: "Good feelings", subtitle: "Sometimes, the feeling is mutual.")
                 Picker("Likes", selection: $showingIncoming) {
-                    Text("Liked you · sample").tag(true)
+                    Text("Liked you").tag(true)
                     Text("Your likes").tag(false)
                 }.pickerStyle(.segmented).accessibilityIdentifier("likesSegment")
                 if profiles.isEmpty {
@@ -28,16 +29,16 @@ struct LikesView: View {
                     ForEach(members) { profile in
                         VStack(alignment: .leading, spacing: 0) {
                             NavigationLink { ProfileDetailView(memberID: profile.id) } label: {
-                                HStack(spacing: 18) {
+                                (dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 18)) : AnyLayout(HStackLayout(spacing: 18))) {
                                     PhotoView(photo: profile.photos.first).frame(width: 110, height: 145).clipShape(RoundedRectangle(cornerRadius: 20))
                                     VStack(alignment: .leading, spacing: 10) {
                                         Text("\(profile.name), \(profile.age)").font(.title2.weight(.semibold)).foregroundStyle(Color.ink)
                                         Text(profile.city).font(.subheadline).foregroundStyle(Color.muted)
-                                        Text(store.isMatched(profile.id) ? "Mutual interest · sample" : showingIncoming ? "Liked you · sample" : "Awaiting mutual interest")
+                                        Text(store.isMatched(profile.id) ? "Mutual interest" : showingIncoming ? "Liked you" : "Awaiting mutual interest")
                                             .font(.caption.weight(.semibold)).foregroundStyle(Color.plum)
                                         Image(systemName: "arrow.up.right").foregroundStyle(Color.plum)
-                                    }
-                                    Spacer(minLength: 0)
+                                    }.fixedSize(horizontal: false, vertical: true)
+                                    if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
                                 }
                             }.buttonStyle(.plain)
                             if !showingIncoming {
@@ -80,7 +81,7 @@ struct LikesView: View {
                         }
                     }
                 }
-                NoteCard(symbol: "sparkles", text: showingIncoming ? "Incoming likes are preloaded sample data. Liking back opens a simulated chat. Nobody receives a notification." : "Likes live in this session only. Removing a like keeps any existing demo conversation.")
+                NoteCard(symbol: "sparkles", text: showingIncoming ? "Demo likes · Liking back opens a local chat. No notifications are sent." : "Demo likes reset on relaunch. Removing interest keeps your connection and chat.")
             }.padding(24)
         }.modifier(UnmatchConfirmation(memberID: $unmatchID))
             .background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)

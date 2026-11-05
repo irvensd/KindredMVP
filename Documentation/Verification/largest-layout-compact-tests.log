@@ -1,0 +1,461 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project Kindred.xcodeproj -scheme Kindred -destination "platform=iOS Simulator,id=8B4CF022-CFE1-4DFF-8197-EEBED67CBB78,arch=arm64" -derivedDataPath /private/tmp/KindredPersonalInterestBuild -resultBundlePath ../../work/LargestLayoutCompact.xcresult -collect-test-diagnostics never -parallel-testing-enabled NO "-only-testing:KindredUITests/KindredUITests/testLargestTextLikesAndPhotoEditor"
+
+Writing result bundle at path:
+	/Users/irvensdupuy/Developer/Kindred-Phase-1.5/work/LargestLayoutCompact.xcresult
+
+2026-11-05 16:31:26.425 xcodebuild[2780:35246] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 16:31:34.891657-0600 KindredUITests-Runner[2837:36037] [Default] Running tests...
+2026-11-05 16:31:34.947837-0600 KindredUITests-Runner[2837:36163] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2026-11-05 16:31:34.988786-0600 KindredUITests-Runner[2837:36161] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-11-05 16:31:38.221.
+Test Suite 'KindredUITests.xctest' started at 2026-11-05 16:31:38.223.
+Test Suite 'KindredUITests' started at 2026-11-05 16:31:38.223.
+Test Case '-[KindredUITests.KindredUITests testLargestTextLikesAndPhotoEditor]' started.
+    t =     0.00s Start Test at 2026-11-05 16:31:38.224
+    t =     0.36s Set Up
+    t =     0.36s Open com.kindred.prototype
+    t =     0.36s     Launch com.kindred.prototype
+2026-11-05 16:31:38.903 xcodebuild[2780:35246] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-11-05 16:31:38.904 xcodebuild[2780:35246] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-11-05 16:31:39.017 xcodebuild[2780:35246] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =     2.75s         Setting up automation session
+    t =     4.15s         Wait for com.kindred.prototype to idle
+    t =     7.17s Tap "Likes" Button
+    t =     7.17s     Wait for com.kindred.prototype to idle
+    t =     7.17s     Find the "Likes" Button
+    t =     7.37s     Check for interrupting elements affecting "Likes" Button
+    t =     7.50s     Synthesize event
+    t =     7.92s     Wait for com.kindred.prototype to idle
+    t =     8.94s Find the "Amara, 28" StaticText
+    t =     9.00s Swipe up Target Application 'com.kindred.prototype'
+    t =     9.00s     Wait for com.kindred.prototype to idle
+    t =     9.00s     Find the Target Application 'com.kindred.prototype'
+    t =     9.02s     Check for interrupting elements affecting "Kindred" Application
+    t =     9.04s     Synthesize event
+    t =     9.46s     Wait for com.kindred.prototype to idle
+    t =    11.57s Find the "Amara, 28" StaticText
+    t =    11.64s Find the "Amara, 28" StaticText
+    t =    11.68s Find the Target Application 'com.kindred.prototype'
+    t =    11.78s Added attachment named 'Largest Likes light'
+    t =    11.78s Tap "You" Button
+    t =    11.78s     Wait for com.kindred.prototype to idle
+    t =    11.78s     Find the "You" Button
+    t =    11.82s     Check for interrupting elements affecting "person.crop.circle" Button
+    t =    11.85s     Synthesize event
+    t =    12.14s     Wait for com.kindred.prototype to idle
+    t =    13.28s Find the "editProfile" Button
+    t =    13.35s Swipe up Target Application 'com.kindred.prototype'
+    t =    13.35s     Wait for com.kindred.prototype to idle
+    t =    13.35s     Find the Target Application 'com.kindred.prototype'
+    t =    13.37s     Check for interrupting elements affecting "Kindred" Application
+    t =    13.40s     Synthesize event
+    t =    13.82s     Wait for com.kindred.prototype to idle
+    t =    15.93s Find the "editProfile" Button
+    t =    15.99s Tap "editProfile" Button
+    t =    15.99s     Wait for com.kindred.prototype to idle
+    t =    16.00s     Find the "editProfile" Button
+    t =    16.02s     Check for interrupting elements affecting "editProfile" Button
+    t =    16.05s     Synthesize event
+    t =    16.35s     Wait for com.kindred.prototype to idle
+    t =    16.69s Find the "editPhoto-rowan" Button
+    t =    17.90s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    18.97s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    19.04s Swipe up Target Application 'com.kindred.prototype'
+    t =    19.04s     Wait for com.kindred.prototype to idle
+    t =    19.04s     Find the Target Application 'com.kindred.prototype'
+    t =    19.08s     Check for interrupting elements affecting "Kindred" Application
+    t =    19.16s     Synthesize event
+    t =    19.60s     Wait for com.kindred.prototype to idle
+    t =    21.79s Find the "editPhoto-rowan" Button
+    t =    22.98s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    24.05s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    24.14s Swipe up Target Application 'com.kindred.prototype'
+    t =    24.14s     Wait for com.kindred.prototype to idle
+    t =    24.14s     Find the Target Application 'com.kindred.prototype'
+    t =    24.20s     Check for interrupting elements affecting "Kindred" Application
+    t =    24.40s     Synthesize event
+    t =    24.86s     Wait for com.kindred.prototype to idle
+    t =    26.96s Find the "editPhoto-rowan" Button
+    t =    28.04s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    29.11s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    29.21s Swipe up Target Application 'com.kindred.prototype'
+    t =    29.21s     Wait for com.kindred.prototype to idle
+    t =    29.22s     Find the Target Application 'com.kindred.prototype'
+    t =    29.26s     Check for interrupting elements affecting "Kindred" Application
+    t =    29.47s     Synthesize event
+    t =    29.92s     Wait for com.kindred.prototype to idle
+    t =    32.07s Find the "editPhoto-rowan" Button
+    t =    33.25s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    34.32s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    34.39s Swipe up Target Application 'com.kindred.prototype'
+    t =    34.39s     Wait for com.kindred.prototype to idle
+    t =    34.40s     Find the Target Application 'com.kindred.prototype'
+    t =    34.44s     Check for interrupting elements affecting "Kindred" Application
+    t =    34.51s     Synthesize event
+    t =    34.96s     Wait for com.kindred.prototype to idle
+    t =    37.08s Find the "editPhoto-rowan" Button
+    t =    38.22s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    39.30s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    39.45s Swipe up Target Application 'com.kindred.prototype'
+    t =    39.45s     Wait for com.kindred.prototype to idle
+    t =    39.46s     Find the Target Application 'com.kindred.prototype'
+    t =    39.51s     Check for interrupting elements affecting "Kindred" Application
+    t =    39.98s     Synthesize event
+    t =    40.43s     Wait for com.kindred.prototype to idle
+    t =    42.69s Find the "editPhoto-rowan" Button
+    t =    43.86s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    44.96s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    45.16s Swipe up Target Application 'com.kindred.prototype'
+    t =    45.16s     Wait for com.kindred.prototype to idle
+    t =    45.16s     Find the Target Application 'com.kindred.prototype'
+    t =    45.23s     Check for interrupting elements affecting "Kindred" Application
+    t =    45.38s     Synthesize event
+    t =    45.83s     Wait for com.kindred.prototype to idle
+    t =    48.06s Find the "editPhoto-rowan" Button
+    t =    49.24s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    50.35s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    50.47s Swipe up Target Application 'com.kindred.prototype'
+    t =    50.47s     Wait for com.kindred.prototype to idle
+    t =    50.48s     Find the Target Application 'com.kindred.prototype'
+    t =    50.55s     Check for interrupting elements affecting "Kindred" Application
+    t =    50.64s     Synthesize event
+    t =    51.10s     Wait for com.kindred.prototype to idle
+    t =    53.50s Find the "editPhoto-rowan" Button
+    t =    54.75s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    55.93s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    56.10s Swipe up Target Application 'com.kindred.prototype'
+    t =    56.10s     Wait for com.kindred.prototype to idle
+    t =    56.11s     Find the Target Application 'com.kindred.prototype'
+    t =    56.16s     Check for interrupting elements affecting "Kindred" Application
+    t =    56.32s     Synthesize event
+    t =    56.76s     Wait for com.kindred.prototype to idle
+    t =    58.89s Find the "editPhoto-rowan" Button
+    t =    59.95s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    61.04s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    61.60s Swipe up Target Application 'com.kindred.prototype'
+    t =    61.60s     Wait for com.kindred.prototype to idle
+    t =    61.61s     Find the Target Application 'com.kindred.prototype'
+    t =    61.71s     Check for interrupting elements affecting "Kindred" Application
+    t =    61.98s     Synthesize event
+    t =    62.48s     Wait for com.kindred.prototype to idle
+    t =    62.49s Find the "editPhoto-rowan" Button
+    t =    67.42s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    69.54s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    70.18s Swipe up Target Application 'com.kindred.prototype'
+    t =    70.18s     Wait for com.kindred.prototype to idle
+    t =    70.33s     Find the Target Application 'com.kindred.prototype'
+    t =    70.41s     Check for interrupting elements affecting "Kindred" Application
+    t =    72.70s     Synthesize event
+    t =    73.56s     Wait for com.kindred.prototype to idle
+    t =    73.57s Find the "editPhoto-rowan" Button
+    t =    75.12s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    76.61s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    76.79s Swipe up Target Application 'com.kindred.prototype'
+    t =    76.79s     Wait for com.kindred.prototype to idle
+    t =    76.80s     Find the Target Application 'com.kindred.prototype'
+    t =    76.87s     Check for interrupting elements affecting "Kindred" Application
+    t =    77.00s     Synthesize event
+    t =    77.51s     Wait for com.kindred.prototype to idle
+    t =    79.62s Find the "editPhoto-rowan" Button
+    t =    80.79s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    82.19s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    82.76s Swipe up Target Application 'com.kindred.prototype'
+    t =    82.76s     Wait for com.kindred.prototype to idle
+    t =    82.76s     Find the Target Application 'com.kindred.prototype'
+    t =    83.13s     Check for interrupting elements affecting "Kindred" Application
+    t =    84.31s     Synthesize event
+    t =    84.79s     Wait for com.kindred.prototype to idle
+    t =    86.20s Find the "editPhoto-rowan" Button
+    t =    87.35s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    88.44s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    88.71s Swipe up Target Application 'com.kindred.prototype'
+    t =    88.71s     Wait for com.kindred.prototype to idle
+    t =    88.72s     Find the Target Application 'com.kindred.prototype'
+    t =    88.82s     Check for interrupting elements affecting "Kindred" Application
+    t =    89.01s     Synthesize event
+    t =    89.67s     Wait for com.kindred.prototype to idle
+    t =    89.93s Find the "editPhoto-rowan" Button
+    t =    92.11s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    93.24s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    93.49s Swipe up Target Application 'com.kindred.prototype'
+    t =    93.49s     Wait for com.kindred.prototype to idle
+    t =    93.49s     Find the Target Application 'com.kindred.prototype'
+    t =    93.61s     Check for interrupting elements affecting "Kindred" Application
+    t =    93.94s     Synthesize event
+    t =    94.53s     Wait for com.kindred.prototype to idle
+    t =    96.72s Find the "editPhoto-rowan" Button
+    t =    98.18s     Find the "editPhoto-rowan" Button (retry 1)
+    t =    99.29s     Find the "editPhoto-rowan" Button (retry 2)
+    t =    99.68s Swipe up Target Application 'com.kindred.prototype'
+    t =    99.68s     Wait for com.kindred.prototype to idle
+    t =    99.68s     Find the Target Application 'com.kindred.prototype'
+    t =    99.84s     Check for interrupting elements affecting "Kindred" Application
+    t =   100.57s     Synthesize event
+    t =   101.12s     Wait for com.kindred.prototype to idle
+    t =   104.05s Find the "editPhoto-rowan" Button
+    t =   105.24s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   106.35s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   108.23s Swipe up Target Application 'com.kindred.prototype'
+    t =   108.23s     Wait for com.kindred.prototype to idle
+    t =   108.24s     Find the Target Application 'com.kindred.prototype'
+    t =   108.32s     Check for interrupting elements affecting "Kindred" Application
+    t =   108.51s     Synthesize event
+    t =   108.99s     Wait for com.kindred.prototype to idle
+    t =   111.29s Find the "editPhoto-rowan" Button
+    t =   111.69s Swipe up Target Application 'com.kindred.prototype'
+    t =   111.70s     Wait for com.kindred.prototype to idle
+    t =   111.70s     Find the Target Application 'com.kindred.prototype'
+    t =   111.77s     Check for interrupting elements affecting "Kindred" Application
+    t =   111.91s     Synthesize event
+    t =   112.43s     Wait for com.kindred.prototype to idle
+    t =   114.52s Find the "editPhoto-rowan" Button
+    t =   114.67s Find the "editPhoto-rowan" Button
+    t =   114.75s Find the Target Application 'com.kindred.prototype'
+    t =   114.91s Added attachment named 'Largest photo editor light'
+    t =   114.92s Tap "editPhoto-rowan" Button
+    t =   114.92s     Wait for com.kindred.prototype to idle
+    t =   114.92s     Find the "editPhoto-rowan" Button
+    t =   115.00s     Check for interrupting elements affecting "editPhoto-rowan" Button
+    t =   115.09s     Synthesize event
+    t =   115.40s     Wait for com.kindred.prototype to idle
+<unknown>:0: warning: -[KindredUITests.KindredUITests testLargestTextLikesAndPhotoEditor] : Adding '_UIReparentingView' as a subview of UIHostingController.view is not supported and may result in a broken view hierarchy. Add your view above UIHostingController.view in a common superview or insert it into your SwiftUI content in a UIViewRepresentable instead.
+    t =   116.07s Tap "Adjust crop" Button
+    t =   116.07s     Wait for com.kindred.prototype to idle
+    t =   117.08s     Find the "Adjust crop" Button
+    t =   117.19s     Check for interrupting elements affecting "Adjust crop" Button
+    t =   117.27s     Synthesize event
+    t =   117.56s     Wait for com.kindred.prototype to idle
+    t =   118.88s Waiting 3.0s for "Adjust crop" NavigationBar to exist
+    t =   119.90s     Checking `Expect predicate `existsNoRetry == 1` for object "Adjust crop" NavigationBar`
+    t =   119.90s         Checking existence of `"Adjust crop" NavigationBar`
+    t =   120.05s Tap "Cancel" Button
+    t =   120.05s     Wait for com.kindred.prototype to idle
+    t =   120.06s     Find the "Cancel" Button
+    t =   120.16s     Check for interrupting elements affecting "Cancel" Button
+    t =   120.25s     Synthesize event
+    t =   120.56s     Wait for com.kindred.prototype to idle
+    t =   121.21s Find the "removePhoto-rowan" Button
+    t =   121.28s Tap "removePhoto-rowan" Button
+    t =   121.28s     Wait for com.kindred.prototype to idle
+    t =   121.28s     Find the "removePhoto-rowan" Button
+    t =   121.34s     Check for interrupting elements affecting "removePhoto-rowan" Button
+    t =   121.40s     Synthesize event
+    t =   121.70s     Wait for com.kindred.prototype to idle
+    t =   122.47s Find the "undoPhotoRemoval" Button
+    t =   122.59s Tap "undoPhotoRemoval" Button
+    t =   122.59s     Wait for com.kindred.prototype to idle
+    t =   122.59s     Find the "undoPhotoRemoval" Button
+    t =   122.67s     Check for interrupting elements affecting "undoPhotoRemoval" Button
+    t =   122.74s     Synthesize event
+    t =   123.05s     Wait for com.kindred.prototype to idle
+    t =   124.17s Checking existence of `"editPhoto-rowan" Button`
+    t =   124.55s Open com.kindred.prototype
+    t =   124.56s     Launch com.kindred.prototype
+    t =   124.56s         Terminate com.kindred.prototype:2857
+2026-11-05 16:33:42.933 xcodebuild[2780:35246] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 16:33:42.958 xcodebuild[2780:35246] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 16:33:43.893 xcodebuild[2780:35246] [MT] IDELaunchParametersSnapshot: debugger version lookup failed for path '<nil>': noURL
+2026-11-05 16:33:43.893 xcodebuild[2780:35246] [MT] IDELaunchParametersSnapshot: no debugger version
+2026-11-05 16:33:43.916 xcodebuild[2780:35246] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+    t =   127.74s         Setting up automation session
+    t =   130.17s         Wait for com.kindred.prototype to idle
+    t =   135.68s Tap "Likes" Button
+    t =   135.68s     Wait for com.kindred.prototype to idle
+    t =   135.69s     Find the "Likes" Button
+    t =   136.05s     Check for interrupting elements affecting "Likes" Button
+    t =   136.16s     Synthesize event
+    t =   136.57s     Wait for com.kindred.prototype to idle
+    t =   137.13s Find the "Amara, 28" StaticText
+    t =   137.23s Swipe up Target Application 'com.kindred.prototype'
+    t =   137.23s     Wait for com.kindred.prototype to idle
+    t =   138.94s     Find the Target Application 'com.kindred.prototype'
+    t =   138.99s     Check for interrupting elements affecting "Kindred" Application
+    t =   139.08s     Synthesize event
+    t =   139.55s     Wait for com.kindred.prototype to idle
+    t =   141.76s Find the "Amara, 28" StaticText
+    t =   142.12s Find the "Amara, 28" StaticText
+    t =   142.17s Find the Target Application 'com.kindred.prototype'
+    t =   142.32s Added attachment named 'Largest Likes dark'
+    t =   142.32s Tap "You" Button
+    t =   142.32s     Wait for com.kindred.prototype to idle
+    t =   142.33s     Find the "You" Button
+    t =   142.36s     Check for interrupting elements affecting "person.crop.circle" Button
+    t =   142.46s     Synthesize event
+    t =   142.79s     Wait for com.kindred.prototype to idle
+    t =   144.50s Find the "editProfile" Button
+    t =   144.60s Swipe up Target Application 'com.kindred.prototype'
+    t =   144.60s     Wait for com.kindred.prototype to idle
+    t =   144.61s     Find the Target Application 'com.kindred.prototype'
+    t =   144.65s     Check for interrupting elements affecting "Kindred" Application
+    t =   144.68s     Synthesize event
+    t =   145.11s     Wait for com.kindred.prototype to idle
+    t =   147.23s Find the "editProfile" Button
+    t =   147.33s Tap "editProfile" Button
+    t =   147.33s     Wait for com.kindred.prototype to idle
+    t =   147.33s     Find the "editProfile" Button
+    t =   147.37s     Check for interrupting elements affecting "editProfile" Button
+    t =   147.42s     Synthesize event
+    t =   147.72s     Wait for com.kindred.prototype to idle
+    t =   148.78s Find the "editPhoto-rowan" Button
+    t =   150.16s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   151.25s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   151.33s Swipe up Target Application 'com.kindred.prototype'
+    t =   151.33s     Wait for com.kindred.prototype to idle
+    t =   151.34s     Find the Target Application 'com.kindred.prototype'
+    t =   151.39s     Check for interrupting elements affecting "Kindred" Application
+    t =   151.48s     Synthesize event
+    t =   151.92s     Wait for com.kindred.prototype to idle
+    t =   154.09s Find the "editPhoto-rowan" Button
+    t =   155.18s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   156.24s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   156.34s Swipe up Target Application 'com.kindred.prototype'
+    t =   156.34s     Wait for com.kindred.prototype to idle
+    t =   156.34s     Find the Target Application 'com.kindred.prototype'
+    t =   156.39s     Check for interrupting elements affecting "Kindred" Application
+    t =   156.47s     Synthesize event
+    t =   156.90s     Wait for com.kindred.prototype to idle
+    t =   159.64s Find the "editPhoto-rowan" Button
+    t =   160.74s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   161.83s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   161.92s Swipe up Target Application 'com.kindred.prototype'
+    t =   161.92s     Wait for com.kindred.prototype to idle
+    t =   161.94s     Find the Target Application 'com.kindred.prototype'
+    t =   162.00s     Check for interrupting elements affecting "Kindred" Application
+    t =   162.09s     Synthesize event
+    t =   162.52s     Wait for com.kindred.prototype to idle
+    t =   164.65s Find the "editPhoto-rowan" Button
+    t =   165.77s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   166.86s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   166.98s Swipe up Target Application 'com.kindred.prototype'
+    t =   166.98s     Wait for com.kindred.prototype to idle
+    t =   166.98s     Find the Target Application 'com.kindred.prototype'
+    t =   167.03s     Check for interrupting elements affecting "Kindred" Application
+    t =   167.11s     Synthesize event
+    t =   167.55s     Wait for com.kindred.prototype to idle
+    t =   169.69s Find the "editPhoto-rowan" Button
+    t =   170.83s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   171.99s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   172.10s Swipe up Target Application 'com.kindred.prototype'
+    t =   172.10s     Wait for com.kindred.prototype to idle
+    t =   172.11s     Find the Target Application 'com.kindred.prototype'
+    t =   172.15s     Check for interrupting elements affecting "Kindred" Application
+    t =   172.27s     Synthesize event
+    t =   172.71s     Wait for com.kindred.prototype to idle
+    t =   174.99s Find the "editPhoto-rowan" Button
+    t =   176.11s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   177.22s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   177.33s Swipe up Target Application 'com.kindred.prototype'
+    t =   177.33s     Wait for com.kindred.prototype to idle
+    t =   177.33s     Find the Target Application 'com.kindred.prototype'
+    t =   177.39s     Check for interrupting elements affecting "Kindred" Application
+    t =   177.45s     Synthesize event
+    t =   177.88s     Wait for com.kindred.prototype to idle
+    t =   180.03s Find the "editPhoto-rowan" Button
+    t =   181.12s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   182.22s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   182.33s Swipe up Target Application 'com.kindred.prototype'
+    t =   182.33s     Wait for com.kindred.prototype to idle
+    t =   182.33s     Find the Target Application 'com.kindred.prototype'
+    t =   182.37s     Check for interrupting elements affecting "Kindred" Application
+    t =   182.46s     Synthesize event
+    t =   182.88s     Wait for com.kindred.prototype to idle
+    t =   185.26s Find the "editPhoto-rowan" Button
+    t =   186.37s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   187.47s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   187.56s Swipe up Target Application 'com.kindred.prototype'
+    t =   187.56s     Wait for com.kindred.prototype to idle
+    t =   187.56s     Find the Target Application 'com.kindred.prototype'
+    t =   187.60s     Check for interrupting elements affecting "Kindred" Application
+    t =   187.65s     Synthesize event
+    t =   188.08s     Wait for com.kindred.prototype to idle
+    t =   190.18s Find the "editPhoto-rowan" Button
+    t =   191.28s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   192.34s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   192.47s Swipe up Target Application 'com.kindred.prototype'
+    t =   192.47s     Wait for com.kindred.prototype to idle
+    t =   192.50s     Find the Target Application 'com.kindred.prototype'
+    t =   192.56s     Check for interrupting elements affecting "Kindred" Application
+    t =   192.65s     Synthesize event
+    t =   193.09s     Wait for com.kindred.prototype to idle
+    t =   195.79s Find the "editPhoto-rowan" Button
+    t =   196.90s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   198.00s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   198.08s Swipe up Target Application 'com.kindred.prototype'
+    t =   198.08s     Wait for com.kindred.prototype to idle
+    t =   198.08s     Find the Target Application 'com.kindred.prototype'
+    t =   198.12s     Check for interrupting elements affecting "Kindred" Application
+    t =   198.18s     Synthesize event
+    t =   198.60s     Wait for com.kindred.prototype to idle
+    t =   201.25s Find the "editPhoto-rowan" Button
+    t =   202.32s     Find the "editPhoto-rowan" Button (retry 1)
+    t =   203.39s     Find the "editPhoto-rowan" Button (retry 2)
+    t =   203.46s Swipe up Target Application 'com.kindred.prototype'
+    t =   203.46s     Wait for com.kindred.prototype to idle
+    t =   203.46s     Find the Target Application 'com.kindred.prototype'
+    t =   203.51s     Check for interrupting elements affecting "Kindred" Application
+    t =   203.56s     Synthesize event
+    t =   203.99s     Wait for com.kindred.prototype to idle
+    t =   206.16s Find the "editPhoto-rowan" Button
+    t =   206.31s Find the "editPhoto-rowan" Button
+    t =   206.38s Find the Target Application 'com.kindred.prototype'
+    t =   206.51s Added attachment named 'Largest photo editor dark'
+    t =   206.51s Tap "editPhoto-rowan" Button
+    t =   206.51s     Wait for com.kindred.prototype to idle
+    t =   206.52s     Find the "editPhoto-rowan" Button
+    t =   206.59s     Check for interrupting elements affecting "editPhoto-rowan" Button
+    t =   206.67s     Synthesize event
+    t =   206.97s     Wait for com.kindred.prototype to idle
+    t =   207.71s Tap "Adjust crop" Button
+    t =   207.71s     Wait for com.kindred.prototype to idle
+    t =   208.71s     Find the "Adjust crop" Button
+    t =   208.81s     Check for interrupting elements affecting "Adjust crop" Button
+    t =   208.88s     Synthesize event
+    t =   209.18s     Wait for com.kindred.prototype to idle
+    t =   210.38s Waiting 3.0s for "Adjust crop" NavigationBar to exist
+    t =   211.42s     Checking `Expect predicate `existsNoRetry == 1` for object "Adjust crop" NavigationBar`
+    t =   211.43s         Checking existence of `"Adjust crop" NavigationBar`
+    t =   211.59s Tap "Cancel" Button
+    t =   211.59s     Wait for com.kindred.prototype to idle
+    t =   211.59s     Find the "Cancel" Button
+    t =   211.68s     Check for interrupting elements affecting "Cancel" Button
+    t =   211.80s     Synthesize event
+    t =   212.11s     Wait for com.kindred.prototype to idle
+    t =   212.75s Find the "removePhoto-rowan" Button
+    t =   212.85s Tap "removePhoto-rowan" Button
+    t =   212.85s     Wait for com.kindred.prototype to idle
+    t =   212.85s     Find the "removePhoto-rowan" Button
+    t =   212.92s     Check for interrupting elements affecting "removePhoto-rowan" Button
+    t =   212.99s     Synthesize event
+    t =   213.28s     Wait for com.kindred.prototype to idle
+    t =   213.29s Find the "undoPhotoRemoval" Button
+    t =   213.37s Tap "undoPhotoRemoval" Button
+    t =   213.37s     Wait for com.kindred.prototype to idle
+    t =   213.38s     Find the "undoPhotoRemoval" Button
+    t =   213.45s     Check for interrupting elements affecting "undoPhotoRemoval" Button
+    t =   213.52s     Synthesize event
+    t =   213.83s     Wait for com.kindred.prototype to idle
+    t =   213.84s Checking existence of `"editPhoto-rowan" Button`
+    t =   213.91s Tear Down
+Test Case '-[KindredUITests.KindredUITests testLargestTextLikesAndPhotoEditor]' passed (215.293 seconds).
+Test Suite 'KindredUITests' passed at 2026-11-05 16:35:13.522.
+	 Executed 1 test, with 0 failures (0 unexpected) in 215.293 (215.299) seconds
+Test Suite 'KindredUITests.xctest' passed at 2026-11-05 16:35:13.522.
+	 Executed 1 test, with 0 failures (0 unexpected) in 215.293 (215.300) seconds
+Test Suite 'Selected tests' passed at 2026-11-05 16:35:13.523.
+	 Executed 1 test, with 0 failures (0 unexpected) in 215.293 (215.301) seconds
+2026-11-05 16:35:13.602 xcodebuild[2780:35246] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 16:35:13.607 xcodebuild[2780:35246] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 16:35:13.625 xcodebuild[2780:35246] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 16:35:13.626 xcodebuild[2780:35246] [MT] IDESchemeActionSDKRecord: operatingSystemBuild = <DVTBuildVersion 24A94232>, error = invalidDigitCount(94232).
+2026-11-05 16:35:13.931 xcodebuild[2780:35246] [MT] IDETestOperationsObserverDebug: 227.894 elapsed -- Testing started completed.
+2026-11-05 16:35:13.931 xcodebuild[2780:35246] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-11-05 16:35:13.931 xcodebuild[2780:35246] [MT] IDETestOperationsObserverDebug: 227.894 sec, +227.894 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/irvensdupuy/Developer/Kindred-Phase-1.5/work/LargestLayoutCompact.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

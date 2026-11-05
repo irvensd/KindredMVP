@@ -1,11 +1,15 @@
 import SwiftUI
 
 struct DiscoverView: View {
+    var isActive = true
+    @State private var advanceTask: Task<Void, Never>?
+    @State private var advanceToken = UUID()
     @Environment(AppStore.self) private var store
     @Environment(\.kindredReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var showPreferences = false
     @State private var selectedID: String?
+    @State private var introductionRevision = 0
     @State private var lastPassedID: String?
     @State private var transitionDirection: CGFloat = 1
     private var current: MemberProfile? { store.discoveryProfiles.first { $0.id == selectedID } ?? store.discoveryProfiles.first }
@@ -41,23 +45,23 @@ struct DiscoverView: View {
                 if let profile = current {
                     VStack(alignment: .leading, spacing: 18) {
                         DiscoveryPortrait(profile: profile, isLiked: store.isLiked(profile.id), next: skip, interested: { store.like(profile.id) })
-                            .id(profile.id)
+                            .id("\(profile.id)-\(introductionRevision)")
                         ViewThatFits(in: .horizontal) {
                             HStack {
                             Label("Seventh-day Adventist", systemImage: "leaf").font(.footnote.weight(.medium)).foregroundStyle(Color.plum)
                             Spacer()
-                            Text("\(profile.distanceMiles) mi · sample").font(.caption).foregroundStyle(Color.muted)
+                            Text("\(profile.distanceMiles) mi · demo distance").font(.caption).foregroundStyle(Color.muted)
                             }
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("Seventh-day Adventist").font(.footnote).foregroundStyle(Color.plum)
-                                Text("\(profile.distanceMiles) mi · sample").font(.caption).foregroundStyle(Color.muted)
+                                Text("\(profile.distanceMiles) mi · demo distance").font(.caption).foregroundStyle(Color.muted)
                             }
                         }
                         Text(profile.bio).font(.body).lineSpacing(4).fixedSize(horizontal: false, vertical: true)
                         InterestChips(interests: profile.interests)
                         NavigationLink { ProfileDetailView(memberID: profile.id) } label: {
                             HStack { Text("Meet \(profile.name)").font(.headline); Spacer(); Image(systemName: "arrow.up.right") }.padding(.vertical, 12)
-                        }.accessibilityIdentifier("openProfile")
+                        }.simultaneousGesture(TapGesture().onEnded { cancelAdvance() }).accessibilityIdentifier("openProfile")
                         if let prompt = profile.prompts.first(where: { !$0.answer.trimmed.isEmpty }) { PromptCard(prompt: prompt, memberID: profile.id) }
 
                     }.id(profile.id)
@@ -78,7 +82,7 @@ struct DiscoverView: View {
                         EmptyState(symbol: "sparkles", title: "No profiles available", message: "There are no new introductions available in this demo session. Find your connections in Likes or Chats. Matched, unmatched and blocked members stay out of Discover.")
                     }
                 }
-                NoteCard(symbol: "sparkles", text: "A thoughtfully simulated experience. All people and incoming activity are fictional; portraits are AI-generated.")
+                NoteCard(symbol: "sparkles", text: "Demo experience · Fictional members and activity. AI-generated portraits.")
             }.padding(24)
         }.background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -89,16 +93,38 @@ struct DiscoverView: View {
                 }
             }
             .onAppear { selectedID = current?.id }
-            .task(id: store.state.likes.count) {
-                guard let id = selectedID, store.isLiked(id), !store.isMatched(id) else { return }
-                try? await Task.sleep(for: .milliseconds(900))
-                guard !Task.isCancelled, selectedID == id, store.isLiked(id) else { return }
-                withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) { selectedID = nil }
+            .onChange(of: store.state.likes.count) { old, new in
+                if new > old { scheduleAdvance() } else { cancelAdvance() }
             }
-            .onChange(of: current?.id) { _, id in selectedID = id; proxy.scrollTo("discoveryTop", anchor: .top) }
+            .onDisappear { cancelAdvance() }
+            .onChange(of: isActive) { _, active in if !active { cancelAdvance() } }
+            .onChange(of: showPreferences) { _, showing in if showing { cancelAdvance() } }
+            .onChange(of: current?.id) { _, id in cancelAdvance(); selectedID = id; proxy.scrollTo("discoveryTop", anchor: .top) }
             .onChange(of: store.state.discovery) { _, _ in lastPassedID = nil }
             .onChange(of: store.state.privacy.discoveryPaused) { _, _ in lastPassedID = nil }
             .sheet(isPresented: $showPreferences) { DiscoveryPreferencesView() }
+        }
+    }
+    private func cancelAdvance() {
+        advanceToken = UUID()
+        advanceTask?.cancel()
+        advanceTask = nil
+    }
+    private func scheduleAdvance() {
+        cancelAdvance()
+        guard isActive, !showPreferences, let id = selectedID,
+              let like = store.state.likes.last, like.senderID == "me", like.recipientID == id,
+              store.isLiked(id), !store.isMatched(id) else { return }
+        let token = advanceToken
+        var delay = 900
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--slow-discovery-advance") { delay = 5000 }
+        #endif
+        advanceTask = Task { @MainActor in
+            do { try await Task.sleep(for: .milliseconds(delay)) } catch { return }
+            guard !Task.isCancelled, advanceToken == token, isActive, !showPreferences,
+                  selectedID == id, store.isLiked(id), !store.isMatched(id) else { return }
+            withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) { selectedID = nil }
         }
     }
     private var undoName: String? {
@@ -106,6 +132,7 @@ struct DiscoverView: View {
         return store.member(id)?.name
     }
     private func skip() {
+        cancelAdvance()
         guard let id = current?.id else { return }
         transitionDirection = 1
         withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) {
@@ -116,10 +143,12 @@ struct DiscoverView: View {
         }
     }
     private func undoSkip() {
+        cancelAdvance()
         guard let id = lastPassedID else { return }
         transitionDirection = -1
         withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) {
             if store.undoPass(id) {
+                introductionRevision += 1
                 selectedID = id; lastPassedID = nil; store.feedback = nil
                 UIAccessibility.post(notification: .announcement, argument: "Introduction restored")
             }

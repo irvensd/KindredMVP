@@ -2,7 +2,16 @@ import SwiftUI
 
 @main
 struct KindredApp: App {
-    @State private var store = AppStore()
+    @State private var store: AppStore = {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--pending-interest-demo") {
+            var state = DemoData.snapshot(now: Date())
+            state.likes = []; state.matches = []; state.discovery.radiusMiles = 250
+            return AppStore(repository: InMemoryKindredRepository(state: state))
+        }
+        #endif
+        return AppStore()
+    }()
     var body: some Scene {
         WindowGroup {
             RootView().environment(store).tint(Color.plum).modifier(PrototypeAccessibilityChecks())
@@ -56,7 +65,7 @@ struct MainTabs: View {
     var body: some View {
         @Bindable var store = store
         TabView(selection: $selectedTab) {
-            Tab("Discover", systemImage: "sparkles", value: Destination.discover) { NavigationStack { DiscoverView() } }
+            Tab("Discover", systemImage: "sparkles", value: Destination.discover) { NavigationStack { DiscoverView(isActive: selectedTab == .discover) } }
             Tab("Likes", systemImage: "heart", value: Destination.likes) { NavigationStack { LikesView() } }
             Tab("Chats", systemImage: "bubble.left.and.bubble.right", value: Destination.chats) {
                 NavigationStack(path: $chatPath) {
@@ -89,7 +98,8 @@ private struct PrototypeAccessibilityChecks: ViewModifier {
         #if DEBUG
         content
             .transformEnvironment(\.dynamicTypeSize) { value in
-                if ProcessInfo.processInfo.arguments.contains("--large-text") { value = .accessibility3 }
+                if ProcessInfo.processInfo.arguments.contains("--largest-text") { value = .accessibility5 }
+                else if ProcessInfo.processInfo.arguments.contains("--large-text") { value = .accessibility3 }
             }
             .preferredColorScheme(ProcessInfo.processInfo.arguments.contains("--dark") ? .dark : nil)
         #else

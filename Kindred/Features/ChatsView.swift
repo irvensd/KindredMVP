@@ -7,9 +7,9 @@ struct ChatsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 PageHeader(eyebrow: "Let the conversation unfold", title: "Say hello", subtitle: "Big connections start with small words.")
-                NoteCard(symbol: "bubble.left.and.text.bubble.right", text: "Demo conversations. Messages are saved locally in memory; they are never sent to anyone.")
+                NoteCard(symbol: "bubble.left.and.text.bubble.right", text: "Demo chats · Messages stay in this session and are never delivered.")
                 if store.conversations.isEmpty {
-                    EmptyState(symbol: "bubble.left", title: "Your next hello is waiting", message: "Like back an incoming sample like to start a demo conversation.")
+                    EmptyState(symbol: "bubble.left", title: "Your next hello is waiting", message: "Like back from Likes to start a local chat.")
                 } else {
                     VStack(spacing: 0) {
                         ForEach(store.conversations) { conversation in
@@ -31,7 +31,6 @@ struct ChatsView: View {
                                             }
                                             }
                                             Text(conversation.preview).font(.subheadline).foregroundStyle(Color.muted).lineLimit(typeSize.isAccessibilitySize ? nil : 2).multilineTextAlignment(.leading)
-                                            Text("SIMULATED CONVERSATION").font(.system(.caption2, weight: .medium)).tracking(0.7).foregroundStyle(Color.plum)
                                         }
                                         if conversation.unreadCount > 0 {
                                             Text("\(conversation.unreadCount)").font(.caption2.bold()).foregroundStyle(Color.onPlum).padding(7).background(Color.plum, in: Circle()).accessibilityLabel("\(conversation.unreadCount) unread sample messages")
@@ -77,7 +76,6 @@ struct ConversationView: View {
                             VStack(spacing: 10) {
                                 Avatar(profile: profile, size: 80)
                                 Text("A little hello to \(profile.name)").font(.title3.weight(.semibold))
-                                Text("Fictional member · Nothing is sent").font(.caption).foregroundStyle(Color.muted)
                                 NavigationLink("View profile") { ProfileDetailView(memberID: profile.id) }.font(.subheadline).frame(minHeight: 44)
                             }.frame(maxWidth: .infinity).padding(.vertical, 18)
                             if conversation.messages.isEmpty {
@@ -124,15 +122,15 @@ struct ConversationView: View {
                                 .accessibilityIdentifier("conversationIdeas")
                         }
                         HStack(alignment: .bottom, spacing: 10) {
-                            TextField("Write a demo message…", text: Binding(get: { draft }, set: { draft = $0 }), axis: .vertical).lineLimit(1...5).focused($composing)
+                            TextField("Write a message…", text: Binding(get: { draft }, set: { draft = $0 }), axis: .vertical).lineLimit(1...5).focused($composing)
                                 .padding(.horizontal, 16).padding(.vertical, 13).background(Color.surface, in: RoundedRectangle(cornerRadius: 24)).accessibilityIdentifier("messageComposer")
                             Button {
                                 if store.send(draft, conversationID: conversationID) { draft = ""; showStarters = false }
                             } label: { Image(systemName: "arrow.up").font(.headline).frame(width: 48, height: 48).foregroundStyle(Color.onPlum).background(Color.plum, in: Circle()) }
                                 .disabled(draft.trimmed.isEmpty || draft.trimmed.count > 2000).opacity(draft.trimmed.isEmpty || draft.trimmed.count > 2000 ? 0.5 : 1).accessibilityLabel("Save demo message").accessibilityIdentifier("sendMessage")
                         }
-                        if !composing || draft.trimmed.count > 2000 {
-                            Text(draft.trimmed.count > 2000 ? "Keep your message to 2,000 characters." : "Local demo only · no delivery or read receipts").font(.caption2).foregroundStyle(Color.muted)
+                        Group {
+                            Text(draft.trimmed.count > 2000 ? "Keep your message to 2,000 characters." : "Demo chat · Nothing is sent; replies are not generated.").font(.caption2).foregroundStyle(Color.muted)
                         }
                     }.padding(.horizontal, 16).padding(.vertical, 10).background(Color.paper)
                 }
@@ -189,7 +187,7 @@ struct MessageBubble: View {
                     .background(outgoing ? Color.plum : Color.surface, in: RoundedRectangle(cornerRadius: 22))
                 HStack(spacing: 5) {
                     Text(message.createdAt, style: .time)
-                    Text(outgoing ? "· saved locally" : "· sample message")
+                    if outgoing { Text("· saved locally") }
                 }.font(.caption2).foregroundStyle(Color.muted)
             }
             if !outgoing { Spacer(minLength: 35) }

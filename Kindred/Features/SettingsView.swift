@@ -138,7 +138,7 @@ struct DiscoveryPreferencesView: View {
                 }
                 Section { RadiusControl(value: $preferences.radiusMiles, showsPreciseAdjustment: true) } footer: { Text("Distances are fictional sample values. No location permission or precise location is used. Saved preferences stay for this session and reset when the app process relaunches.") }
                 Section { Button("Restore default preferences") { preferences = DiscoveryPreferences() } }
-            }.scrollContentBackground(.hidden).background(Color.paper).navigationTitle(typeSize.isAccessibilitySize ? "Preferences" : "Discovery preferences").navigationBarTitleDisplayMode(.inline)
+            }.scrollContentBackground(.hidden).background(Color.paper).navigationTitle("Preferences").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { if hasChanges { confirmDiscard = true } else { dismiss() } } }
                     ToolbarItem(placement: .confirmationAction) { Button("Save") { if store.updateDiscovery(preferences) { dismiss() } else { validation = store.errorMessage; store.errorMessage = nil } }.fontWeight(.semibold).accessibilityIdentifier("savePreferences") }
@@ -158,6 +158,7 @@ struct EditProfileView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     @State var profile: MemberProfile
+    @State private var keyboardVisible = false
     @State private var validation: String?
     @State private var attemptedSave = false
     private var issues: [ProfileValidationIssue] { attemptedSave ? profile.validationIssues : [] }
@@ -205,8 +206,10 @@ struct EditProfileView: View {
                         } else if store.updateProfile(profile) { dismiss() }
                         else { validation = store.errorMessage; store.errorMessage = nil }
                     }.fontWeight(.semibold).accessibilityIdentifier("saveProfile") }
-                    ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("Done") { dismissKeyboard() } }
+                    if keyboardVisible { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismissKeyboard() } } }
                 }
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in keyboardVisible = true }
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in keyboardVisible = false }
                 .background(SheetDismissalGuard(hasChanges: hasChanges) { confirmDiscard = true })
                 .alert("Discard changes?", isPresented: $confirmDiscard) {
                     Button("Discard changes", role: .destructive) { dismiss() }

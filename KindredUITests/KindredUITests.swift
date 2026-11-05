@@ -29,7 +29,7 @@ final class KindredUITests: XCTestCase {
             reveal(explanation, attempts: 12); XCTAssertTrue(explanation.exists)
             capture("Remove interest explanation \(options.isEmpty ? "standard" : "large")")
             let remove = app.buttons["removeLike-amara"]; reveal(remove, attempts: 12); remove.tap()
-            app.buttons["Liked you · sample"].tap()
+            app.buttons["Liked you"].tap()
             let unmatch = app.buttons["unmatch-amara"]; reveal(unmatch, attempts: 12); unmatch.tap()
             XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 3))
             capture("Unmatch confirmation \(options.isEmpty ? "standard" : "large")")
@@ -71,12 +71,21 @@ final class KindredUITests: XCTestCase {
             app.buttons["Adjust crop"].tap()
             XCTAssertTrue(app.navigationBars["Adjust crop"].waitForExistence(timeout: 3))
         }
+        func showZoom() {
+            let slider = app.sliders["Photo zoom"]
+            for _ in 0..<15 {
+                if slider.isHittable && slider.frame.midY > 150 && slider.frame.midY < app.frame.maxY - 100 { break }
+                let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.8))
+                start.press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.3)))
+            }
+        }
         openCrop()
         app.navigationBars["Adjust crop"].buttons["Cancel"].tap()
         XCTAssertTrue(app.navigationBars["Adjust crop"].waitForNonExistence(timeout: 3))
         openCrop()
-        let zoom = app.sliders["Photo zoom"]; reveal(zoom); zoom.adjust(toNormalizedSliderPosition: 0.6)
+        let zoom = app.sliders["Photo zoom"]; showZoom(); zoom.adjust(toNormalizedSliderPosition: 0.6)
         let changed = zoom.value as? String
+        XCTAssertNotEqual(changed, "1", "Zoom must change before testing discard")
         app.navigationBars["Adjust crop"].buttons["Cancel"].tap()
         XCTAssertTrue(app.alerts["Discard changes?"].waitForExistence(timeout: 3))
         app.alerts.buttons["Keep editing"].tap()
@@ -85,12 +94,12 @@ final class KindredUITests: XCTestCase {
         XCTAssertTrue(app.alerts["Discard changes?"].waitForExistence(timeout: 3))
         app.alerts.buttons["Discard changes"].tap()
         XCTAssertTrue(app.navigationBars["Adjust crop"].waitForNonExistence(timeout: 3))
-        openCrop(); reveal(zoom)
+        openCrop(); showZoom()
         XCTAssertNotEqual(zoom.value as? String, changed)
         zoom.adjust(toNormalizedSliderPosition: 0.6)
         let applied = zoom.value as? String
         app.buttons["Apply"].tap()
-        openCrop(); reveal(zoom)
+        openCrop(); showZoom()
         XCTAssertEqual(zoom.value as? String, applied)
         app.navigationBars["Adjust crop"].buttons["Cancel"].tap()
         XCTAssertFalse(app.alerts["Discard changes?"].exists)
@@ -149,6 +158,91 @@ final class KindredUITests: XCTestCase {
         XCTAssertFalse(undo.exists)
         app.buttons["saveProfile"].tap()
         XCTAssertTrue(app.buttons["saveProfile"].waitForNonExistence(timeout: 3))
+    }
+    func testPendingAdvanceCancelsForNavigationPreferencesAndUndo() {
+        for action in ["tabs", "profile", "preferences", "undo"] {
+            launch(options: ["--pending-interest-demo", "--slow-discovery-advance"])
+            if action == "undo" { app.buttons["passProfile"].tap() }
+            if action == "profile" { reveal(app.buttons["openProfile"]) }
+            app.buttons["likeProfile"].tap()
+            switch action {
+            case "tabs": app.tabBars.buttons["You"].tap()
+            case "profile": app.buttons["openProfile"].tap()
+            case "preferences": app.buttons["discoveryPreferences"].tap()
+            default: app.buttons["undoPass"].tap()
+            }
+            Thread.sleep(forTimeInterval: 5.3)
+            switch action {
+            case "tabs": app.tabBars.buttons["Discover"].tap()
+            case "profile": app.navigationBars.buttons.element(boundBy: 0).tap()
+            case "preferences": app.buttons["Cancel"].tap()
+            default: break
+            }
+            XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Amara")
+            Thread.sleep(forTimeInterval: 5.3)
+            XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Amara", "Returning must not restart the timer")
+        }
+    }
+    func testPendingInterestAdvancesOnceAndRetainsFeedback() {
+        launch(options: ["--pending-interest-demo"])
+        app.buttons["likeProfile"].doubleTap()
+        let next = app.buttons["passProfile"]
+        XCTAssertTrue(next.waitForExistence(timeout: 3))
+        XCTAssertEqual(next.label, "Next introduction, skip Eli")
+        XCTAssertTrue(app.staticTexts["feedbackBanner"].label.contains("Amara"))
+        capture("Pending interest acknowledgement after advance")
+        app.buttons["passProfile"].tap(); app.buttons["undoPass"].tap()
+        XCTAssertEqual(next.label, "Next introduction, skip Eli")
+        app.tabBars.buttons["Likes"].tap(); app.buttons["Your likes"].tap()
+        XCTAssertTrue(app.buttons["removeLike-amara"].exists)
+        XCTAssertFalse(app.buttons["removeLike-eli"].exists)
+    }
+    func testPendingPhotoAndPromptLikesAdvance() {
+        for action in ["photo", "prompt"] {
+            launch(options: ["--pending-interest-demo", "--reduce-motion"])
+            if action == "photo" {
+                let photo = app.buttons["photoLike-amara-amara-gallery"]; reveal(photo); photo.tap()
+            } else {
+                let prompt = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Like answer to")).firstMatch
+                reveal(prompt, attempts: 12); prompt.tap()
+            }
+            let advanced = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", "Next introduction, skip Eli"), object: app.buttons["passProfile"])
+            XCTAssertEqual(XCTWaiter.wait(for: [advanced], timeout: 3), .completed)
+            XCTAssertTrue(app.staticTexts["feedbackBanner"].label.contains(action == "photo" ? "photo" : "answer"))
+            capture("Pending \(action) acknowledgement")
+            app.tabBars.buttons["You"].tap()
+            let discover = app.tabBars.buttons["Discover"]
+            discover.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            XCTAssertTrue(discover.isSelected)
+            XCTAssertTrue(app.buttons["passProfile"].waitForExistence(timeout: 3))
+            XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Eli")
+        }
+    }
+    func testLargestTextLikesAndPhotoEditor() {
+        for mode in [[], ["--dark"]] as [[String]] {
+            launch(options: ["--large-text", "--largest-text", "--reduce-motion"] + mode)
+            app.tabBars.buttons["Likes"].tap()
+            let name = app.staticTexts["Amara, 28"]; reveal(name, attempts: 15)
+            XCTAssertTrue(name.isHittable)
+            capture("Largest Likes \(mode.isEmpty ? "light" : "dark")")
+            app.tabBars.buttons["You"].tap()
+            let edit = app.buttons["editProfile"]; reveal(edit, attempts: 15); edit.tap()
+            let photo = app.buttons["editPhoto-rowan"]; reveal(photo, attempts: 30)
+            XCTAssertTrue(photo.isHittable)
+            capture("Largest photo editor \(mode.isEmpty ? "light" : "dark")")
+            photo.tap(); app.buttons["Adjust crop"].tap()
+            XCTAssertTrue(app.navigationBars["Adjust crop"].waitForExistence(timeout: 3))
+            app.navigationBars["Adjust crop"].buttons["Cancel"].tap()
+            let remove = app.buttons["removePhoto-rowan"]
+            for _ in 0..<20 {
+                if remove.isHittable && remove.frame.midY > 150 && remove.frame.midY < app.frame.maxY - 100 { break }
+                if remove.exists && remove.frame.midY < 150 { app.swipeDown() } else { app.swipeUp() }
+            }
+            remove.tap()
+            XCTAssertTrue(remove.waitForNonExistence(timeout: 3))
+            let undo = app.buttons["undoPhotoRemoval"]; reveal(undo, attempts: 15); undo.tap()
+            XCTAssertTrue(app.buttons["editPhoto-rowan"].exists)
+        }
     }
     func testScrollingReadability() {
         for options in [[], ["--dark"], ["--large-text"], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
@@ -214,7 +308,7 @@ final class KindredUITests: XCTestCase {
     }
 
     private func swipeSheetDown() {
-        let top = app.navigationBars.firstMatch.frame.minY - 8
+        let top = app.navigationBars.firstMatch.frame.midY
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0))
             .withOffset(CGVector(dx: 0, dy: top))
             .press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)))
@@ -411,24 +505,20 @@ final class KindredUITests: XCTestCase {
         XCTAssertTrue(context.label.contains("Amara’s photo 2"))
         capture("Personal photo match")
         app.buttons["matchKeepDiscovering"].tap()
-        reveal(photo)
-        XCTAssertFalse(photo.isEnabled)
-        XCTAssertEqual(photo.label, "Saved Amara’s photo 2")
-        XCTAssertFalse(app.buttons["likeProfile"].isEnabled)
+        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
         app.tabBars.buttons["Likes"].tap(); app.buttons["Your likes"].tap()
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Amara’s photo 2")).firstMatch.exists)
-        capture("Photo context in Likes")
         let remove = app.buttons["removeLike-amara"]; reveal(remove); remove.tap()
-        app.tabBars.buttons["Discover"].tap(); reveal(photo)
-        XCTAssertTrue(photo.isEnabled)
-        photo.tap()
-        XCTAssertFalse(app.staticTexts["matchTitle"].exists, "Saving again must not repeat the match celebration")
-        XCTAssertEqual(app.staticTexts["feedbackBanner"].label, "Saved Amara’s photo 2")
+        app.buttons["Liked you"].tap()
+        let matched = app.staticTexts["Amara, 28"]; reveal(matched); matched.tap()
+        let savedPhoto = app.buttons["photoLike-amara-amara-gallery"]
+        reveal(savedPhoto); XCTAssertTrue(savedPhoto.isEnabled); savedPhoto.tap()
+        XCTAssertFalse(app.staticTexts["matchTitle"].exists)
         try app.performAccessibilityAudit(for: [.sufficientElementDescription, .trait])
     }
     func testPromptInterestNamesAnswerAndKeepsPhotoActionAvailable() throws {
         for options in [[], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
-            launch(options: options)
+            launch(options: options + ["--pending-interest-demo", "--slow-discovery-advance"])
             app.buttons["passProfile"].tap()
             let answer = app.buttons["promptLike-eli-eli-0"]
             reveal(answer); answer.tap()
@@ -476,10 +566,11 @@ final class KindredUITests: XCTestCase {
             XCTAssertEqual(position.label, "Photo 1 of 2")
             nextPhoto.tap()
             app.buttons["passProfile"].tap()
-            XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Eli")
+            XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
             XCTAssertEqual(position.label, "Photo 1 of 2")
             app.buttons["undoPass"].tap()
-            XCTAssertEqual(position.label, "Photo 1 of 2")
+            let reset = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", "Photo 1 of 2"), object: position)
+            XCTAssertEqual(XCTWaiter.wait(for: [reset], timeout: 3), .completed)
             app.tabBars.buttons["You"].tap()
             let preview = app.buttons["publicPreview"]
             reveal(preview); preview.tap()
@@ -515,36 +606,24 @@ final class KindredUITests: XCTestCase {
     func testFloatingActionsLikeSkipAndUndo() {
         launch()
         let next = app.buttons["passProfile"]
-        let interested = app.buttons["likeProfile"]
-        XCTAssertTrue(next.waitForExistence(timeout: 5)); XCTAssertTrue(next.isHittable)
-        XCTAssertTrue(interested.isHittable); capture("Floating discovery actions")
-        interested.tap()
+        app.buttons["likeProfile"].tap()
         XCTAssertTrue(app.buttons["matchKeepDiscovering"].waitForExistence(timeout: 3))
         app.buttons["matchKeepDiscovering"].tap()
-        XCTAssertEqual(interested.label, "Interest saved for Amara")
-        XCTAssertFalse(interested.isEnabled)
-        app.tabBars.buttons["Likes"].tap(); app.buttons["Your likes"].tap()
-        XCTAssertTrue(app.staticTexts["Amara, 28"].waitForExistence(timeout: 3))
-        app.tabBars.buttons["Discover"].tap()
+        XCTAssertEqual(next.label, "Next introduction, skip June")
         next.tap()
-        XCTAssertTrue(app.buttons["undoPass"].waitForExistence(timeout: 3))
-        XCTAssertEqual(next.label, "Next introduction, skip Eli")
-        capture("Undo a skipped introduction")
-        app.buttons["undoPass"].tap()
-        XCTAssertEqual(next.label, "Next introduction, skip Amara")
-        XCTAssertEqual(interested.label, "Interest saved for Amara")
-        next.tap(); next.tap(); next.tap()
         XCTAssertTrue(app.staticTexts["You've seen everyone for now"].waitForExistence(timeout: 3))
         app.buttons["undoPass"].tap()
-        XCTAssertTrue(next.waitForExistence(timeout: 3))
         XCTAssertEqual(next.label, "Next introduction, skip June")
         next.tap()
         let revisit = app.buttons["Revisit passed profiles"]; reveal(revisit); revisit.tap()
+        XCTAssertEqual(next.label, "Next introduction, skip June")
         XCTAssertFalse(app.buttons["undoPass"].exists)
+        app.tabBars.buttons["Likes"].tap(); app.buttons["Your likes"].tap()
+        XCTAssertTrue(app.staticTexts["Amara, 28"].exists)
     }
     func testDiscoveryActionsStayInPlaceWhenUndoAndInterestChange() throws {
         for options in [[], ["--dark"], ["--large-text", "--reduce-motion"]] as [[String]] {
-            launch(options: options)
+            launch(options: options + ["--pending-interest-demo", "--slow-discovery-advance"])
             let next = app.buttons["passProfile"]
             let like = app.buttons["likeProfile"]
             let undo = app.buttons["undoPass"]
@@ -602,13 +681,13 @@ final class KindredUITests: XCTestCase {
         portrait.swipeRight(velocity: .slow)
         XCTAssertTrue(app.buttons["matchKeepDiscovering"].waitForExistence(timeout: 3))
         app.buttons["matchKeepDiscovering"].tap()
-        XCTAssertEqual(app.buttons["likeProfile"].label, "Interest saved for Amara")
-        capture("Swipe interest saved")
+        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
         portrait.swipeLeft(velocity: .slow)
-        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Eli")
+        XCTAssertTrue(app.staticTexts["You've seen everyone for now"].waitForExistence(timeout: 3))
         app.buttons["undoPass"].tap()
-        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Amara")
+        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
     }
+
     func testSlowShortSwipesReturnAndDiagonalDragScrolls() {
         launch()
         let portrait = app.descendants(matching: .any).matching(identifier: "discoveryPortrait").firstMatch
@@ -638,7 +717,7 @@ final class KindredUITests: XCTestCase {
         capture("Diagonal scroll preserves introduction")
     }
     func testShortFastFlickCommitsWhileTinyFlickCancels() {
-        launch()
+        launch(options: ["--pending-interest-demo", "--slow-discovery-advance"])
         let portrait = app.descendants(matching: .any).matching(identifier: "discoveryPortrait").firstMatch
         XCTAssertTrue(portrait.waitForExistence(timeout: 5))
         func flick(_ distance: CGFloat) {
@@ -656,7 +735,7 @@ final class KindredUITests: XCTestCase {
         capture("Short deliberate flick saved interest")
     }
     func testReducedMotionSwipesAndRepeatedInterest() {
-        launch(options: ["--reduce-motion", "--dark"])
+        launch(options: ["--reduce-motion", "--dark", "--pending-interest-demo", "--slow-discovery-advance"])
         let portrait = app.descendants(matching: .any).matching(identifier: "discoveryPortrait").firstMatch
         XCTAssertTrue(portrait.waitForExistence(timeout: 5))
         portrait.swipeLeft(velocity: .fast)
@@ -797,7 +876,7 @@ final class KindredUITests: XCTestCase {
         }
     }
     func testPreferencesFilterAndRetainSavedValuesCancelIsAtomic() {
-        launch(); app.buttons["discoveryPreferences"].tap()
+        launch(options: ["--pending-interest-demo", "--slow-discovery-advance"]); app.buttons["discoveryPreferences"].tap()
         app.switches["Female"].coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
         capture("Preferences after Female toggle")
         XCTAssertEqual(app.switches["Female"].value as? String, "0")
@@ -907,10 +986,8 @@ final class KindredUITests: XCTestCase {
         capture("Match dark large text Reduce Motion")
         try app.performAccessibilityAudit(for: [.sufficientElementDescription, .trait])
         app.buttons["matchKeepDiscovering"].tap()
-        app.buttons["passProfile"].tap()
-        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Eli")
-        app.buttons["undoPass"].tap()
-        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Amara")
+        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
+        XCTAssertFalse(app.buttons["undoPass"].exists)
         app.tabBars.buttons["You"].tap(); capture("Your story dark large text")
     }
     func testConversationIdeasProtectDraftAndNeverSendAutomatically() {
@@ -954,6 +1031,18 @@ final class KindredUITests: XCTestCase {
             app.buttons["Done"].tap()
             app.navigationBars.buttons.element(boundBy: 0).tap()
             XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'You: A thoughtful question'")).firstMatch.exists)
+        }
+    }
+    func testPreferencesClippingDiagnostic() throws {
+        for options in [[], ["--largest-text", "--large-text", "--reduce-motion"]] as [[String]] {
+            launch(options: options)
+            app.buttons["discoveryPreferences"].tap()
+            reveal(app.staticTexts["ageRangeSummary"])
+            capture("Clipping diagnostic age \(options)")
+            try app.performAccessibilityAudit(for: [.textClipped]) { issue in
+                print("CLIPPING DIAGNOSTIC: \(issue.compactDescription) element: \(issue.element?.debugDescription ?? "unidentified")")
+                return false
+            }
         }
     }
     func testPreferencesAndChatsLargeTextVisualChecks() throws {
