@@ -27,6 +27,7 @@ struct Overline: View {
 struct PrimaryButton: View {
     let title: String
     var symbol: String? = nil
+    var isSaved = false
     var action: () -> Void
     var body: some View {
         Button(action: action) {
@@ -36,7 +37,8 @@ struct PrimaryButton: View {
                 if let symbol { Image(systemName: symbol) }
                 Spacer(minLength: 0)
             }.padding(.vertical, 17).padding(.horizontal, 20).contentShape(Capsule())
-        }.buttonStyle(.plain).foregroundStyle(Color.onPlum).background(Color.plum, in: Capsule())
+        }.foregroundStyle(Color.onPlum).background(Color.plum, in: Capsule())
+            .buttonStyle(KindredPressStyle(preservesDisabledAppearance: isSaved))
     }
 }
 struct SampleBadge: View {
@@ -80,7 +82,7 @@ struct PhotoGallery: View {
     var showIdentity = true
     var aspectRatio: CGFloat = 0.79
     var allowsPaging = true
-    @State private var selection = 0
+    @Binding var selection: Int
     @State private var photoDirection: CGFloat = 1
     private var currentPhoto: ProfilePhoto? { profile.photos.indices.contains(selection) ? profile.photos[selection] : nil }
     private var photoDescription: String {
@@ -94,7 +96,7 @@ struct PhotoGallery: View {
         )
     }
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .bottomLeading) {
                 if allowsPaging && !profile.photos.isEmpty {
                     TabView(selection: $selection) {
@@ -134,11 +136,12 @@ struct PhotoGallery: View {
             }
             if profile.id != "me", let photo = currentPhoto {
                 HStack {
-                    Spacer(minLength: 0)
                     PhotoInterestButton(profile: profile, photo: photo)
-                }
+                    Spacer(minLength: 0)
+                }.padding(.horizontal, 4).padding(.bottom, 4)
             }
         }
+        .background(profile.id == "me" ? Color.clear : Color.surface, in: RoundedRectangle(cornerRadius: 28))
         .onChange(of: profile.id) { _, _ in selection = 0; photoDirection = 1 }
         .onChange(of: profile.photos.count) { _, count in selection = max(0, min(selection, count - 1)) }
         .onChange(of: selection) { _, value in
@@ -185,6 +188,10 @@ struct PhotoGallery: View {
             if showIdentity {
                 Text("\(profile.name), \(profile.age)").font(.largeTitle.weight(.semibold))
                 Label(profile.city, systemImage: "mappin.and.ellipse").font(.subheadline)
+                    .accessibilityValue(profile.city == "Location private" ? "" : "Self-reported home city")
+                if let travel = profile.travelDescription {
+                    Text(travel).font(.footnote)
+                }
             }
             Text(selection == 0 ? profile.occupation : "A glimpse of the little things")
                 .font(.footnote).contentTransition(reduceMotion ? .identity : .opacity)
@@ -217,7 +224,7 @@ struct PhotoInterestButton: View {
                 .font(.caption.weight(.semibold)).fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 15).padding(.vertical, 8).frame(minHeight: 44)
                 .background(Color.surface, in: Capsule())
-        }.buttonStyle(InterestSaveButtonStyle()).foregroundStyle(Color.plum).disabled(saved)
+        }.buttonStyle(KindredPressStyle(preservesDisabledAppearance: true)).foregroundStyle(Color.plum).disabled(saved)
             .accessibilityLabel("\(saved ? "Saved" : "Like") \(photoName)")
             .accessibilityHint(saved ? "Saved in Your likes." : "Saves interest in this photo. No message is sent.")
             .accessibilityIdentifier("photoLike-\(profile.id)-\(photo.id)-\(location)")
@@ -225,11 +232,13 @@ struct PhotoInterestButton: View {
     }
 }
 
-/// Saved labels remain legible while disabled; only an active press fades.
-struct InterestSaveButtonStyle: ButtonStyle {
+/// Completed actions stay legible; unavailable actions dim and never animate a press.
+struct KindredPressStyle: ButtonStyle {
+    var preservesDisabledAppearance = false
+    @Environment(\.isEnabled) private var isEnabled
     @Environment(\.kindredReduceMotion) private var reduceMotion
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label.opacity(configuration.isPressed ? 0.8 : 1)
+        configuration.label.opacity(!isEnabled && !preservesDisabledAppearance ? 0.5 : configuration.isPressed && isEnabled ? 0.8 : 1)
             .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }
@@ -296,19 +305,47 @@ struct InterestChips: View {
 struct InterestPicker: View {
     @Binding var selected: Set<Interest>
     var body: some View {
-        FlowLayout {
-            ForEach(Interest.allCases) { item in
-                Button {
-                    if selected.contains(item) { selected.remove(item) } else if selected.count < 8 { selected.insert(item) }
-                } label: {
-                    Label(item.rawValue, systemImage: selected.contains(item) ? "checkmark" : item.symbol)
-                        .font(.subheadline.weight(.medium)).padding(.horizontal, 16).padding(.vertical, 13)
-                        .foregroundStyle(selected.contains(item) ? Color.onPlum : Color.ink)
-                        .background(selected.contains(item) ? Color.plum : Color.sand, in: Capsule())
-                }.buttonStyle(.plain).accessibilityAddTraits(selected.contains(item) ? .isSelected : [])
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Choose up to 8 things you enjoy. These appear on your profile.")
+                .font(.subheadline).foregroundStyle(Color.muted)
+            Text("Tap to select. Tap again to remove.")
+                .font(.subheadline).foregroundStyle(Color.ink)
+            Text("\(selected.count) of 8 selected")
+                .font(.footnote.weight(.medium)).foregroundStyle(Color.plum)
+                .accessibilityIdentifier("interestSelectionCount")
+            VStack(spacing: 8) {
+                ForEach(Interest.allCases) { item in
+                    let isSelected = selected.contains(item)
+                    Button {
+                        if isSelected { selected.remove(item) }
+                        else if selected.count < 8 { selected.insert(item) }
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: item.symbol)
+                                .frame(width: 24).accessibilityHidden(true)
+                            Text(item.rawValue)
+                                .font(.body.weight(.medium))
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                                .font(.title3).accessibilityHidden(true)
+                        }
+                        .foregroundStyle(isSelected ? Color.onPlum : Color.ink)
+                        .padding(14).frame(maxWidth: .infinity, minHeight: 54)
+                        .background(isSelected ? Color.plum : Color.sand, in: RoundedRectangle(cornerRadius: 16))
+                        .contentShape(RoundedRectangle(cornerRadius: 16))
+                    }.buttonStyle(KindredPressStyle())
+                        .accessibilityLabel(item.rawValue)
+                        .disabled(selected.count >= 8 && !isSelected)
+                        .accessibilityHint(isSelected ? "Removes this interest from your profile." : selected.count >= 8 ? "Remove an interest to choose another." : "Adds this interest to your profile.")
+                        .accessibilityAddTraits(isSelected ? .isSelected : [])
+                }
+            }
+            if selected.count == 8 {
+                Text("All 8 chosen. Remove one to make room for another.")
+                    .font(.footnote).foregroundStyle(Color.muted)
             }
         }
-        Text("\(selected.count) of 8 selected · optional").font(.footnote).foregroundStyle(Color.muted)
     }
 }
 struct EmptyState: View {
@@ -421,6 +458,25 @@ struct ProfileFieldError: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("profileError-" + field)
+        }
+    }
+}
+
+struct DistancePreferencesSummary: View {
+    let profile: MemberProfile
+    var body: some View {
+        if profile.distanceOpenness != .unspecified || profile.openToRelocating {
+            VStack(alignment: .leading, spacing: 8) {
+                if profile.distanceOpenness != .unspecified {
+                    Label(profile.distanceOpenness.rawValue, systemImage: "arrow.left.arrow.right")
+                }
+                if profile.openToRelocating {
+                    Label("Open to relocating", systemImage: "mappin.and.ellipse")
+                }
+            }.labelStyle(.titleAndIcon).font(.subheadline)
+                .foregroundStyle(Color.plum).fixedSize(horizontal: false, vertical: true)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("distancePreferencesSummary")
         }
     }
 }

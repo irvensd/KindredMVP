@@ -6,6 +6,9 @@ struct YouView: View {
     @State private var editProfile = false
     @State private var preferences = false
     @State private var showStoryGuide = true
+    private enum SheetAction: Hashable { case edit, complete, preferences }
+    @State private var editingAction = SheetAction.edit
+    @AccessibilityFocusState private var focusedAction: SheetAction?
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 26) {
@@ -23,7 +26,7 @@ struct YouView: View {
                     }.frame(maxWidth: .infinity, alignment: .leading)
                     let editLayout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 12)) : AnyLayout(HStackLayout(spacing: 12))
                     editLayout {
-                        Button("Edit profile") { editProfile = true }.buttonStyle(.borderedProminent).foregroundStyle(Color.onPlum).accessibilityIdentifier("editProfile")
+                        Button("Edit profile") { editingAction = .edit; editProfile = true }.buttonStyle(.borderedProminent).foregroundStyle(Color.onPlum).accessibilityIdentifier("editProfile").accessibilityFocused($focusedAction, equals: .edit)
                         NavigationLink("Preview") { ProfileDetailView(memberID: "me") }.buttonStyle(.bordered).accessibilityIdentifier("publicPreview").accessibilityHint("Shows your saved profile with your privacy preferences applied.")
                     }.controlSize(.large)
                 }.padding(22).frame(maxWidth: .infinity).background(Color.surface, in: RoundedRectangle(cornerRadius: 26))
@@ -41,7 +44,7 @@ struct YouView: View {
                             Button { showStoryGuide = false } label: {
                                 Image(systemName: "xmark").font(.caption.weight(.semibold))
                                     .frame(width: 44, height: 44).contentShape(Circle())
-                            }.buttonStyle(.plain).foregroundStyle(Color.muted)
+                            }.buttonStyle(KindredPressStyle()).foregroundStyle(Color.muted)
                                 .accessibilityLabel("Hide story summary")
                                 .accessibilityIdentifier("hideStoryGuide")
                         }.padding(.vertical, 10).padding(.leading, 18).padding(.trailing, 8)
@@ -58,30 +61,30 @@ struct YouView: View {
                                 .font(.subheadline).foregroundStyle(Color.muted)
                             Text("Everything here is optional. Faith and lifestyle details are yours to share at your own pace.")
                                 .font(.footnote).foregroundStyle(Color.muted)
-                            Button("Add a little more") { editProfile = true }
-                                .frame(minHeight: 44).accessibilityIdentifier("completeProfile")
+                            Button("Add a little more") { editingAction = .complete; editProfile = true }
+                                .frame(minHeight: 44).accessibilityIdentifier("completeProfile").accessibilityFocused($focusedAction, equals: .complete)
                             Button("Hide suggestions") { showStoryGuide = false }.font(.footnote).frame(minHeight: 44)
                                 .accessibilityIdentifier("hideStoryGuide")
                         }.padding(22).background(Color.sand, in: RoundedRectangle(cornerRadius: 24))
                     }
                 }
                 VStack(spacing: 0) {
-                    Button { preferences = true } label: { SettingsRow(symbol: "slider.horizontal.3", title: "Dating preferences", subtitle: "Ages \(store.state.discovery.dating.minimumAge)–\(store.state.discovery.dating.maximumAge) · \(store.state.discovery.radiusMiles) miles") }.buttonStyle(.plain).accessibilityIdentifier("datingPreferences")
+                    Button { preferences = true } label: { SettingsRow(symbol: "slider.horizontal.3", title: "Dating preferences", subtitle: "Ages \(store.state.discovery.dating.minimumAge)–\(store.state.discovery.dating.maximumAge) · \(store.state.discovery.radiusMiles) miles") }.buttonStyle(KindredPressStyle()).accessibilityIdentifier("datingPreferences").accessibilityFocused($focusedAction, equals: .preferences)
                     Divider().padding(.leading, 56)
-                    NavigationLink { NotificationsView() } label: { SettingsRow(symbol: "moon.stars", title: "Notifications & Sabbath", subtitle: store.state.notifications.sabbathQuietMode ? "Sabbath quiet mode on" : "Make space for what matters") }.buttonStyle(.plain)
+                    NavigationLink { NotificationsView() } label: { SettingsRow(symbol: "moon.stars", title: "Notifications & Sabbath", subtitle: store.state.notifications.sabbathQuietMode ? "Sabbath quiet mode on" : "Make space for what matters") }.buttonStyle(KindredPressStyle())
                     Divider().padding(.leading, 56)
-                    NavigationLink { PrivacyView() } label: { SettingsRow(symbol: "lock", title: "Privacy", subtitle: store.state.privacy.discoveryPaused ? "Discovery paused" : "Choose what you share") }.buttonStyle(.plain)
+                    NavigationLink { PrivacyView() } label: { SettingsRow(symbol: "lock", title: "Privacy", subtitle: store.state.privacy.discoveryPaused ? "Discovery paused" : "Choose what you share") }.buttonStyle(KindredPressStyle())
                     Divider().padding(.leading, 56)
-                    NavigationLink { SafetyCenterView() } label: { SettingsRow(symbol: "shield.lefthalf.filled", title: "Safety & support", subtitle: "Boundaries are a good thing") }.buttonStyle(.plain)
+                    NavigationLink { SafetyCenterView() } label: { SettingsRow(symbol: "shield.lefthalf.filled", title: "Safety & support", subtitle: "Boundaries are a good thing") }.buttonStyle(KindredPressStyle())
                     Divider().padding(.leading, 56)
-                    NavigationLink { AccountView() } label: { SettingsRow(symbol: "person.crop.circle", title: "Account & prototype", subtitle: "What's real, and what's simulated") }.buttonStyle(.plain)
+                    NavigationLink { AccountView() } label: { SettingsRow(symbol: "person.crop.circle", title: "Account & prototype", subtitle: "What's real, and what's simulated") }.buttonStyle(KindredPressStyle())
                 }.padding(.horizontal, 18).background(Color.surface, in: RoundedRectangle(cornerRadius: 26))
                 HStack(spacing: 8) { BrandMark(size: 18); Text("Shared faith. Genuine connection.").font(.footnote).foregroundStyle(Color.muted) }.frame(maxWidth: .infinity).padding(.top, 12)
                 Text("KINDRED · PHASE 1.5 · ALL CHANGES RESET ON RELAUNCH").font(.caption2).tracking(1).foregroundStyle(Color.muted).frame(maxWidth: .infinity).multilineTextAlignment(.center)
             }.padding(24)
         }.background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
-            .sheet(isPresented: $editProfile) { EditProfileView(profile: store.state.currentProfile) }
-            .sheet(isPresented: $preferences) { DiscoveryPreferencesView() }
+            .sheet(isPresented: $editProfile, onDismiss: { focusedAction = editingAction }) { EditProfileView(profile: store.state.currentProfile) }
+            .sheet(isPresented: $preferences, onDismiss: { focusedAction = .preferences }) { DiscoveryPreferencesView() }
     }
 }
 struct SettingsRow: View {
@@ -121,11 +124,22 @@ struct DiscoveryPreferencesView: View {
     @State private var preferences = DiscoveryPreferences()
     @State private var validation: String?
     @State private var confirmDiscard = false
+    @State private var didSave = false
     private var hasChanges: Bool { preferences != store.state.discovery }
     var body: some View {
         NavigationStack {
             Form {
                 Section { Text("Your kind of connection").font(.title2.weight(.semibold)); Text("These filters immediately shape the fictional profiles in Discover when you save.").foregroundStyle(Color.muted) }
+                Section {
+                    Text("Home city: \(store.state.currentProfile.city)").foregroundStyle(Color.muted)
+                    Picker("Search near", selection: $preferences.searchCity) {
+                        ForEach(SearchCity.allCases) { Text($0.rawValue).tag($0) }
+                    }.accessibilityIdentifier("searchCity")
+                    if let home = SearchCity.matching(store.state.currentProfile.city), home != preferences.searchCity {
+                        Button("Search near my home city") { preferences.searchCity = home }
+                    }
+                } header: { Text("Where you'd like to meet") }
+                  footer: { Text("Your home city is self-reported and stays on your profile. Search near is private. This offline demo supports the cities listed here.") }
                 Section("I'd like to meet") { GenderChoices(selected: $preferences.dating.genders) }
                 Section("Age range") {
                     Text("\(preferences.dating.minimumAge)–\(preferences.dating.maximumAge) years")
@@ -136,12 +150,12 @@ struct DiscoveryPreferencesView: View {
                     Stepper("Maximum age: \(preferences.dating.maximumAge)", value: $preferences.dating.maximumAge, in: preferences.dating.minimumAge...100)
                         .monospacedDigit().accessibilityIdentifier("maximumAge")
                 }
-                Section { RadiusControl(value: $preferences.radiusMiles, showsPreciseAdjustment: true) } footer: { Text("Distances are fictional sample values. No location permission or precise location is used. Saved preferences stay for this session and reset when the app process relaunches.") }
+                Section { RadiusControl(value: $preferences.radiusMiles, showsPreciseAdjustment: true) } footer: { Text("Distances are approximate miles between the selected search city and each fictional member’s home city center. They do not track travel status. Saved preferences stay for this session and reset when the app process relaunches.") }
                 Section { Button("Restore default preferences") { preferences = DiscoveryPreferences() } }
             }.scrollContentBackground(.hidden).background(Color.paper).navigationTitle("Preferences").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { if hasChanges { confirmDiscard = true } else { dismiss() } } }
-                    ToolbarItem(placement: .confirmationAction) { Button("Save") { if store.updateDiscovery(preferences) { dismiss() } else { validation = store.errorMessage; store.errorMessage = nil } }.fontWeight(.semibold).accessibilityIdentifier("savePreferences") }
+                    ToolbarItem(placement: .confirmationAction) { Button("Save") { guard !didSave else { return }; if store.updateDiscovery(preferences) { didSave = true; dismiss() } else { validation = store.errorMessage; store.errorMessage = nil } }.fontWeight(.semibold).accessibilityIdentifier("savePreferences").disabled(didSave) }
                 }.onAppear { preferences = store.state.discovery }
                 .background(SheetDismissalGuard(hasChanges: hasChanges) { confirmDiscard = true })
                 .alert("Discard changes?", isPresented: $confirmDiscard) {
@@ -164,6 +178,7 @@ struct EditProfileView: View {
     private var issues: [ProfileValidationIssue] { attemptedSave ? profile.validationIssues : [] }
     private func error(_ field: String) -> String? { issues.first { $0.id == field }?.message }
     @State private var confirmDiscard = false
+    @State private var didSave = false
     private var hasChanges: Bool { profile != store.state.currentProfile }
     var body: some View {
         NavigationStack {
@@ -175,7 +190,7 @@ struct EditProfileView: View {
                         ProfileFieldError(message: error("name"), field: "name")
                     }.id("name")
                     VStack(alignment: .leading, spacing: 6) {
-                        TextField("City or general area", text: $profile.city).accessibilityIdentifier("editCity")
+                        TextField("Home city or general area", text: $profile.city).accessibilityIdentifier("editCity")
                         ProfileFieldError(message: error("city"), field: "city")
                     }.id("city")
                     TextField("What fills your days?", text: $profile.occupation)
@@ -186,8 +201,38 @@ struct EditProfileView: View {
                     Picker("Gender", selection: $profile.gender) { ForEach(Gender.allCases) { Text($0.rawValue).tag($0) } }
                     Picker("I'm looking for", selection: $profile.intention) { ForEach(Intention.allCases) { Text($0.rawValue).tag($0) } }
                 }
+                Section {
+                    ForEach(DistanceOpenness.allCases) { choice in
+                        Button { profile.distanceOpenness = choice } label: {
+                            HStack(spacing: 12) {
+                                Text(choice.rawValue)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Image(systemName: profile.distanceOpenness == choice ? "checkmark.circle.fill" : "circle")
+                                    .accessibilityHidden(true)
+                            }.foregroundStyle(profile.distanceOpenness == choice ? Color.plum : Color.ink)
+                                .frame(minHeight: 44).contentShape(Rectangle())
+                        }.buttonStyle(KindredPressStyle())
+                            .accessibilityLabel(choice.rawValue)
+                            .accessibilityAddTraits(profile.distanceOpenness == choice ? .isSelected : [])
+                    }
+                    Toggle("Open to relocating", isOn: $profile.openToRelocating)
+                        .accessibilityIdentifier("openToRelocating")
+                } header: { Text("Distance & relocation · optional") }
+                  footer: { Text("Shared choices appear on your profile. Relocation is shown only when enabled. Set your search city and radius separately in Discovery preferences.") }
+                Section {
+                    Picker("Travel status", selection: $profile.locationStatus) {
+                        ForEach(LocationStatus.allCases) { Text($0.rawValue).tag($0) }
+                    }.accessibilityIdentifier("locationStatus")
+                    if profile.locationStatus != .home {
+                        Picker("Destination", selection: $profile.destination) {
+                            ForEach(SearchCity.allCases) { Text($0.rawValue).tag($0) }
+                        }.accessibilityIdentifier("travelDestination")
+                    }
+                } header: { Text("Visiting or moving · optional") }
+                  footer: { Text("Home city and travel plans are self-reported. Changing these does not change your Search near city. Hide your city in Privacy to hide both from your preview.") }
                 Section { Text("Only save what feels like you. Optional sections can stay blank; Cancel keeps your saved profile unchanged.").font(.footnote).foregroundStyle(Color.muted) }
-                Section("Your interests · optional") { InterestPicker(selected: $profile.interests); ProfileFieldError(message: error("interests"), field: "interests") }.id("interests")
+                Section("What you enjoy · optional") { InterestPicker(selected: $profile.interests); ProfileFieldError(message: error("interests"), field: "interests") }.id("interests")
                 Section("Faith & lifestyle · optional") { FaithEditor(faith: $profile.faith, validationMessage: error("faith")) }
                 Section("Your voice · optional") { ProfileFieldError(message: error("prompts"), field: "prompts"); PromptEditor(prompts: $profile.prompts, issues: issues) }.id("prompts")
                 Section("Your photos") { ProfileFieldError(message: error("photos"), field: "photos"); PhotoEditor(photos: $profile.photos) }.id("photos")
@@ -196,6 +241,7 @@ struct EditProfileView: View {
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { if hasChanges { confirmDiscard = true } else { dismiss() } } }
                     ToolbarItem(placement: .confirmationAction) { Button("Save") {
+                        guard !didSave else { return }
                         attemptedSave = true
                         if let first = profile.validationIssues.first {
                             dismissKeyboard()
@@ -203,9 +249,9 @@ struct EditProfileView: View {
                                 proxy.scrollTo(first.id, anchor: .top)
                                 UIAccessibility.post(notification: .announcement, argument: first.message)
                             }
-                        } else if store.updateProfile(profile) { dismiss() }
+                        } else if store.updateProfile(profile) { didSave = true; dismiss() }
                         else { validation = store.errorMessage; store.errorMessage = nil }
-                    }.fontWeight(.semibold).accessibilityIdentifier("saveProfile") }
+                    }.fontWeight(.semibold).accessibilityIdentifier("saveProfile").disabled(didSave) }
                     if keyboardVisible { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismissKeyboard() } } }
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in keyboardVisible = true }

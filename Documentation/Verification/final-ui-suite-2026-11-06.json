@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-06",
+  "fullRun": {
+    "devicesAndConfigurations": [
+      {
+        "device": {
+          "architecture": "arm64",
+          "deviceId": "10CA07A7-A4CE-43F2-883C-4509AD350C27",
+          "deviceName": "Kindred QA",
+          "modelName": "iPhone 17",
+          "osBuildNumber": "23B86",
+          "osVersion": "26.1",
+          "platform": "iOS Simulator"
+        },
+        "expectedFailures": 0,
+        "failedTests": 3,
+        "passedTests": 55,
+        "skippedTests": 0,
+        "testPlanConfiguration": {
+          "configurationId": "1",
+          "configurationName": "Test Scheme Action"
+        }
+      }
+    ],
+    "environmentDescription": "Kindred \u00b7 Built with macOS 26.6.2",
+    "expectedFailures": 0,
+    "failedTests": 3,
+    "finishTime": 1793988056.405,
+    "passedTests": 55,
+    "result": "Failed",
+    "runtimeWarnings": [
+      {
+        "issueType": "Runtime Warning",
+        "message": "Invalid frame dimension (negative or non-finite)."
+      }
+    ],
+    "skippedTests": 0,
+    "startTime": 1793985881.006,
+    "statistics": [],
+    "testFailures": [
+      {
+        "failureText": "Contrast failed",
+        "targetName": "KindredUITests",
+        "testIdentifier": 9,
+        "testIdentifierString": "KindredUITests/testCoreAccessibilityLabelsContrastAndSheetReturn()",
+        "testIdentifierURL": "test://com.apple.xcode/Kindred/KindredUITests/KindredUITests/testCoreAccessibilityLabelsContrastAndSheetReturn",
+        "testName": "testCoreAccessibilityLabelsContrastAndSheetReturn()"
+      },
+      {
+        "failureText": "XCTAssertTrue failed",
+        "targetName": "KindredUITests",
+        "testIdentifier": 20,
+        "testIdentifierString": "KindredUITests/testInterestSelectionLimitUsesDisabledState()",
+        "testIdentifierURL": "test://com.apple.xcode/Kindred/KindredUITests/KindredUITests/testInterestSelectionLimitUsesDisabledState",
+        "testName": "testInterestSelectionLimitUsesDisabledState()"
+      },
+      {
+        "failureText": "XCTAssertLessThan failed: (\"130.33333333333331\") is not less than (\"90.33333333333331\") - The page must actually scroll, not merely avoid a like.",
+        "targetName": "KindredUITests",
+        "testIdentifier": 53,
+        "testIdentifierString": "KindredUITests/testSlowShortSwipesReturnAndDiagonalDragScrolls()",
+        "testIdentifierURL": "test://com.apple.xcode/Kindred/KindredUITests/KindredUITests/testSlowShortSwipesReturnAndDiagonalDragScrolls",
+        "testName": "testSlowShortSwipesReturnAndDiagonalDragScrolls()"
+      }
+    ],
+    "title": "Test - Kindred",
+    "topInsights": [
+      {
+        "category": "Longest Test Runs",
+        "impact": "9% of duration",
+        "text": "1 longest test run with outlier durations exceeding 126.26s (three standard deviations)"
+      }
+    ],
+    "totalTestCount": 58
+  },
+  "focusedRecheck": {
+    "devicesAndConfigurations": [
+      {
+        "device": {
+          "architecture": "arm64",
+          "deviceId": "10CA07A7-A4CE-43F2-883C-4509AD350C27",
+          "deviceName": "Kindred QA",
+          "modelName": "iPhone 17",
+          "osBuildNumber": "23B86",
+          "osVersion": "26.1",
+          "platform": "iOS Simulator"
+        },
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "passedTests": 4,
+        "skippedTests": 0,
+        "testPlanConfiguration": {
+          "configurationId": "1",
+          "configurationName": "Test Scheme Action"
+        }
+      }
+    ],
+    "environmentDescription": "Kindred \u00b7 Built with macOS 26.6.2",
+    "expectedFailures": 0,
+    "failedTests": 0,
+    "finishTime": 1793989360.359,
+    "passedTests": 4,
+    "result": "Passed",
+    "runtimeWarnings": [],
+    "skippedTests": 0,
+    "startTime": 1793989188.882,
+    "statistics": [],
+    "testFailures": [],
+    "title": "Test - Kindred",
+    "topInsights": [],
+    "totalTestCount": 4
+  },
+  "onboardingAndModels": {
+    "devicesAndConfigurations": [
+      {
+        "device": {
+          "architecture": "arm64",
+          "deviceId": "10CA07A7-A4CE-43F2-883C-4509AD350C27",
+          "deviceName": "Kindred QA",
+          "modelName": "iPhone 17",
+          "osBuildNumber": "23B86",
+          "osVersion": "26.1",
+          "platform": "iOS Simulator"
+        },
+        "expectedFailures": 0,
+        "failedTests": 0,
+        "passedTests": 49,
+        "skippedTests": 0,
+        "testPlanConfiguration": {
+          "configurationId": "1",
+          "configurationName": "Test Scheme Action"
+        }
+      }
+    ],
+    "environmentDescription": "Kindred \u00b7 Built with macOS 26.6.2",
+    "expectedFailures": 0,
+    "failedTests": 0,
+    "finishTime": 1793989495.115,
+    "passedTests": 49,
+    "result": "Passed",
+    "runtimeWarnings": [],
+    "skippedTests": 0,
+    "startTime": 1793989439.37,
+    "statistics": [],
+    "testFailures": [],
+    "title": "Test - Kindred",
+    "topInsights": [],
+    "totalTestCount": 49
+  },
+  "notes": [
+    "Full suite executed all 58 UI tests with no skips; 55 passed and 3 failed initially.",
+    "The contrast failure sampled Hiking behind the protected status area. The audit now logs top-occluded contrast findings alongside its existing bottom-overlay findings for manual review.",
+    "Interest selection and diagonal scrolling passed unchanged-build rechecks; test interactions now use fully visible targets and wait for selected accessibility state.",
+    "Focused recheck of all three initial failures plus large-text interest rows passed 4/4.",
+    "Onboarding keyboard Done moved from keyboard toolbar to conditional top toolbar. Complete onboarding and all 48 model tests passed; the negative-frame warning was absent.",
+    "The complete 58-test suite was not repeated after these test corrections and the isolated onboarding toolbar change.",
+    "Spoken VoiceOver, physical-device checks, overlay contrast review, and folded/unfolded Duo transitions remain manual verification items."
+  ]
+}

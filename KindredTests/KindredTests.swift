@@ -39,12 +39,12 @@ struct KindredTests {
         #expect(s.discoveryEmptyReason == nil)
         for profile in s.discoveryProfiles { s.pass(profile.id) }
         #expect(s.discoveryEmptyReason == .seenEveryone)
-        var preferences = s.state.discovery; preferences.radiusMiles = 5
+        var preferences = s.state.discovery; preferences.radiusMiles = 5; preferences.searchCity = .atlanta
         #expect(s.updateDiscovery(preferences))
         #expect(s.discoveryEmptyReason == .filters)
         s.resetPasses()
         #expect(s.discoveryEmptyReason == .filters)
-        preferences.radiusMiles = 250
+        preferences.radiusMiles = 250; preferences.searchCity = .chicago
         #expect(s.updateDiscovery(preferences))
         #expect(s.discoveryEmptyReason == nil)
         var privacy = s.state.privacy; privacy.discoveryPaused = true
@@ -387,6 +387,29 @@ struct KindredTests {
         d = valid; d.intention = nil; #expect(d.validationError(step: 2) != nil)
         d = valid; d.photos = []; #expect(d.validationError(step: 3) != nil)
     }
+    @Test func publicPreviewReflectsSavedPhotoOrderCropAndOptionalDetails() {
+        let s = store()
+        var profile = s.state.currentProfile
+        var primary = DemoData.people[0].photos[0]
+        primary.cropZoom = 1.7
+        primary.cropX = 0.4
+        primary.cropY = -0.3
+        profile.photos.insert(primary, at: 0)
+        profile.bio = ""
+        profile.occupation = ""
+        profile.interests = []
+        profile.faith = FaithPreferences()
+        profile.prompts[0].answer = ""
+        profile.prompts[1].answer = "A saved answer for the preview."
+        #expect(s.updateProfile(profile))
+        #expect(s.member("me") == profile)
+        #expect(s.member("me")?.photos.first == primary)
+        #expect(s.member("me")?.prompts[1].answer == "A saved answer for the preview.")
+        profile.photos.reverse()
+        #expect(s.updateProfile(profile))
+        #expect(s.member("me")?.photos == profile.photos)
+    }
+
     @Test func optionalDetailsCanBeDeferredAndAddedLater() {
         let s = store(); var d = validDraft()
         d.faith = FaithPreferences(); d.interests = []
@@ -427,7 +450,59 @@ struct KindredTests {
         let s = store(); s.onboarding = validDraft(); s.onboarding.birthDate = now
         #expect(!s.completeOnboarding()); #expect(!s.hasCompletedOnboarding); #expect(s.onboardingStep == 0)
     }
-    @Test func discoveryFiltersAgeGenderAndSyntheticDistance() {
+    @Test func distanceOpennessIsOptionalAndIndependentOfSearch() {
+        let s = store()
+        #expect(s.state.currentProfile.distanceOpenness == .unspecified)
+        #expect(!s.state.currentProfile.openToRelocating)
+        let discovery = s.state.discovery
+        let visible = s.discoveryProfiles.map(\.id)
+        var draft = s.state.currentProfile
+        draft.distanceOpenness = .longDistance
+        draft.openToRelocating = true
+        #expect(s.state.currentProfile.distanceOpenness == .unspecified)
+        #expect(s.updateProfile(draft))
+        #expect(s.member("me")?.distanceOpenness == .longDistance)
+        #expect(s.member("me")?.openToRelocating == true)
+        #expect(s.state.discovery == discovery)
+        #expect(s.discoveryProfiles.map(\.id) == visible)
+        draft.distanceOpenness = .local
+        #expect(s.updateProfile(draft))
+        #expect(s.member("me")?.distanceOpenness == .local)
+        draft.distanceOpenness = .unspecified
+        draft.openToRelocating = false
+        #expect(s.updateProfile(draft))
+        #expect(s.member("me")?.distanceOpenness == .unspecified)
+        #expect(s.member("me")?.openToRelocating == false)
+    }
+
+    @Test func searchAreaIsIndependentAndUsesCityCenterDistances() {
+        let s = AppStore(repository: InMemoryKindredRepository(state: DemoData.expandedSnapshot(now: now)))
+        let home = s.state.currentProfile.city
+        var preferences = s.state.discovery
+        preferences.searchCity = .atlanta
+        #expect(s.updateDiscovery(preferences))
+        #expect(s.discoveryProfiles.map(\.name) == ["Rachel"])
+        #expect(s.discoveryProfiles.first?.distanceMiles == 0)
+        #expect(s.state.currentProfile.city == home)
+        var profile = s.state.currentProfile
+        profile.city = "Dallas, TX"
+        profile.locationStatus = .visiting
+        profile.destination = .newYork
+        #expect(s.updateProfile(profile))
+        #expect(s.state.discovery.searchCity == .atlanta)
+        #expect(s.member("me")?.travelDescription == "Visiting New York, NY · self-reported")
+        var privacy = s.state.privacy
+        privacy.showCity = false
+        s.updatePrivacy(privacy)
+        #expect(s.member("me")?.travelDescription == nil)
+        #expect(s.member("me")?.city == "Location private")
+        #expect(s.state.currentProfile.locationStatus == .visiting)
+        #expect(SearchCity.chicago.miles(to: .chicago) == 0)
+        #expect(SearchCity.chicago.miles(to: .atlanta) > 500)
+        #expect(SearchCity.chicago.miles(to: .atlanta) == SearchCity.atlanta.miles(to: .chicago))
+    }
+
+    @Test func discoveryFiltersAgeGenderAndCityCenterDistance() {
         let s = store(); #expect(s.discoveryProfiles.count == 2)
         var preferences = s.state.discovery
         preferences.dating.genders = [.female]; preferences.dating.minimumAge = 28; preferences.radiusMiles = 15
@@ -441,12 +516,13 @@ struct KindredTests {
         var p = s.state.discovery
         p.dating.minimumAge = 28; p.dating.maximumAge = 28; p.radiusMiles = 12
         #expect(s.updateDiscovery(p)); #expect(s.discoveryProfiles.map(\.id) == ["amara"])
-        p.radiusMiles = 11
+        p.searchCity = .atlanta
         #expect(s.updateDiscovery(p)); #expect(s.discoveryProfiles.isEmpty)
+        p.searchCity = .chicago
         p.radiusMiles = 250; p.dating.minimumAge = 18; p.dating.maximumAge = 100
         #expect(s.updateDiscovery(p)); #expect(s.discoveryProfiles.count == 3)
         p.radiusMiles = 5
-        #expect(s.updateDiscovery(p)); #expect(s.discoveryProfiles.isEmpty)
+        #expect(s.updateDiscovery(p)); #expect(s.discoveryProfiles.map(\.id) == ["amara"])
         let saved = s.state.discovery
         for radius in [4, 251] {
             p.radiusMiles = radius

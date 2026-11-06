@@ -26,7 +26,7 @@ final class AppStore {
     func member(_ id: String) -> MemberProfile? {
         if id == "me" {
             var profile = state.currentProfile
-            if !state.privacy.showCity { profile.city = "Location private" }
+            if !state.privacy.showCity { profile.city = "Location private"; profile.locationStatus = .home }
             return profile
         }
         return state.members.first { $0.id == id && !blockedIDs.contains(id) }
@@ -36,7 +36,15 @@ final class AppStore {
         state.members.filter { !blockedIDs.contains($0.id) && !isMatched($0.id) && !state.unmatchedIDs.contains($0.id) }
     }
     private var eligibleDiscoveryProfiles: [MemberProfile] {
-        availableDiscoveryMembers.filter {
+        availableDiscoveryMembers.map { member in
+            var profile = member
+            if let city = SearchCity.matching(profile.city) {
+                profile.distanceMiles = state.discovery.searchCity.miles(to: city)
+            } else {
+                profile.distanceMiles = Int.max
+            }
+            return profile
+        }.filter {
             state.discovery.dating.genders.contains($0.gender)
             && (state.discovery.dating.minimumAge...state.discovery.dating.maximumAge).contains($0.age)
             && $0.distanceMiles <= state.discovery.radiusMiles
@@ -153,6 +161,7 @@ final class AppStore {
         guard updateProfile(onboarding.profile(now: now())) else { return false }
         var preferences = state.discovery
         preferences.radiusMiles = onboarding.radiusMiles
+        preferences.searchCity = SearchCity.matching(onboarding.city) ?? .chicago
         preferences.dating.genders = onboarding.genders
         guard updateDiscovery(preferences) else { return false }
         hasCompletedOnboarding = true

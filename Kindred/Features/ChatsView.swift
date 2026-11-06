@@ -3,16 +3,56 @@ import SwiftUI
 struct ChatsView: View {
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(AppStore.self) private var store
+    @State private var search = ""
+    @State private var unreadOnly = false
+    @FocusState private var searching: Bool
+    private var visibleConversations: [Conversation] {
+        let query = search.trimmingCharacters(in: .whitespacesAndNewlines)
+        return store.conversations.filter { conversation in
+            (!unreadOnly || conversation.unreadCount > 0) &&
+            (query.isEmpty || store.member(conversation.memberID)?.name.localizedStandardContains(query) == true)
+        }
+    }
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 PageHeader(eyebrow: "Let the conversation unfold", title: "Say hello", subtitle: "Big connections start with small words.")
                 NoteCard(symbol: "bubble.left.and.text.bubble.right", text: "Demo chats · Messages stay in this session and are never delivered.")
+                if !store.conversations.isEmpty {
+                    VStack(spacing: 14) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "magnifyingglass").foregroundStyle(Color.muted).accessibilityHidden(true)
+                            TextField("Search by name", text: $search)
+                                .focused($searching).submitLabel(.search)
+                                .autocorrectionDisabled().textInputAutocapitalization(.never)
+                                .accessibilityIdentifier("conversationSearch")
+                                .onSubmit { searching = false }
+                            if !search.isEmpty {
+                                Button { search = "" } label: {
+                                    Image(systemName: "xmark.circle.fill").frame(minWidth: 44, minHeight: 44)
+                                }.foregroundStyle(Color.muted).accessibilityLabel("Clear name search")
+                            }
+                        }.padding(.horizontal, 14).frame(minHeight: 52)
+                            .background(Color.surface, in: RoundedRectangle(cornerRadius: 18))
+                        Picker("Conversations", selection: $unreadOnly) {
+                            Text("All").tag(false)
+                            Text("Unread").tag(true)
+                        }.pickerStyle(.segmented).accessibilityIdentifier("conversationFilter")
+                    }
+                }
                 if store.conversations.isEmpty {
                     EmptyState(symbol: "bubble.left", title: "Your next hello is waiting", message: "Like back from Likes to start a local chat.")
+                } else if visibleConversations.isEmpty {
+                    EmptyState(
+                        symbol: unreadOnly ? "envelope.open" : "magnifyingglass",
+                        title: search.trimmed.isEmpty ? "You're all caught up" : "No conversations found",
+                        message: search.trimmed.isEmpty ? "Your conversations will appear here when there are unread messages." : "Try another name or view all conversations."
+                    )
+                    Button("Show all conversations") { search = ""; unreadOnly = false; searching = false }
+                        .frame(minHeight: 44)
                 } else {
                     VStack(spacing: 0) {
-                        ForEach(store.conversations) { conversation in
+                        ForEach(visibleConversations) { conversation in
                             if let profile = store.member(conversation.memberID) {
                                 NavigationLink(value: conversation.id) {
                                     HStack(alignment: .top, spacing: 16) {
@@ -36,8 +76,8 @@ struct ChatsView: View {
                                             Text("\(conversation.unreadCount)").font(.caption2.bold()).foregroundStyle(Color.onPlum).padding(7).background(Color.plum, in: Circle()).accessibilityLabel("\(conversation.unreadCount) unread sample messages")
                                         }
                                     }.padding(.vertical, 18)
-                                }.buttonStyle(.plain).accessibilityIdentifier("conversation-\(conversation.memberID)")
-                                if conversation.id != store.conversations.last?.id {
+                                }.buttonStyle(KindredPressStyle()).accessibilityIdentifier("conversation-\(conversation.memberID)")
+                                if conversation.id != visibleConversations.last?.id {
                                     Divider().padding(.leading, 86)
                                 }
                             }
@@ -49,7 +89,9 @@ struct ChatsView: View {
                     Text("Be curious. Be kind. Be yourself.").font(.subheadline).foregroundStyle(Color.muted)
                 }.frame(maxWidth: .infinity).padding(.top, 30)
             }.padding(24)
-        }.background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
+        }.scrollDismissesKeyboard(.interactively)
+            .onDisappear { searching = false }
+            .background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
     }
     private func previewDate(_ date: Date) -> String {
         Calendar.current.isDateInToday(date) ? date.formatted(date: .omitted, time: .shortened) : date.formatted(date: .abbreviated, time: .omitted)
@@ -127,7 +169,8 @@ struct ConversationView: View {
                             Button {
                                 if store.send(draft, conversationID: conversationID) { draft = ""; showStarters = false }
                             } label: { Image(systemName: "arrow.up").font(.headline).frame(width: 48, height: 48).foregroundStyle(Color.onPlum).background(Color.plum, in: Circle()) }
-                                .disabled(draft.trimmed.isEmpty || draft.trimmed.count > 2000).opacity(draft.trimmed.isEmpty || draft.trimmed.count > 2000 ? 0.5 : 1).accessibilityLabel("Save demo message").accessibilityIdentifier("sendMessage")
+                                .buttonStyle(KindredPressStyle())
+                                .disabled(draft.trimmed.isEmpty || draft.trimmed.count > 2000).accessibilityLabel("Save demo message").accessibilityIdentifier("sendMessage")
                         }
                         Group {
                             Text(draft.trimmed.count > 2000 ? "Keep your message to 2,000 characters." : "Demo chat · Nothing is sent; replies are not generated.").font(.caption2).foregroundStyle(Color.muted)

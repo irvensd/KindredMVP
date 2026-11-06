@@ -6,6 +6,7 @@ struct OnboardingView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.kindredReduceMotion) private var reduceMotion
     @State private var validation: String?
+    @State private var keyboardVisible = false
     private let titles = ["A little hello.", "Your kind of\nconnection.", "Close by.\nLooking ahead.", "A face to\nyour name."]
     private let subtitles = ["Just the essentials to get started. Your birthday stays private; only your age appears on your profile.", "Choose your gender and who you'd like to meet.", "A general city and an honest intention are a good place to start.", "Choose a photo and take a quick look. Your interests, faith story and prompts can come later."]
     var body: some View {
@@ -37,6 +38,8 @@ struct OnboardingView: View {
                 .onChange(of: store.onboarding.validationError(step: store.onboardingStep)) { _, error in
                     if validation != nil { validation = error }
                 }
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in keyboardVisible = true }
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in keyboardVisible = false }
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
@@ -45,7 +48,7 @@ struct OnboardingView: View {
                         } label: { Image(systemName: "arrow.left").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("Back")
                     }
                     ToolbarItem(placement: .principal) { HStack(spacing: 6) { BrandMark(size: 18); Text("kindred").font(.system(.headline, design: .rounded)) } }
-                    ToolbarItemGroup(placement: .keyboard) { Spacer(); Button("Done") { dismissKeyboard() } }
+                    if keyboardVisible { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismissKeyboard() } } }
                 }
         }
     }
@@ -106,7 +109,7 @@ struct OnboardingView: View {
                     HStack { Text(value.rawValue); Spacer(); Image(systemName: selected == value ? "checkmark.circle.fill" : "circle") }
                         .font(.headline).padding(18).foregroundStyle(selected == value ? Color.onPlum : Color.ink)
                         .background(selected == value ? Color.plum : Color.surface, in: RoundedRectangle(cornerRadius: 18))
-                }.buttonStyle(.plain).accessibilityAddTraits(selected == value ? .isSelected : [])
+                }.buttonStyle(KindredPressStyle()).accessibilityAddTraits(selected == value ? .isSelected : [])
             }
         }
     }
@@ -180,7 +183,7 @@ struct PromptEditor: View {
             ForEach($prompts) { $prompt in
                 VStack(alignment: .leading, spacing: 10) {
                     Text(prompt.question).font(.headline)
-                    TextField("A little glimpse of you…", text: $prompt.answer, axis: .vertical).lineLimit(2...5).accessibilityIdentifier("prompt-\(prompt.id)")
+                    TextField("A little glimpse of you…", text: $prompt.answer, axis: .vertical).lineLimit(2...5).accessibilityIdentifier("prompt-\(prompt.id)").accessibilityLabel("Your answer to \(prompt.question)")
                     Text("\(prompt.answer.count)/240").font(.caption).foregroundStyle(Color.muted)
                     ProfileFieldError(message: issues.first { $0.id == "prompt-" + prompt.id }?.message, field: "prompt-" + prompt.id)
                 }.padding(20).background(Color.surface, in: RoundedRectangle(cornerRadius: 20)).id("prompt-" + prompt.id)
@@ -196,6 +199,8 @@ struct PhotoEditor: View {
     @State private var importError: String?
     @State private var editingPhoto: ProfilePhoto?
     @State private var cropping: ProfilePhoto?
+    @State private var cropReturnID: String?
+    @AccessibilityFocusState private var focusedPhoto: String?
     @State private var removedPhotos: [(photo: ProfilePhoto, index: Int)] = []
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -207,7 +212,7 @@ struct PhotoEditor: View {
                             Text(photos.first?.id == photo.id ? "Primary photo" : "Photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)").font(.caption)
                             Button("Edit photo") { editingPhoto = photo }
                                 .buttonStyle(.borderless).frame(minHeight: 44)
-                                .accessibilityLabel("Edit photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)").accessibilityIdentifier("editPhoto-\(photo.id)")
+                                .accessibilityLabel("Edit photo \((photos.firstIndex { $0.id == photo.id } ?? 0) + 1)").accessibilityIdentifier("editPhoto-\(photo.id)").accessibilityFocused($focusedPhoto, equals: photo.id)
                             Button("Remove", role: .destructive) {
                                 guard let index = photos.firstIndex(where: { $0.id == photo.id }) else { return }
                                 removedPhotos.append((photos.remove(at: index), index))
@@ -243,7 +248,7 @@ struct PhotoEditor: View {
                     Button {
                         guard let photo = profile.photos.first, photos.count < 6, !photos.contains(where: { $0.id == photo.id }) else { return }
                         photos.append(photo)
-                    } label: { Avatar(profile: profile, size: 58) }.buttonStyle(.plain).accessibilityLabel("Use demo portrait \(profile.name)")
+                    } label: { Avatar(profile: profile, size: 58) }.buttonStyle(KindredPressStyle()).accessibilityLabel("Use demo portrait \(profile.name)")
                 }
             }
             NoteCard(symbol: "lock", text: "Photos stay in memory and are never uploaded. Imported images are resized and stripped of original metadata. AI portraits are for demo use only.")
@@ -253,12 +258,12 @@ struct PhotoEditor: View {
                 Button("Make primary") { move(photo.id, to: 0) }.disabled(photos.first?.id == photo.id)
                 Button("Move earlier") { move(photo.id, to: (photos.firstIndex { $0.id == photo.id } ?? 0) - 1) }.disabled(photos.first?.id == photo.id)
                 Button("Move later") { move(photo.id, to: (photos.firstIndex { $0.id == photo.id } ?? 0) + 1) }.disabled(photos.last?.id == photo.id)
-                Button("Adjust crop") { cropping = photo }
+                Button("Adjust crop") { cropReturnID = photo.id; cropping = photo }
             }
             Button("Cancel", role: .cancel) { editingPhoto = nil }
         }.onChange(of: photos.map(\.id)) { _, ids in
             removedPhotos.removeAll { ids.contains($0.photo.id) }
-        }.sheet(item: $cropping) { photo in
+        }.sheet(item: $cropping, onDismiss: { focusedPhoto = cropReturnID }) { photo in
             PhotoCropEditor(photo: photo) { updated in
                 if let index = photos.firstIndex(where: { $0.id == updated.id }) { photos[index] = updated }
             }
@@ -293,6 +298,7 @@ struct PhotoCropEditor: View {
     @State private var zoomOrigin: Double?
     private let original: ProfilePhoto
     @State private var confirmDiscard = false
+    @State private var didApply = false
     private var hasChanges: Bool { photo != original }
     let save: (ProfilePhoto) -> Void
     init(photo: ProfilePhoto, save: @escaping (ProfilePhoto) -> Void) {
@@ -339,7 +345,7 @@ struct PhotoCropEditor: View {
             }.background(Color.paper).navigationTitle("Adjust crop").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { if hasChanges { confirmDiscard = true } else { dismiss() } } }
-                    ToolbarItem(placement: .confirmationAction) { Button("Apply") { save(photo); dismiss() } }
+                    ToolbarItem(placement: .confirmationAction) { Button("Apply") { guard !didApply else { return }; didApply = true; save(photo); dismiss() }.disabled(didApply) }
                 }
                 .background(SheetDismissalGuard(hasChanges: hasChanges) { confirmDiscard = true })
                 .alert("Discard changes?", isPresented: $confirmDiscard) {

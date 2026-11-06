@@ -2,14 +2,16 @@ import SwiftUI
 
 struct DiscoverView: View {
     var isActive = true
+    @Environment(\.scenePhase) private var scenePhase
     @State private var advanceTask: Task<Void, Never>?
     @State private var advanceToken = UUID()
     @Environment(AppStore.self) private var store
     @Environment(\.kindredReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var showPreferences = false
+    @AccessibilityFocusState private var preferencesFocused: Bool
     @State private var selectedID: String?
-    @State private var introductionRevision = 0
+    @State private var selectedPhoto = 0
     @State private var lastPassedID: String?
     @State private var transitionDirection: CGFloat = 1
     private var current: MemberProfile? { store.discoveryProfiles.first { $0.id == selectedID } ?? store.discoveryProfiles.first }
@@ -27,13 +29,13 @@ struct DiscoverView: View {
                         if typeSize.isAccessibilitySize {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Discovery preferences").font(.headline)
-                                Text("Within \(store.state.discovery.radiusMiles) miles")
+                                Text("Within \(store.state.discovery.radiusMiles) miles of \(store.state.discovery.searchCity.rawValue)")
                                 Text("Ages \(store.state.discovery.dating.minimumAge)–\(store.state.discovery.dating.maximumAge)")
                             }.frame(maxWidth: .infinity, alignment: .leading)
                         } else {
                             HStack(spacing: 8) {
                                 Image(systemName: "slider.horizontal.3")
-                                Text("Within \(store.state.discovery.radiusMiles) miles")
+                                Text("Within \(store.state.discovery.radiusMiles) miles of \(store.state.discovery.searchCity.rawValue)")
                                 Text("·")
                                 Text("Ages \(store.state.discovery.dating.minimumAge)–\(store.state.discovery.dating.maximumAge)")
                                 Spacer(minLength: 0)
@@ -41,28 +43,28 @@ struct DiscoverView: View {
                             }
                         }
                     }.font(.caption.weight(.medium)).foregroundStyle(Color.muted).padding(.vertical, 13).padding(.horizontal, 15).background(Color.sand.opacity(0.7), in: RoundedRectangle(cornerRadius: 24))
-                }.buttonStyle(.plain).accessibilityLabel("Discovery preferences").accessibilityIdentifier("discoveryPreferences")
+                }.buttonStyle(.plain).accessibilityLabel("Discovery preferences").accessibilityIdentifier("discoveryPreferences").accessibilityFocused($preferencesFocused)
                 if let profile = current {
                     VStack(alignment: .leading, spacing: 18) {
-                        DiscoveryPortrait(profile: profile, isLiked: store.isLiked(profile.id), next: skip, interested: { store.like(profile.id) })
-                            .id("\(profile.id)-\(introductionRevision)")
+                        DiscoveryPortrait(profile: profile, selectedPhoto: $selectedPhoto, isLiked: store.isLiked(profile.id), next: skip, interested: { store.like(profile.id) })
                         ViewThatFits(in: .horizontal) {
                             HStack {
                             Label("Seventh-day Adventist", systemImage: "leaf").font(.footnote.weight(.medium)).foregroundStyle(Color.plum)
                             Spacer()
-                            Text("\(profile.distanceMiles) mi · demo distance").font(.caption).foregroundStyle(Color.muted)
+                            Text("About \(profile.distanceMiles) mi from \(store.state.discovery.searchCity.rawValue)").font(.caption).foregroundStyle(Color.muted)
                             }
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("Seventh-day Adventist").font(.footnote).foregroundStyle(Color.plum)
-                                Text("\(profile.distanceMiles) mi · demo distance").font(.caption).foregroundStyle(Color.muted)
+                                Text("About \(profile.distanceMiles) mi from \(store.state.discovery.searchCity.rawValue)").font(.caption).foregroundStyle(Color.muted)
                             }
                         }
+                        DistancePreferencesSummary(profile: profile)
                         Text(profile.bio).font(.body).lineSpacing(4).fixedSize(horizontal: false, vertical: true)
-                        InterestChips(interests: profile.interests)
-                        NavigationLink { ProfileDetailView(memberID: profile.id) } label: {
+                        if let prompt = profile.prompts.first(where: { !$0.answer.trimmed.isEmpty }) { PromptCard(prompt: prompt, memberID: profile.id) }
+                        if !profile.interests.isEmpty { InterestChips(interests: profile.interests) }
+                        NavigationLink { ProfileDetailView(memberID: profile.id, browsingPhoto: $selectedPhoto) } label: {
                             HStack { Text("Meet \(profile.name)").font(.headline); Spacer(); Image(systemName: "arrow.up.right") }.padding(.vertical, 12)
                         }.simultaneousGesture(TapGesture().onEnded { cancelAdvance() }).accessibilityIdentifier("openProfile")
-                        if let prompt = profile.prompts.first(where: { !$0.answer.trimmed.isEmpty }) { PromptCard(prompt: prompt, memberID: profile.id) }
 
                     }.id(profile.id)
                         .transition(reduceMotion ? .opacity : .opacity.combined(with: .offset(x: transitionDirection * 20)))
@@ -97,12 +99,13 @@ struct DiscoverView: View {
                 if new > old { scheduleAdvance() } else { cancelAdvance() }
             }
             .onDisappear { cancelAdvance() }
+            .onChange(of: scenePhase) { _, phase in if phase != .active { cancelAdvance() } }
             .onChange(of: isActive) { _, active in if !active { cancelAdvance() } }
             .onChange(of: showPreferences) { _, showing in if showing { cancelAdvance() } }
-            .onChange(of: current?.id) { _, id in cancelAdvance(); selectedID = id; proxy.scrollTo("discoveryTop", anchor: .top) }
+            .onChange(of: current?.id) { _, id in cancelAdvance(); selectedPhoto = 0; selectedID = id; proxy.scrollTo("discoveryTop", anchor: .top) }
             .onChange(of: store.state.discovery) { _, _ in lastPassedID = nil }
             .onChange(of: store.state.privacy.discoveryPaused) { _, _ in lastPassedID = nil }
-            .sheet(isPresented: $showPreferences) { DiscoveryPreferencesView() }
+            .sheet(isPresented: $showPreferences, onDismiss: { preferencesFocused = true }) { DiscoveryPreferencesView() }
         }
     }
     private func cancelAdvance() {
@@ -112,7 +115,7 @@ struct DiscoverView: View {
     }
     private func scheduleAdvance() {
         cancelAdvance()
-        guard isActive, !showPreferences, let id = selectedID,
+        guard isActive, scenePhase == .active, !showPreferences, let id = selectedID,
               let like = store.state.likes.last, like.senderID == "me", like.recipientID == id,
               store.isLiked(id), !store.isMatched(id) else { return }
         let token = advanceToken
@@ -122,7 +125,7 @@ struct DiscoverView: View {
         #endif
         advanceTask = Task { @MainActor in
             do { try await Task.sleep(for: .milliseconds(delay)) } catch { return }
-            guard !Task.isCancelled, advanceToken == token, isActive, !showPreferences,
+            guard !Task.isCancelled, advanceToken == token, isActive, scenePhase == .active, !showPreferences,
                   selectedID == id, store.isLiked(id), !store.isMatched(id) else { return }
             withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) { selectedID = nil }
         }
@@ -148,7 +151,7 @@ struct DiscoverView: View {
         transitionDirection = -1
         withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) {
             if store.undoPass(id) {
-                introductionRevision += 1
+                selectedPhoto = 0
                 selectedID = id; lastPassedID = nil; store.feedback = nil
                 UIAccessibility.post(notification: .announcement, argument: "Introduction restored")
             }
@@ -190,8 +193,8 @@ private struct DiscoveryActionBar: View {
             } else if let undoName {
                 undoButton(name: undoName, compact: false)
             }
-        }.frame(maxWidth: .infinity).padding(8)
-            .glassEffect(.regular.tint(Color.paper.opacity(0.65)), in: RoundedRectangle(cornerRadius: 30))
+        }.frame(maxWidth: .infinity).padding(typeSize.isAccessibilitySize ? 8 : 5)
+            .glassEffect(.regular.tint(Color.paper.opacity(0.65)), in: RoundedRectangle(cornerRadius: 26))
     }
 
     private func nextButton(name: String, compact: Bool) -> some View {
@@ -199,10 +202,10 @@ private struct DiscoveryActionBar: View {
             HStack(spacing: 8) {
                 Text("Next")
                 Image(systemName: "arrow.right").font(.subheadline.weight(.medium))
-            }.font(.headline)
-                .frame(minWidth: compact ? 84 : 0, maxWidth: compact ? nil : .infinity, minHeight: 54)
+            }.font(typeSize.isAccessibilitySize ? .headline : .subheadline.weight(.semibold))
+                .frame(minWidth: compact ? 84 : 0, maxWidth: compact ? nil : .infinity, minHeight: typeSize.isAccessibilitySize ? 54 : 48)
                 .contentShape(Capsule())
-        }.buttonStyle(DiscoveryPressStyle()).foregroundStyle(Color.ink)
+        }.buttonStyle(KindredPressStyle(preservesDisabledAppearance: true)).foregroundStyle(Color.ink)
             .accessibilityLabel("Next introduction, skip \(name)")
             .accessibilityHint("You can undo this skip.").accessibilityIdentifier("passProfile")
     }
@@ -210,13 +213,14 @@ private struct DiscoveryActionBar: View {
     private func interestButton(name: String, compact: Bool) -> some View {
         Button(action: interested) {
             ZStack {
-                // Reserve the unsaved label's size so saving interest cannot move Next.
+                // Reserve both labels so saving interest cannot move Next.
                 interestLabel(saved: false).hidden().accessibilityHidden(true)
+                interestLabel(saved: true).hidden().accessibilityHidden(true)
                 interestLabel(saved: isLiked)
-            }.font(.headline).fixedSize(horizontal: compact, vertical: true)
-                .padding(.horizontal, 16).frame(maxWidth: compact ? nil : .infinity, minHeight: 54)
+            }.font(typeSize.isAccessibilitySize ? .headline : .subheadline.weight(.semibold)).fixedSize(horizontal: compact, vertical: true)
+                .padding(.horizontal, 16).frame(maxWidth: compact ? nil : .infinity, minHeight: typeSize.isAccessibilitySize ? 54 : 48)
                 .foregroundStyle(Color.onPlum).background(Color.plum, in: Capsule()).contentShape(Capsule())
-        }.buttonStyle(DiscoveryPressStyle()).disabled(isLiked)
+        }.buttonStyle(KindredPressStyle(preservesDisabledAppearance: true)).disabled(isLiked)
             .accessibilityLabel(isLiked ? "Interest saved for \(name)" : "I'm interested in \(name)")
             .accessibilityHint(isLiked ? "Saved in your Likes tab." : "Saves a like in this demo. Does not send a message.")
             .accessibilityIdentifier("likeProfile")
@@ -230,7 +234,7 @@ private struct DiscoveryActionBar: View {
                     .frame(width: interestSymbolWidth)
                     .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
             }
-            Text(saved ? "Interested" : "I'm interested")
+            Text(saved ? "Interest saved" : "I'm interested")
         }
     }
 
@@ -260,20 +264,10 @@ private struct DiscoveryActionBar: View {
                 .frame(width: compact ? 44 : nil)
                 .frame(maxWidth: compact ? nil : .infinity, minHeight: 44)
                 .contentShape(Rectangle())
-        }.buttonStyle(DiscoveryPressStyle()).foregroundStyle(Color.plum)
+        }.buttonStyle(KindredPressStyle(preservesDisabledAppearance: true)).foregroundStyle(Color.plum)
             .accessibilityLabel("Undo skip of \(name)")
             .accessibilityHint("Restores the last introduction you skipped.")
             .accessibilityIdentifier("undoPass")
-    }
-}
-
-private struct DiscoveryPressStyle: ButtonStyle {
-    @Environment(\.kindredReduceMotion) private var reduceMotion
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .opacity(configuration.isPressed ? 0.82 : 1)
-            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
-            .animation(reduceMotion ? nil : .smooth(duration: 0.18), value: configuration.isPressed)
     }
 }
 
@@ -292,10 +286,10 @@ struct PromptCard: View {
                     Button { store.like(memberID, promptID: prompt.id) } label: {
                         Label(store.isPromptLiked(prompt.id, memberID: memberID) ? "Answer saved" : "Like this answer", systemImage: store.isPromptLiked(prompt.id, memberID: memberID) ? "checkmark" : "sparkles")
                             .font(.caption.weight(.semibold)).padding(.horizontal, 15).frame(minHeight: 44).background(Color.surface, in: Capsule())
-                    }.buttonStyle(InterestSaveButtonStyle()).foregroundStyle(Color.plum)
+                    }.buttonStyle(KindredPressStyle(preservesDisabledAppearance: true)).foregroundStyle(Color.plum)
                         .disabled(store.isPromptLiked(prompt.id, memberID: memberID))
                         .accessibilityIdentifier("promptLike-\(memberID)-\(prompt.id)")
-                        .accessibilityHint("Saves interest in this person's answer. No message is sent.")
+                        .accessibilityHint(store.isPromptLiked(prompt.id, memberID: memberID) ? "Saved in Your likes." : "Saves interest in this person's answer. No message is sent.")
                         .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: store.isPromptLiked(prompt.id, memberID: memberID))
                         .accessibilityLabel("\(store.isPromptLiked(prompt.id, memberID: memberID) ? "Saved" : "Like") answer to \(prompt.question)")
                         .accessibilityValue("\(store.member(memberID)?.name ?? "This person")’s answer")
@@ -307,28 +301,37 @@ struct PromptCard: View {
 struct ProfileDetailView: View {
     @Environment(AppStore.self) private var store
     let memberID: String
+    var savedTarget: SavedInterestTarget?
+    @State private var didOpenTarget = false
+    var browsingPhoto: Binding<Int>?
+    @State private var detailPhoto = 0
     var body: some View {
         Group {
             if let profile = store.member(memberID) {
+                ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 26) {
-                        PhotoGallery(profile: profile)
+                        PhotoGallery(profile: profile, selection: browsingPhoto ?? $detailPhoto)
                         if memberID == "me" { Overline(text: "Your public profile preview") }
+                        if !profile.bio.trimmed.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
                             Overline(text: "A little about me")
                             Text(profile.bio).font(.title3).lineSpacing(5)
                         }
+                        }
                         Label(profile.intention.rawValue, systemImage: "heart.text.clipboard").font(.headline).foregroundStyle(Color.plum)
-                        InterestChips(interests: profile.interests)
-                        if let first = profile.prompts.first(where: { !$0.answer.trimmed.isEmpty }) { PromptCard(prompt: first, memberID: memberID) }
+                        DistancePreferencesSummary(profile: profile)
+                        if !profile.interests.isEmpty { InterestChips(interests: profile.interests) }
+                        if let first = profile.prompts.first(where: { !$0.answer.trimmed.isEmpty }) { PromptCard(prompt: first, memberID: memberID).id(SavedInterestTarget.answer(first.id)) }
+                        if !profile.faith.meaning.trimmed.isEmpty || profile.faith.sabbath != .shareLater || profile.faith.food != .privateChoice {
                         VStack(alignment: .leading, spacing: 18) {
                             Overline(text: "Faith in everyday life")
-                            Text(profile.faith.meaning.isEmpty ? "A conversation to share in time." : profile.faith.meaning).font(.body).lineSpacing(4)
-                            Divider()
-                            Label(profile.faith.sabbath.rawValue, systemImage: "sun.horizon").font(.subheadline)
-                            Label(profile.faith.food.rawValue, systemImage: "leaf").font(.subheadline)
+                            if !profile.faith.meaning.trimmed.isEmpty { Text(profile.faith.meaning).font(.body).lineSpacing(4) }
+                            if profile.faith.sabbath != .shareLater { Label(profile.faith.sabbath.rawValue, systemImage: "sun.horizon").font(.subheadline) }
+                            if profile.faith.food != .privateChoice { Label(profile.faith.food.rawValue, systemImage: "leaf").font(.subheadline) }
                             Text("Seventh-day Adventist · Shared values, never a score").font(.caption).foregroundStyle(Color.muted)
                         }.padding(24).background(Color.surface, in: RoundedRectangle(cornerRadius: 24))
+                        }
                         if profile.photos.count > 1 {
                             VStack(alignment: .leading, spacing: 8) {
                                 PhotoView(photo: profile.photos[1]).frame(height: 320).clipShape(RoundedRectangle(cornerRadius: 24))
@@ -338,12 +341,23 @@ struct ProfileDetailView: View {
                                 }
                             }
                         }
-                        ForEach(profile.prompts.filter { !$0.answer.trimmed.isEmpty }.dropFirst()) { PromptCard(prompt: $0, memberID: memberID) }
+                        ForEach(profile.prompts.filter { !$0.answer.trimmed.isEmpty }.dropFirst()) { PromptCard(prompt: $0, memberID: memberID).id(SavedInterestTarget.answer($0.id)) }
                         if memberID != "me" {
-                            PrimaryButton(title: store.isLiked(memberID) ? "Interest saved" : "I'm interested", symbol: store.isLiked(memberID) ? "checkmark" : "sparkles") { store.like(memberID) }.disabled(store.isLiked(memberID)).accessibilityIdentifier("detailLike")
+                            PrimaryButton(title: store.isLiked(memberID) ? "Interest saved" : "I'm interested", symbol: store.isLiked(memberID) ? "checkmark" : "sparkles", isSaved: store.isLiked(memberID)) { store.like(memberID) }.disabled(store.isLiked(memberID)).accessibilityIdentifier("detailLike")
                             NoteCard(symbol: "shield", text: "Trust your pace. Report or block anytime from the safety menu above. Reports are only saved locally in this prototype.")
                         }
                     }.padding(24)
+                }.accessibilityIdentifier("memberProfileScroll")
+                    .onAppear {
+                        guard let savedTarget, !didOpenTarget else { return }
+                        didOpenTarget = true
+                        switch savedTarget {
+                        case .photo(let id):
+                            detailPhoto = profile.photos.firstIndex { $0.id == id } ?? 0
+                        case .answer:
+                            proxy.scrollTo(savedTarget, anchor: .top)
+                        }
+                    }
                 }
             } else {
                 EmptyState(symbol: "hand.raised", title: "Profile unavailable", message: "This profile has been blocked. You can manage blocked profiles in You → Safety.")

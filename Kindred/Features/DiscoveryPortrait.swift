@@ -6,6 +6,7 @@ struct DiscoveryPortrait: View {
     @Environment(\.kindredReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var typeSize
     let profile: MemberProfile
+    @Binding var selectedPhoto: Int
     let isLiked: Bool
     let next: () -> Void
     let interested: () -> Void
@@ -23,7 +24,7 @@ struct DiscoveryPortrait: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            PhotoGallery(profile: profile, aspectRatio: 0.9, allowsPaging: false)
+            PhotoGallery(profile: profile, aspectRatio: 0.9, allowsPaging: false, selection: $selectedPhoto)
                 .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { portraitWidth = $0 }
                 .overlay {
                     if abs(swipe.translation) > 14 {

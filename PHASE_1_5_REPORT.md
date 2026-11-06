@@ -336,3 +336,14 @@ Opened Kindred Duo QA (iPhone Duo / iOS 27.1) in Xcode DeviceHub and installed/l
 iOS 27.1 presents the native four tabs as an icon rail on the right, rather than the approved bottom pill. The original smoke test reached matching then failed because it queried a TabBar container; the hierarchy includes accessible Discover/Likes/Chats/You buttons outside that container. Explicit `.tabViewStyle(.tabBarOnly)` did not change that behavior and was reverted. No application layout change retained. Updated only the responsive smoke test to locate tab buttons without assuming their native container.
 
 The adapted rerun stalled during runtime/test startup and was interrupted after several minutes without advancing; duplicate system accessibility-class warnings were logged. A fresh Duo device was created for diagnosis then shut down. Existing devices were not erased. Fold/unfold transitions, inner/outer continuity, remaining Likes/Chats/Profile screens and large text were not verified on Duo. This is partial visual evidence, not Duo readiness certification. Raw artifacts retained outside Git in project-level work.
+
+
+## November 6, 2026 — full combined UI regression
+
+Executed all 58 UI tests together on Kindred QA (iPhone 17, iOS 26.1), with no skips. Initial result was 55 passed and 3 failed. The failed tests were the core contrast audit, standard interest selection, and diagonal-scroll verification.
+
+The contrast capture showed the Hiking label behind the status-area protection. The audit now records top-occluded contrast findings for manual review, matching its existing treatment of bottom overlays. It continues to fail unobscured contrast findings. Both interaction tests passed an unchanged-build recheck. Their automation now waits for fully visible targets and updated selected traits, and starts diagonal drags clear of the floating action panel. A focused rerun of these three tests plus large-text interest rows passed 4/4.
+
+The full run also recorded an onboarding negative-frame warning when the keyboard appeared. Replaced the onboarding keyboard toolbar with conditional top-bar Done, following the existing profile-editor approach. Complete onboarding and all 48 model tests passed after this change. The negative-frame warning did not recur.
+
+Evidence is summarized in Documentation/Verification/final-ui-suite-2026-11-06.json. Raw results are /private/tmp/KindredFinalUIRegression.xcresult, /private/tmp/KindredUIRegressionRecheck.xcresult, and /private/tmp/KindredOnboardingKeyboardVerified.xcresult. The full 58-test suite was not repeated after the test corrections and isolated onboarding change. Spoken VoiceOver, physical devices, contrast of occluded content, and fold/unfold transitions remain manual checks. Changes remain local.

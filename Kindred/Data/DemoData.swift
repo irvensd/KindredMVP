@@ -9,11 +9,64 @@ enum DemoData {
     ]
     static func member(id: String, name: String, age: Int, gender: Gender, city: String, miles: Int, job: String, image: String, bio: String, interests: Set<Interest>, answers: [String]) -> MemberProfile {
         let questions = ["My ideal Sabbath afternoon…", "A little thing that makes me happy…", "I'm looking for someone who…"]
-        return .init(id: id, name: name, age: age, gender: gender, city: city, distanceMiles: miles, occupation: job,
+        var profile = MemberProfile(id: id, name: name, age: age, gender: gender, city: city, distanceMiles: miles, occupation: job,
                      bio: bio, intention: .lifePartner, faith: .init(sabbath: id == "rowan" ? .outdoors : .community, food: .vegetarian),
                      interests: interests, prompts: zip(questions.indices, answers).map { .init(id: "\(id)-\($0.0)", question: questions[$0.0], answer: $0.1) },
                      photos: [.bundled(image, caption: "AI-generated portrait of fictional member \(name)"), .bundled("weekend", caption: "A little weekend inspiration · shared AI-generated sample photo")])
+        if id == "amara" || id == "june" { profile.distanceOpenness = .longDistance }
+        if id == "rowan" { profile.distanceOpenness = .local; profile.openToRelocating = true }
+        return profile
     }
+    static func expandedSnapshot(now: Date) -> SessionSnapshot {
+        var state = snapshot(now: now)
+        let names = ["Naomi", "Caleb", "Sofia", "Micah", "Grace", "Daniel", "Leah", "Noah"]
+        let replies = [
+            "Do you have a favorite trail for a quiet afternoon?",
+            "I tried your soup idea. The whole table asked for seconds!",
+            "Which book would you lend a friend first?",
+            "I'd love to hear more about your community garden.",
+            "That sounds lovely. What do you usually bring to a picnic?",
+            "A museum afternoon sounds like a good plan.",
+            "What's a small thing that made you smile this week?",
+            "I hope your volunteering day went well."
+        ]
+        for (index, name) in names.enumerated() {
+            let id = "demo-" + name.lowercased()
+            var profile = people[index % people.count]
+            profile = member(
+                id: id, name: name, age: 25 + index, gender: profile.gender,
+                city: profile.city, miles: profile.distanceMiles,
+                job: profile.occupation, image: profile.photos[0].assetName ?? "weekend",
+                bio: profile.bio, interests: profile.interests,
+                answers: profile.prompts.map(\.answer)
+            )
+            state.members.append(profile)
+            let date = now.addingTimeInterval(-Double(index + 1) * 30_000)
+            state.matches.append(.init(id: "match-" + id, memberID: id, createdAt: date))
+            let messages: [Message] = index == 7 ? [] : [
+                .init(id: id + "-hello", senderID: "me", text: "Hi " + name + "! It's lovely to connect.", createdAt: date.addingTimeInterval(-90_000)),
+                .init(id: id + "-reply", senderID: id, text: replies[index], createdAt: date)
+            ]
+            state.conversations.append(.init(
+                id: "chat-" + id, memberID: id, messages: messages,
+                unreadCount: index < 7 && index.isMultiple(of: 2) ? 1 : 0
+            ))
+        }
+        let regionalCities: [SearchCity] = [.atlanta, .dallas, .newYork, .lomaLinda]
+        for (index, city) in regionalCities.enumerated() {
+            let id = "regional-\(index)"
+            let profile = member(id: id, name: ["Rachel", "Isaac", "Esther", "Josiah"][index],
+                age: 28 + index, gender: index.isMultiple(of: 2) ? .female : .male,
+                city: city.rawValue, miles: 0, job: "Teacher & community volunteer",
+                image: people[index].photos[0].assetName ?? "weekend",
+                bio: "A generous table, shared faith, and room for a good conversation.",
+                interests: [.books, .service, .cooking],
+                answers: ["A walk, a shared meal, and time for friends.", "An unexpected act of kindness.", "Makes room for faith and laughter."])
+            state.members.append(profile)
+        }
+        return state
+    }
+
     static func snapshot(now: Date) -> SessionSnapshot {
         let me = MemberProfile(id: "me", name: "Alex", age: 28, gender: .male, city: "Chicago, IL", distanceMiles: 0, occupation: "Making room for connection", bio: "A curious soul, a generous table, and a little adventure. Here to find something meaningful.", intention: .relationship, faith: .init(), interests: [.hiking, .cooking, .books], prompts: people[0].prompts.enumerated().map { .init(id: "own-\($0.offset)", question: $0.element.question, answer: $0.element.answer) }, photos: [.bundled("rowan", caption: "AI-generated sample portrait for Alex")], isDemo: false)
         return .init(currentProfile: me, members: people,

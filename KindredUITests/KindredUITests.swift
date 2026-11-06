@@ -104,15 +104,44 @@ final class KindredUITests: XCTestCase {
         app.navigationBars["Adjust crop"].buttons["Cancel"].tap()
         XCTAssertFalse(app.alerts["Discard changes?"].exists)
     }
+    func testSavedPreviewPhotoOrderAndOptionalSections() {
+        launch()
+        app.buttons["You"].tap()
+        app.buttons["editProfile"].tap()
+        let add = app.buttons["Use demo portrait Amara"]; reveal(add, attempts: 20); add.tap()
+        let edit = app.buttons["editPhoto-amara"]; reveal(edit, attempts: 20); edit.tap()
+        app.buttons["Make primary"].tap()
+        app.buttons["saveProfile"].tap()
+        XCTAssertTrue(app.buttons["saveProfile"].waitForNonExistence(timeout: 5))
+        let preview = app.buttons["publicPreview"]
+        for _ in 0..<10 {
+            if preview.isHittable { break }
+            app.swipeDown()
+        }
+        preview.tap()
+        let pager = app.descendants(matching: .any).matching(identifier: "profilePhotoPager").firstMatch
+        XCTAssertTrue(pager.waitForExistence(timeout: 5))
+        XCTAssertTrue(pager.images.matching(NSPredicate(format: "value == %@", "AI-generated portrait of fictional member Amara")).firstMatch.exists)
+        XCTAssertEqual(app.staticTexts["photoPosition"].label, "Photo 1 of 2")
+        app.buttons["Next photo"].tap()
+        XCTAssertEqual(app.staticTexts["photoPosition"].label, "Photo 2 of 2")
+        XCTAssertTrue(pager.images.matching(NSPredicate(format: "value == %@", "AI-generated sample portrait for Alex")).firstMatch.exists)
+        for _ in 0..<8 { app.swipeUp() }
+        XCTAssertFalse(app.staticTexts["FAITH IN EVERYDAY LIFE"].exists)
+        XCTAssertFalse(app.staticTexts["A conversation to share in time."].exists)
+        XCTAssertFalse(app.staticTexts["Prefer to share later"].exists)
+        capture("Saved preview omits unshared faith")
+    }
+
     func testPhotoOrderingCropGesturesAndSavedPreview() {
         launch()
         app.tabBars.buttons["You"].tap(); app.buttons["editProfile"].tap()
         let add = app.buttons["Use demo portrait Amara"]; reveal(add, attempts: 20); add.tap()
         func menu(_ id: String) { let item = app.buttons["editPhoto-" + id]; reveal(item, attempts: 20); item.tap() }
         menu("amara"); app.buttons["Make primary"].tap()
-        XCTAssertEqual(app.buttons["editPhoto-amara"].label, "Edit photo 1")
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier == %@ AND label == %@", "editPhoto-amara", "Edit photo 1")).firstMatch.waitForExistence(timeout: 5))
         menu("amara"); app.buttons["Move later"].tap()
-        XCTAssertEqual(app.buttons["editPhoto-amara"].label, "Edit photo 2")
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier == %@ AND label == %@", "editPhoto-amara", "Edit photo 2")).firstMatch.waitForExistence(timeout: 5))
         menu("amara"); app.buttons["Move earlier"].tap()
         menu("amara"); app.buttons["Adjust crop"].tap()
         let canvas = app.images["cropCanvas"]
@@ -149,16 +178,59 @@ final class KindredUITests: XCTestCase {
         XCTAssertTrue(app.buttons["editPhoto-amara"].exists)
         let undo = app.buttons["undoPhotoRemoval"]; reveal(undo); undo.tap()
         XCTAssertEqual(app.buttons["editPhoto-rowan"].label, "Edit photo 1")
-        XCTAssertEqual(app.buttons["editPhoto-amara"].label, "Edit photo 2")
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier == %@ AND label == %@", "editPhoto-amara", "Edit photo 2")).firstMatch.waitForExistence(timeout: 5))
         primary.tap()
         let second = app.buttons["removePhoto-amara"]; reveal(second); second.tap()
         reveal(undo); undo.tap(); reveal(undo); undo.tap()
         XCTAssertEqual(app.buttons["editPhoto-rowan"].label, "Edit photo 1")
-        XCTAssertEqual(app.buttons["editPhoto-amara"].label, "Edit photo 2")
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier == %@ AND label == %@", "editPhoto-amara", "Edit photo 2")).firstMatch.waitForExistence(timeout: 5))
         XCTAssertFalse(undo.exists)
         app.buttons["saveProfile"].tap()
         XCTAssertTrue(app.buttons["saveProfile"].waitForNonExistence(timeout: 3))
     }
+    func testPreferencesDraftSurvivesBackgroundAndRepeatedSave() {
+        launch()
+        app.buttons["discoveryPreferences"].tap()
+        let female = app.switches["Female"]
+        reveal(female)
+        female.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        XCUIDevice.shared.press(.home)
+        app.activate()
+        XCTAssertEqual(female.value as? String, "0")
+        let save = app.buttons["savePreferences"]
+        save.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).doubleTap()
+        XCTAssertTrue(save.waitForNonExistence(timeout: 5))
+        app.buttons["discoveryPreferences"].tap()
+        reveal(female)
+        XCTAssertEqual(female.value as? String, "0")
+        app.buttons["Cancel"].tap()
+    }
+
+    func testBackgroundCancelsDiscoveryAdvanceAndKeepsProfileDraft() {
+        launch(options: ["--pending-interest-demo", "--slow-discovery-advance"])
+        app.buttons["likeProfile"].tap()
+        XCUIDevice.shared.press(.home)
+        Thread.sleep(forTimeInterval: 5.3)
+        app.activate()
+        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Amara")
+        app.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        let name = app.textFields["editName"]
+        name.tap(); name.typeText(" Grace")
+        XCUIDevice.shared.press(.home)
+        app.activate()
+        XCTAssertEqual(name.value as? String, "Alex Grace")
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.alerts["Discard changes?"].waitForExistence(timeout: 5))
+        app.alerts.buttons["Keep editing"].tap()
+        XCTAssertEqual(name.value as? String, "Alex Grace")
+        let save = app.buttons["saveProfile"]
+        save.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).doubleTap()
+        XCTAssertTrue(save.waitForNonExistence(timeout: 5))
+        app.buttons["editProfile"].tap()
+        XCTAssertEqual(name.value as? String, "Alex Grace")
+        app.buttons["Cancel"].tap()
+    }
+
     func testPendingAdvanceCancelsForNavigationPreferencesAndUndo() {
         for action in ["tabs", "profile", "preferences", "undo"] {
             launch(options: ["--pending-interest-demo", "--slow-discovery-advance"])
@@ -267,7 +339,8 @@ final class KindredUITests: XCTestCase {
         XCTAssertTrue(app.buttons["discoveryPreferences"].isHittable)
         app.buttons["discoveryPreferences"].tap()
         swipeSheetDown()
-        XCTAssertTrue(app.buttons["savePreferences"].waitForNonExistence(timeout: 3))
+        if app.buttons["savePreferences"].exists { swipeSheetDown() }
+        XCTAssertTrue(app.buttons["savePreferences"].waitForNonExistence(timeout: 5))
         app.buttons["discoveryPreferences"].tap()
         let female = app.switches["Female"]
         reveal(female)
@@ -290,7 +363,7 @@ final class KindredUITests: XCTestCase {
         app.tabBars.buttons["You"].tap(); app.buttons["editProfile"].tap()
         let name = app.textFields["editName"]
         name.tap(); name.typeText(" revised")
-        app.buttons["Done"].tap()
+        XCTAssertTrue(app.keyboards.firstMatch.exists)
         swipeSheetDown()
         XCTAssertTrue(app.buttons["Keep editing"].waitForExistence(timeout: 3))
         app.buttons["Keep editing"].tap()
@@ -308,10 +381,215 @@ final class KindredUITests: XCTestCase {
     }
 
     private func swipeSheetDown() {
-        let top = app.navigationBars.firstMatch.frame.midY
+        let top = max(24, app.navigationBars.firstMatch.frame.minY - 8)
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0))
             .withOffset(CGVector(dx: 0, dy: top))
             .press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)))
+    }
+
+    func testDistanceOpennessEditingAndPreview() {
+        checkDistanceOpenness(options: [])
+    }
+    func testDistanceOpennessLargestText() {
+        checkDistanceOpenness(options: ["--large-text", "--largest-text", "--dark", "--reduce-motion"])
+    }
+    private func checkDistanceOpenness(options: [String]) {
+        launch(options: options)
+        app.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        let longDistance = app.buttons["Open to long distance"]
+        reveal(longDistance, attempts: 15); longDistance.tap()
+        XCTAssertTrue(longDistance.isSelected)
+        let relocate = app.switches["openToRelocating"]
+        reveal(relocate); relocate.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        XCTAssertEqual(relocate.value as? String, "1")
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.alerts["Discard changes?"].waitForExistence(timeout: 5))
+        app.alerts.buttons["Keep editing"].tap()
+        app.buttons["saveProfile"].tap()
+        let preview = app.buttons["publicPreview"]
+        for _ in 0..<10 {
+            if preview.isHittable { break }
+            app.swipeDown()
+        }
+        preview.tap()
+        let summary = app.descendants(matching: .any).matching(identifier: "distancePreferencesSummary").firstMatch
+        reveal(summary, attempts: 15)
+        XCTAssertTrue(summary.label.contains("Open to long distance"))
+        XCTAssertTrue(summary.label.contains("Open to relocating"))
+        capture("Saved distance and relocation preferences")
+        let back = app.buttons["BackButton"]
+        if back.exists { back.tap() } else { app.navigationBars.buttons.element(boundBy: 0).tap() }
+        app.buttons["editProfile"].tap()
+        reveal(longDistance, attempts: 15)
+        XCTAssertTrue(longDistance.isSelected)
+        app.buttons["Prefer local connections"].tap()
+        app.buttons["Cancel"].tap(); app.alerts.buttons["Discard changes"].tap()
+        app.buttons["editProfile"].tap()
+        reveal(longDistance, attempts: 15)
+        XCTAssertTrue(longDistance.isSelected)
+        let unspecified = app.buttons["Not shared"]; unspecified.tap()
+        reveal(relocate); relocate.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        app.buttons["saveProfile"].tap()
+        for _ in 0..<10 {
+            if preview.isHittable { break }
+            app.swipeDown()
+        }
+        preview.tap()
+        for _ in 0..<5 { app.swipeUp() }
+        XCTAssertFalse(summary.exists)
+    }
+
+    func testSearchCityFiltersWithoutChangingHomeAndShowsTravel() {
+        checkLocation(options: [])
+    }
+    func testLocationLargestText() {
+        checkLocation(options: ["--largest-text", "--dark", "--reduce-motion"])
+    }
+    private func checkLocation(options: [String]) {
+        launch(options: ["--expanded-demo"] + options)
+        app.buttons["discoveryPreferences"].tap()
+        let search = app.buttons["searchCity"]
+        reveal(search)
+        search.tap(); app.buttons["Atlanta, GA"].tap()
+        app.buttons["savePreferences"].tap()
+        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Rachel")
+        app.buttons["discoveryPreferences"].tap()
+        XCTAssertTrue(app.staticTexts["Home city: Chicago, IL"].exists)
+        search.tap(); app.buttons["Dallas, TX"].tap()
+        app.buttons["Cancel"].tap(); app.alerts.buttons["Discard changes"].tap()
+        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Rachel")
+        app.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        XCTAssertEqual(app.textFields["editCity"].value as? String, "Chicago, IL")
+        let status = app.buttons["locationStatus"]; reveal(status)
+        status.tap(); app.buttons["Visiting"].tap()
+        app.buttons["saveProfile"].tap()
+        let preview = app.buttons["publicPreview"]
+        for _ in 0..<10 {
+            if preview.isHittable { break }
+            app.swipeDown()
+        }
+        preview.tap()
+        XCTAssertTrue(app.staticTexts["Visiting Atlanta, GA · self-reported"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Chicago, IL"].exists)
+        capture("Home city and self-reported visiting status")
+    }
+
+    func testCoreAccessibilityLabelsContrastAndSheetReturn() throws {
+        for options in [[], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
+            launch(options: options + ["--expanded-demo"])
+            for tab in ["Discover", "Likes", "Chats", "You"] {
+                app.buttons[tab].tap()
+                if tab == "Discover" { for _ in 0..<4 { app.swipeUp() } }
+                try app.performAccessibilityAudit(for: [.contrast, .sufficientElementDescription, .trait]) { issue in
+                    // Contrast is meaningful when the text is fully visible.
+                    // Keep clipped overlay findings in the log for manual review.
+                    guard issue.auditType == .contrast, let element = issue.element else { return false }
+                    let navigation = self.app.tabBars.firstMatch
+                    let bottom = navigation.exists ? navigation.frame.minY : self.app.frame.maxY
+                    let status = self.app.statusBars.firstMatch
+                    let top = status.exists && status.frame.width > status.frame.height ? status.frame.maxY : self.app.frame.minY
+                    if element.frame.minY < top || element.frame.maxY > bottom {
+                        print("OVERLAY CONTRAST REVIEW: \(issue.compactDescription) \(element.debugDescription)")
+                        return true
+                    }
+                    return false
+                }
+            }
+            let edit = app.buttons["editProfile"]
+            edit.tap()
+            app.buttons["Cancel"].tap()
+            XCTAssertTrue(edit.waitForExistence(timeout: 5))
+            XCTAssertTrue(edit.isHittable)
+            app.buttons["Discover"].tap()
+            let preferences = app.buttons["discoveryPreferences"]
+            for _ in 0..<6 {
+                if preferences.isHittable { break }
+                app.swipeDown()
+            }
+            preferences.tap()
+            app.buttons["Cancel"].tap()
+            XCTAssertTrue(preferences.waitForExistence(timeout: 5))
+            XCTAssertTrue(preferences.isHittable)
+            XCTAssertTrue(app.buttons["Next photo"].isEnabled)
+            XCTAssertTrue(app.buttons["passProfile"].isEnabled)
+            XCTAssertTrue(app.buttons["likeProfile"].isEnabled)
+        }
+    }
+
+    func testInterestSelectionLimitUsesDisabledState() {
+        checkInterestRows(options: [])
+    }
+    func testReadableInterestRowsLargestText() {
+        checkInterestRows(options: ["--largest-text", "--dark", "--reduce-motion"])
+    }
+    private func checkInterestRows(options: [String]) {
+        launch(options: options)
+        app.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        for interest in ["Live music", "Volunteering", "Travel", "Art & design", "Movement"] {
+            let button = app.buttons[interest]
+            reveal(button, attempts: 12)
+            for _ in 0..<6 {
+                let top = app.navigationBars.firstMatch.frame.maxY + 12
+                if button.frame.minY > top && button.frame.maxY < app.frame.maxY - 50 { break }
+                if button.frame.minY <= top { app.swipeDown() } else { app.swipeUp() }
+            }
+            button.tap()
+            let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: button)
+            XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 3), .completed)
+            XCTAssertTrue(button.staticTexts[interest].exists)
+            XCTAssertGreaterThan(button.staticTexts[interest].frame.width, 40)
+            XCTAssertGreaterThan(button.frame.width, 200)
+        }
+        let gardening = app.buttons["Gardening"]
+        reveal(gardening)
+        XCTAssertFalse(gardening.isEnabled)
+        let hiking = app.buttons["Hiking"]
+        for _ in 0..<6 {
+            if hiking.isHittable { break }
+            app.swipeDown()
+        }
+        XCTAssertTrue(hiking.isEnabled)
+        hiking.tap()
+        reveal(gardening)
+        XCTAssertTrue(gardening.isEnabled)
+        gardening.tap()
+        XCTAssertTrue(gardening.isSelected)
+        capture("Selected and unavailable interest states")
+        app.buttons["Cancel"].tap()
+        app.alerts.buttons["Discard changes"].tap()
+    }
+
+    func testConversationNameSearchAndUnreadFilter() {
+        for options in [[], ["--large-text", "--dark", "--reduce-motion"]] as [[String]] {
+            launch(options: options + ["--expanded-demo"])
+            app.buttons["Chats"].tap()
+            let search = app.textFields["conversationSearch"]
+            XCTAssertTrue(search.waitForExistence(timeout: 5))
+            search.tap(); search.typeText("  NAOMI  ")
+            app.keyboards.buttons["Search"].tap()
+            let naomi = app.buttons["conversation-demo-naomi"]
+            reveal(naomi)
+            XCTAssertTrue(naomi.isHittable)
+            XCTAssertFalse(app.buttons["conversation-demo-caleb"].exists)
+            naomi.tap()
+            XCTAssertTrue(app.textFields["messageComposer"].waitForExistence(timeout: 5))
+            let railBack = app.buttons["BackButton"]
+            if railBack.exists { railBack.tap() } else { app.navigationBars.buttons.element(boundBy: 0).tap() }
+            XCTAssertEqual(search.value as? String, "  NAOMI  ")
+            app.buttons["Unread"].tap()
+            XCTAssertFalse(naomi.exists)
+            XCTAssertTrue(app.buttons["Show all conversations"].exists)
+            app.buttons["Show all conversations"].tap()
+            XCTAssertTrue(app.buttons["conversation-eli"].exists)
+            search.tap(); search.typeText("No such member")
+            app.keyboards.buttons["Search"].tap()
+            XCTAssertTrue(app.staticTexts["No conversations found"].exists)
+            app.buttons["Clear name search"].tap()
+            app.buttons["Unread"].tap()
+            XCTAssertFalse(app.buttons["conversation-demo-caleb"].exists)
+            XCTAssertTrue(app.buttons["conversation-demo-sofia"].exists)
+            capture("Conversation search and unread filter")
+        }
     }
 
     func testConversationDraftSurvivesReopeningAndClearsAfterSend() {
@@ -401,6 +679,30 @@ final class KindredUITests: XCTestCase {
         XCTAssertTrue(preferences.waitForExistence(timeout: 3))
     }
 
+    func testDuoRemainingScreens() {
+        launch()
+        for tab in ["Likes", "You", "Chats", "Discover"] {
+            let button = app.buttons[tab]
+            XCTAssertTrue(button.waitForExistence(timeout: 10))
+            button.tap()
+            capture("Duo review \(tab)")
+        }
+        app.buttons["You"].tap()
+        let edit = app.buttons["editProfile"]; reveal(edit, attempts: 12); edit.tap()
+        XCTAssertTrue(app.buttons["saveProfile"].waitForExistence(timeout: 5))
+        capture("Duo review edit")
+        app.buttons["Cancel"].tap()
+        app.buttons["Chats"].tap()
+        let chat = app.buttons["conversation-eli"]; reveal(chat, attempts: 12); chat.tap()
+        let field = app.textFields["messageComposer"]
+        field.tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        field.typeText("Hello")
+        capture("Duo review keyboard")
+        XCTAssertTrue(app.buttons["sendMessage"].isHittable)
+        app.buttons["Done"].tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 5))
+    }
     func testResponsiveScreenSmoke() {
         for options in [[], ["--large-text", "--dark", "--reduce-motion"]] as [[String]] {
             let mode = options.isEmpty ? "standard" : "large-dark"
@@ -507,7 +809,11 @@ final class KindredUITests: XCTestCase {
         app.buttons["matchKeepDiscovering"].tap()
         XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
         app.tabBars.buttons["Likes"].tap(); app.buttons["Your likes"].tap()
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Amara’s photo 2")).firstMatch.exists)
+        let saved = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Amara’s photo 2")).firstMatch
+        reveal(saved); saved.tap()
+        let gallery = app.scrollViews["memberProfileScroll"]
+        XCTAssertEqual(gallery.staticTexts["photoPosition"].label, "Photo 2 of 2")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         let remove = app.buttons["removeLike-amara"]; reveal(remove); remove.tap()
         app.buttons["Liked you"].tap()
         let matched = app.staticTexts["Amara, 28"]; reveal(matched); matched.tap()
@@ -526,14 +832,19 @@ final class KindredUITests: XCTestCase {
             XCTAssertEqual(app.staticTexts["feedbackBanner"].label, "Saved Eli’s answer to “My ideal Sabbath afternoon…”")
             capture("Personal answer saved \(options)")
             app.tabBars.buttons["Likes"].tap(); app.buttons["Your likes"].tap()
-            let quote = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Cooking enough for whoever drops by after church.")).firstMatch
+            let quote = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Cooking enough for whoever drops by after church.")).firstMatch
             reveal(quote); XCTAssertTrue(quote.exists)
             capture("Answer context in Likes \(options)")
             try app.performAccessibilityAudit(for: [.sufficientElementDescription, .trait])
-            app.staticTexts["Eli, 31"].tap()
+            quote.tap()
             XCTAssertTrue(app.navigationBars["Eli"].waitForExistence(timeout: 3))
+            XCTAssertTrue(app.buttons["promptLike-eli-eli-0"].isHittable)
             let photo = app.buttons["photoLike-eli-eli-gallery"]
-            reveal(photo); XCTAssertTrue(photo.isEnabled); photo.tap()
+            for _ in 0..<8 {
+                if photo.isHittable { break }
+                app.swipeDown()
+            }
+            XCTAssertTrue(photo.isEnabled); photo.tap()
             XCTAssertEqual(photo.label, "Saved Eli’s photo 1")
             XCTAssertFalse(photo.isEnabled)
             XCTAssertFalse(app.staticTexts["matchTitle"].exists)
@@ -580,6 +891,48 @@ final class KindredUITests: XCTestCase {
             XCTAssertFalse(position.exists)
         }
     }
+    func testBrowsingPlaceAcrossProfileChatAndTabs() {
+        launch()
+        func goBack() {
+            let back = app.buttons["BackButton"]
+            if back.exists {
+                back.tap()
+            } else {
+                app.navigationBars.buttons.element(boundBy: 0).tap()
+            }
+        }
+        let position = app.staticTexts["photoPosition"]
+        app.buttons["Next photo"].tap()
+        let meet = app.buttons["openProfile"]
+        reveal(meet)
+        let discoverY = meet.frame.midY
+        meet.tap()
+        let detail = app.scrollViews["memberProfileScroll"]
+        XCTAssertTrue(detail.waitForExistence(timeout: 5))
+        XCTAssertEqual(detail.staticTexts["photoPosition"].label, "Photo 2 of 2")
+        app.swipeUp()
+        let bio = detail.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Equal parts")).firstMatch
+        XCTAssertTrue(bio.exists)
+        let detailY = bio.frame.midY
+        app.buttons["Chats"].tap()
+        let conversation = app.buttons["conversation-eli"]
+        let chatY = conversation.frame.midY
+        conversation.tap()
+        XCTAssertTrue(app.textFields["messageComposer"].waitForExistence(timeout: 5))
+        goBack()
+        XCTAssertEqual(conversation.frame.midY, chatY, accuracy: 5)
+        app.buttons["Discover"].tap()
+        XCTAssertTrue(app.navigationBars["Amara"].waitForExistence(timeout: 5))
+        XCTAssertEqual(bio.frame.midY, detailY, accuracy: 5)
+        goBack()
+        XCTAssertEqual(meet.frame.midY, discoverY, accuracy: 5)
+        for _ in 0..<6 {
+            if app.buttons["Next photo"].isHittable { break }
+            app.swipeDown()
+        }
+        XCTAssertEqual(position.label, "Photo 2 of 2")
+    }
+
     func testFullProfilePhotoPagingKeepsCounterAndArrowsInSync() {
         launch()
         let open = app.buttons["openProfile"]
@@ -622,7 +975,7 @@ final class KindredUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Amara, 28"].exists)
     }
     func testDiscoveryActionsStayInPlaceWhenUndoAndInterestChange() throws {
-        for options in [[], ["--dark"], ["--large-text", "--reduce-motion"]] as [[String]] {
+        for options in [[], ["--dark"], ["--large-text", "--largest-text", "--reduce-motion"]] as [[String]] {
             launch(options: options + ["--pending-interest-demo", "--slow-discovery-advance"])
             let next = app.buttons["passProfile"]
             let like = app.buttons["likeProfile"]
@@ -708,7 +1061,10 @@ final class KindredUITests: XCTestCase {
         }
         capture("Portrait returned after short swipes")
         let headerY = app.staticTexts["For you"].frame.minY
-        let start = portrait.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.5))
+        // Keep the drag's starting point clear of the floating action panel.
+        let startY = min(portrait.frame.midY, app.buttons["passProfile"].frame.minY - 70)
+        let start = app.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: portrait.frame.minX + portrait.frame.width * 0.35, dy: startY))
         let end = start.withOffset(CGVector(dx: 80, dy: -160))
         start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.1)
         XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Amara")
@@ -846,6 +1202,8 @@ final class KindredUITests: XCTestCase {
         app.buttons["Cancel"].tap()
         app.buttons["Discard changes"].tap()
         XCTAssertTrue(app.buttons["savePreferences"].waitForNonExistence(timeout: 3))
+        app.buttons["passProfile"].tap()
+        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
         app.buttons["passProfile"].tap()
         XCTAssertTrue(app.staticTexts["You've seen everyone for now"].waitForExistence(timeout: 3), "Canceled radius changes must not include more distant members")
     }

@@ -10,6 +10,9 @@ struct KindredApp: App {
             return AppStore(repository: InMemoryKindredRepository(state: state))
         }
         #endif
+        if !ProcessInfo.processInfo.arguments.contains("--uitesting") || ProcessInfo.processInfo.arguments.contains("--expanded-demo") {
+            return AppStore(repository: InMemoryKindredRepository(state: DemoData.expandedSnapshot(now: Date())))
+        }
         return AppStore()
     }()
     var body: some Scene {

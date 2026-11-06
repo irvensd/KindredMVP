@@ -40,10 +40,22 @@ struct LikesView: View {
                                     }.fixedSize(horizontal: false, vertical: true)
                                     if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
                                 }
-                            }.buttonStyle(.plain)
+                            }.buttonStyle(KindredPressStyle())
                             if !showingIncoming {
                                 ForEach(store.savedInterests(for: profile.id)) { detail in
-                                    SavedInterestDetail(detail: detail).padding(.top, 18)
+                                    NavigationLink {
+                                        ProfileDetailView(memberID: profile.id, savedTarget: detail.target)
+                                    } label: {
+                                        HStack {
+                                            SavedInterestDetail(detail: detail)
+                                            Image(systemName: "chevron.right")
+                                                .font(.caption).foregroundStyle(Color.muted)
+                                                .accessibilityHidden(true)
+                                        }.frame(minHeight: 44).contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(KindredPressStyle())
+                                    .accessibilityHint(detail.photo == nil ? "Opens this answer in the profile" : "Opens this photo in the profile")
+                                    .padding(.top, 18)
                                 }
                             }
                             Divider().padding(.vertical, 18)
@@ -61,7 +73,7 @@ struct LikesView: View {
                             }
                             if !showingIncoming {
                                 Button("Remove interest") { store.removeLike(profile.id) }
-                                    .font(.footnote).foregroundStyle(Color.muted).buttonStyle(.plain)
+                                    .font(.footnote).foregroundStyle(Color.muted).buttonStyle(KindredPressStyle())
                                     .frame(maxWidth: .infinity, minHeight: 44)
                                     .accessibilityLabel("Remove interest for \(profile.name)")
                                     .accessibilityIdentifier("removeLike-\(profile.id)")

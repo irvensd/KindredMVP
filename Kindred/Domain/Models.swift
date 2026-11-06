@@ -62,6 +62,10 @@ struct MemberProfile: Identifiable, Equatable, Sendable {
     var prompts: [ProfilePrompt]
     var photos: [ProfilePhoto]
     var isDemo: Bool = true
+    var locationStatus = LocationStatus.home
+    var destination = SearchCity.atlanta
+    var distanceOpenness = DistanceOpenness.unspecified
+    var openToRelocating = false
 }
 struct DatingPreferences: Equatable, Sendable {
     var genders: Set<Gender> = Set(Gender.allCases)
@@ -71,6 +75,7 @@ struct DatingPreferences: Equatable, Sendable {
 struct DiscoveryPreferences: Equatable, Sendable {
     var dating = DatingPreferences()
     var radiusMiles = 75
+    var searchCity = SearchCity.chicago
 }
 struct PrivacyPreferences: Equatable, Sendable {
     var showCity = true
