@@ -474,6 +474,23 @@ final class KindredUITests: XCTestCase {
         capture("Home city and self-reported visiting status")
     }
 
+    func testProfilePhotoIdentityContrast() throws {
+        for options in [[], ["--dark"]] as [[String]] {
+            launch(options: options)
+            let name = app.staticTexts["Amara, 28"]
+            XCTAssertTrue(name.waitForExistence(timeout: 5))
+            let occupation = app.staticTexts["Pediatric nurse"]
+            if occupation.frame.maxY >= app.buttons["passProfile"].frame.minY - 12 { app.swipeUp() }
+            XCTAssertTrue(name.isHittable)
+            XCTAssertTrue(occupation.isHittable)
+            capture("Phone profile identity contrast \(options)")
+            try app.performAccessibilityAudit(for: [.contrast]) { issue in
+                guard let label = issue.element?.label else { return false }
+                return !["Amara, 28", "Chicago, IL", "Pediatric nurse"].contains(label)
+            }
+        }
+    }
+
     func testCoreAccessibilityLabelsContrastAndSheetReturn() throws {
         for options in [[], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
             launch(options: options + ["--expanded-demo"])

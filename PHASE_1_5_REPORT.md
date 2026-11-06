@@ -347,3 +347,10 @@ The contrast capture showed the Hiking label behind the status-area protection. 
 The full run also recorded an onboarding negative-frame warning when the keyboard appeared. Replaced the onboarding keyboard toolbar with conditional top-bar Done, following the existing profile-editor approach. Complete onboarding and all 48 model tests passed after this change. The negative-frame warning did not recur.
 
 Evidence is summarized in Documentation/Verification/final-ui-suite-2026-11-06.json. Raw results are /private/tmp/KindredFinalUIRegression.xcresult, /private/tmp/KindredUIRegressionRecheck.xcresult, and /private/tmp/KindredOnboardingKeyboardVerified.xcresult. The full 58-test suite was not repeated after the test corrections and isolated onboarding change. Spoken VoiceOver, physical devices, contrast of occluded content, and fold/unfold transitions remain manual checks. Changes remain local.
+
+
+## November 6, 2026 — phone-focused frontend checkpoint
+
+Stopped iPad mini work at the user's request and reverted the uncommitted universal-device configuration, landscape changes, tablet column sizing, and tablet-specific test additions. The retained phone improvement anchors a stronger dark fade to the photo identity text, improving white name/city/occupation contrast over bright photography.
+
+The phone Debug build, all 48 model tests, and a new focused profile-identity contrast test passed on iPhone 17 / iOS 26.1 in light and dark appearances. The contrast test checks those three identity labels specifically; it is not a full-screen accessibility certification. Log: /tmp/kindred-phone-contrast-release.log. The prior 58-test full-suite and focused-recheck results remain recorded above; the whole suite was not repeated for this isolated visual change. Folded/unfolded Duo transitions and broad all-screen-size support are not certified by this checkpoint.

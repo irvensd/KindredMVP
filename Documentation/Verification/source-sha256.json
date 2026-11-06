@@ -5,7 +5,7 @@
   "Kindred/App/KindredApp.swift": "07488ee953bffb6ccbbf360d056dc48478dae6cd4269b1b17de6e8767cd1653d",
   "Kindred/Data/DemoData.swift": "62e9abd68baf2f756ec500438205b458a29444d0544231164e78266b8a3367b3",
   "Kindred/Data/KindredRepository.swift": "34668b5554ed676d28f6477fe3611794bb7819862166f3ef5c38267cc1df64dd",
-  "Kindred/Design/Components.swift": "ee07928eb56dafeea6d0d8bf69deb245813d15553720744be5cae5412e3526be",
+  "Kindred/Design/Components.swift": "2606fdfeb1dc353231e66ce1a369a188cecc66be3b2966408b671a143952a8fa",
   "Kindred/Domain/DiscoverySwipe.swift": "b4d9f8575504dbad2736edc373d2d59edd45d4bb714644bf02ca23c2fce3d6d6",
   "Kindred/Domain/ExperienceModels.swift": "b55a9f18890267f8c22fbac1cf8d1c754120e9869845b002c8a7bab530a9fe79",
   "Kindred/Domain/Models.swift": "3df34fcbc2bafad2c61e39906b2236d6ce2384a66d55c7f2c2525944d8b57e2b",
@@ -40,5 +40,5 @@
   "Kindred/Resources/Assets.xcassets/weekend.imageset/Contents.json": "943e199ac2a1c14d7c87ca71239aaa798c98111fa9ec57dad2d31eeaf656a58d",
   "Kindred/Resources/Assets.xcassets/weekend.imageset/weekend.jpg": "11cf8b0e6011e085fd5ea208e5f115161144704c9debd25fac6a31cc8105a280",
   "KindredTests/KindredTests.swift": "304da8296ae659c1a04582c14e04ca006770aaf01a5294ecd48cecf348c9c3fa",
-  "KindredUITests/KindredUITests.swift": "bebc8e98054f4290691cb390eb9c90a1241b74930ceacac0f054db3d8fd244bc"
+  "KindredUITests/KindredUITests.swift": "b1bb175534cd59fd9aeea85e3241949faf4979ec705345e0bd3217a444e4e114"
 }

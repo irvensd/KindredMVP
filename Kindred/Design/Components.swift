@@ -118,8 +118,16 @@ struct PhotoGallery: View {
                     }.animation(reduceMotion ? nil : .easeInOut(duration: 0.28), value: selection)
                 }
                 if !typeSize.isAccessibilitySize {
-                    LinearGradient(colors: [.clear, .black.opacity(0.12), .black.opacity(0.85)], startPoint: .center, endPoint: .bottom).allowsHitTesting(false)
-                    identity(color: .white).padding(24).padding(.bottom, 4).allowsHitTesting(false)
+                    identity(color: .white).padding(24).padding(.bottom, 4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background {
+                            LinearGradient(stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .black.opacity(0.68), location: 0.15),
+                                .init(color: .black.opacity(0.92), location: 1)
+                            ], startPoint: .top, endPoint: .bottom)
+                            .padding(.top, -40)
+                        }.allowsHitTesting(false)
                 }
                 VStack {
                     HStack(alignment: .top, spacing: 8) {
