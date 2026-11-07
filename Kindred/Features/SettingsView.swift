@@ -129,6 +129,12 @@ struct DiscoveryPreferencesView: View {
     var body: some View {
         NavigationStack {
             Form {
+                if typeSize.isAccessibilitySize {
+                    Text("Preferences")
+                        .font(.largeTitle.bold())
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityAddTraits(.isHeader)
+                }
                 Section { Text("Your kind of connection").font(.title2.weight(.semibold)); Text("These filters immediately shape the fictional profiles in Discover when you save.").foregroundStyle(Color.muted) }
                 Section {
                     Text("Home city: \(store.state.currentProfile.city)").foregroundStyle(Color.muted)
@@ -152,7 +158,7 @@ struct DiscoveryPreferencesView: View {
                 }
                 Section { RadiusControl(value: $preferences.radiusMiles, showsPreciseAdjustment: true) } footer: { Text("Distances are approximate miles between the selected search city and each fictional member’s home city center. They do not track travel status. Saved preferences stay for this session and reset when the app process relaunches.") }
                 Section { Button("Restore default preferences") { preferences = DiscoveryPreferences() } }
-            }.scrollContentBackground(.hidden).background(Color.paper).navigationTitle("Preferences").navigationBarTitleDisplayMode(.inline)
+            }.scrollContentBackground(.hidden).background(Color.paper).navigationTitle(typeSize.isAccessibilitySize ? "" : "Preferences").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { if hasChanges { confirmDiscard = true } else { dismiss() } } }
                     ToolbarItem(placement: .confirmationAction) { Button("Save") { guard !didSave else { return }; if store.updateDiscovery(preferences) { didSave = true; dismiss() } else { validation = store.errorMessage; store.errorMessage = nil } }.fontWeight(.semibold).accessibilityIdentifier("savePreferences").disabled(didSave) }

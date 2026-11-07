@@ -758,7 +758,16 @@ final class KindredUITests: XCTestCase {
         app.buttons["Done"].tap()
         XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 5))
     }
-    func testResponsiveScreenSmoke() {
+    private func tapAndWait(_ button: XCUIElement, for destination: XCUIElement) -> Bool {
+        guard button.waitForExistence(timeout: 8) else { return false }
+        button.tap()
+        if !destination.waitForExistence(timeout: 3), button.isHittable {
+            button.tap()
+        }
+        return destination.waitForExistence(timeout: 8)
+    }
+
+    func testResponsiveScreenSmoke() throws {
         for options in [[], ["--large-text", "--dark", "--reduce-motion"]] as [[String]] {
             let mode = options.isEmpty ? "standard" : "large-dark"
             launch(demo: false, options: options)
@@ -770,23 +779,51 @@ final class KindredUITests: XCTestCase {
             XCTAssertTrue(app.buttons["passProfile"].isHittable)
             XCTAssertTrue(app.buttons["likeProfile"].isHittable)
             capture("Responsive discover " + mode)
-            app.buttons["discoveryPreferences"].tap()
+            guard tapAndWait(app.buttons["discoveryPreferences"], for: app.buttons["savePreferences"]) else {
+                XCTFail("Discovery preferences did not open")
+                return
+            }
             capture("Responsive preferences " + mode)
             XCTAssertTrue(app.buttons["savePreferences"].isHittable)
             app.buttons["Cancel"].tap()
             app.buttons["likeProfile"].tap()
             XCTAssertTrue(app.buttons["matchSayHello"].waitForExistence(timeout: 3))
             capture("Responsive match " + mode)
-            app.buttons["matchKeepDiscovering"].tap()
-            app.buttons["Likes"].tap(); capture("Responsive likes " + mode)
+            let keepDiscovering = app.buttons["matchKeepDiscovering"]
+            keepDiscovering.tap()
+            if !keepDiscovering.waitForNonExistence(timeout: 3), keepDiscovering.isHittable {
+                keepDiscovering.tap()
+            }
+            guard keepDiscovering.waitForNonExistence(timeout: 8) else {
+                XCTFail("Match celebration did not dismiss")
+                return
+            }
+            let likes = app.tabBars.buttons["Likes"]
+            let likesHeader = app.staticTexts["Good feelings"]
+            likes.tap()
+            if !likesHeader.waitForExistence(timeout: 3), !likes.isSelected { likes.tap() }
+            guard likesHeader.waitForExistence(timeout: 8) else {
+                XCTFail("Likes did not open after the match celebration")
+                return
+            }
+            capture("Responsive likes " + mode)
             let hello = app.buttons["sayHello-amara"]; reveal(hello, attempts: 12)
             XCTAssertTrue(hello.isHittable)
-            app.buttons["You"].tap(); capture("Responsive story " + mode)
-            reveal(app.buttons["editProfile"], attempts: 12); app.buttons["editProfile"].tap()
+            let edit = app.buttons["editProfile"]
+            guard tapAndWait(app.tabBars.buttons["You"], for: edit) else {
+                XCTFail("You did not open")
+                return
+            }
+            capture("Responsive story " + mode)
+            reveal(edit, attempts: 12)
+            guard tapAndWait(edit, for: app.buttons["saveProfile"]) else {
+                XCTFail("Edit profile did not open")
+                return
+            }
             capture("Responsive edit " + mode)
             XCTAssertTrue(app.buttons["saveProfile"].isHittable)
             app.buttons["Cancel"].tap()
-            app.buttons["Chats"].tap(); capture("Responsive chats " + mode)
+            try showChats(); capture("Responsive chats " + mode)
             reveal(app.buttons["conversation-eli"], attempts: 12); app.buttons["conversation-eli"].tap()
             let composer = app.textFields["messageComposer"]
             composer.tap(); composer.typeText("Hello")
@@ -1480,18 +1517,28 @@ final class KindredUITests: XCTestCase {
     }
     func testPreferencesAndChatsLargeTextVisualChecks() throws {
         launch(options: ["--dark", "--large-text", "--reduce-motion"])
-        app.buttons["discoveryPreferences"].tap()
-        capture("Preferences dark large text top")
-        let radius = app.sliders["Discovery radius"]; reveal(radius)
-        capture("Preferences dark large text radius")
-        try app.performAccessibilityAudit(for: [.sufficientElementDescription, .textClipped]) { issue in
-            // iOS 26.1 flags the native title's bounds even though the exported
-            // element and screen captures show every letter of “Preferences”.
-            // Exempt only this inspected native-title result; all other issues fail.
-            issue.auditType == .textClipped && issue.element?.label == "Preferences"
+        let save = app.buttons["savePreferences"]
+        guard tapAndWait(app.buttons["discoveryPreferences"], for: save) else {
+            XCTFail("Discovery preferences did not open")
+            return
         }
+        capture("Preferences dark large text top")
+        let radius = app.sliders["Discovery radius"]
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+        for _ in 0..<15 {
+            if radius.isHittable { break }
+            start.press(forDuration: 0, thenDragTo: end, withVelocity: .default, thenHoldForDuration: 0)
+        }
+        guard radius.isHittable else {
+            capture("Discovery radius did not become reachable")
+            XCTFail("The Discovery radius slider must be reachable before auditing the form")
+            return
+        }
+        capture("Preferences dark large text radius")
+        try app.performAccessibilityAudit(for: [.sufficientElementDescription, .textClipped])
         app.buttons["Cancel"].tap()
-        app.tabBars.buttons["Chats"].tap(); capture("Chats dark large text")
+        try showChats(); capture("Chats dark large text")
         app.buttons["conversation-eli"].tap(); capture("Conversation dark large text")
         XCTAssertTrue(app.textFields["messageComposer"].isHittable)
         try app.performAccessibilityAudit(for: [.sufficientElementDescription, .textClipped])
