@@ -195,6 +195,8 @@ private struct DiscoveryActionBar: View {
             }
         }.frame(maxWidth: .infinity).padding(typeSize.isAccessibilitySize ? 8 : 5)
             .glassEffect(.regular.tint(Color.paper.opacity(0.65)), in: RoundedRectangle(cornerRadius: 26))
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("discoveryActionPanel")
     }
 
     private func nextButton(name: String, compact: Bool) -> some View {

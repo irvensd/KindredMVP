@@ -344,8 +344,8 @@ struct PhotoCropEditor: View {
                 }.padding(24)
             }.background(Color.paper).navigationTitle("Adjust crop").navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { if hasChanges { confirmDiscard = true } else { dismiss() } } }
-                    ToolbarItem(placement: .confirmationAction) { Button("Apply") { guard !didApply else { return }; didApply = true; save(photo); dismiss() }.disabled(didApply) }
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { if hasChanges { confirmDiscard = true } else { dismiss() } }.accessibilityIdentifier("cancelPhotoCrop") }
+                    ToolbarItem(placement: .confirmationAction) { Button("Apply") { guard !didApply else { return }; didApply = true; save(photo); dismiss() }.disabled(didApply).accessibilityIdentifier("applyPhotoCrop") }
                 }
                 .background(SheetDismissalGuard(hasChanges: hasChanges) { confirmDiscard = true })
                 .alert("Discard changes?", isPresented: $confirmDiscard) {

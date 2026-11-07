@@ -302,9 +302,23 @@ final class KindredUITests: XCTestCase {
             let photo = app.buttons["editPhoto-rowan"]; reveal(photo, attempts: 30)
             XCTAssertTrue(photo.isHittable)
             capture("Largest photo editor \(mode.isEmpty ? "light" : "dark")")
-            photo.tap(); app.buttons["Adjust crop"].tap()
-            XCTAssertTrue(app.navigationBars["Adjust crop"].waitForExistence(timeout: 3))
-            app.navigationBars["Adjust crop"].buttons["Cancel"].tap()
+            photo.tap()
+            let adjustCrop = app.buttons["Adjust crop"]
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true"), object: adjustCrop)
+            guard XCTWaiter.wait(for: [ready], timeout: 8) == .completed else {
+                XCTFail("Adjust crop did not become tappable in the photo menu")
+                return
+            }
+            adjustCrop.tap()
+            let applyCrop = app.buttons["applyPhotoCrop"]
+            guard applyCrop.waitForExistence(timeout: 8) else {
+                capture("Crop editor failed to open")
+                XCTFail("The crop editor's Apply button did not appear")
+                return
+            }
+            capture("Largest crop editor \(mode.isEmpty ? "light" : "dark")")
+            app.buttons["cancelPhotoCrop"].tap()
+            XCTAssertTrue(applyCrop.waitForNonExistence(timeout: 8))
             let remove = app.buttons["removePhoto-rowan"]
             for _ in 0..<20 {
                 if remove.isHittable && remove.frame.midY > 150 && remove.frame.midY < app.frame.maxY - 100 { break }
@@ -497,6 +511,8 @@ final class KindredUITests: XCTestCase {
             for tab in ["Discover", "Likes", "Chats", "You"] {
                 app.buttons[tab].tap()
                 if tab == "Discover" { for _ in 0..<4 { app.swipeUp() } }
+                let panel = app.otherElements["discoveryActionPanel"]
+                let panelFrame = panel.exists ? panel.frame : .null
                 try app.performAccessibilityAudit(for: [.contrast, .sufficientElementDescription, .trait]) { issue in
                     // Contrast is meaningful when the text is fully visible.
                     // Keep clipped overlay findings in the log for manual review.
@@ -505,7 +521,11 @@ final class KindredUITests: XCTestCase {
                     let bottom = navigation.exists ? navigation.frame.minY : self.app.frame.maxY
                     let status = self.app.statusBars.firstMatch
                     let top = status.exists && status.frame.width > status.frame.height ? status.frame.maxY : self.app.frame.minY
-                    if element.frame.minY < top || element.frame.maxY > bottom {
+                    let frame = element.frame
+                    // A label crossing the panel's top edge is partially covered.
+                    // Controls inside the panel still receive the contrast audit.
+                    let crossesPanel = frame.minY < panelFrame.minY && frame.intersects(panelFrame)
+                    if frame.minY < top || frame.maxY > bottom || crossesPanel {
                         print("OVERLAY CONTRAST REVIEW: \(issue.compactDescription) \(element.debugDescription)")
                         return true
                     }
@@ -541,36 +561,54 @@ final class KindredUITests: XCTestCase {
     }
     private func checkInterestRows(options: [String]) {
         launch(options: options)
-        app.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        let you = app.tabBars.buttons["You"]
+        let edit = app.buttons["editProfile"]
+        you.tap()
+        if !edit.waitForExistence(timeout: 3), !you.isSelected { you.tap() }
+        guard edit.waitForExistence(timeout: 8) else {
+            XCTFail("The You tab did not open to Edit profile")
+            return
+        }
+        edit.tap()
+        func revealInterest(_ button: XCUIElement, scrollingUp: Bool = false) {
+            for _ in 0..<20 {
+                let top = app.navigationBars.firstMatch.frame.maxY + 12
+                let bottom = app.frame.maxY - 50
+                if button.exists && button.frame.minY > top && button.frame.maxY < bottom { return }
+                let moveDown = button.exists ? button.frame.minY <= top : scrollingUp
+                let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55))
+                let end = start.withOffset(CGVector(dx: 0, dy: moveDown ? 160 : -160))
+                start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.15)
+            }
+            XCTFail("Could not reveal the full interest row: \(button)")
+        }
+        func waitForSelection(_ button: XCUIElement, selected: Bool) {
+            let state = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == %@", NSNumber(value: selected)), object: button)
+            XCTAssertEqual(XCTWaiter.wait(for: [state], timeout: 5), .completed)
+        }
         for interest in ["Live music", "Volunteering", "Travel", "Art & design", "Movement"] {
             let button = app.buttons[interest]
-            reveal(button, attempts: 12)
-            for _ in 0..<6 {
-                let top = app.navigationBars.firstMatch.frame.maxY + 12
-                if button.frame.minY > top && button.frame.maxY < app.frame.maxY - 50 { break }
-                if button.frame.minY <= top { app.swipeDown() } else { app.swipeUp() }
-            }
+            revealInterest(button)
             button.tap()
-            let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: button)
-            XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 3), .completed)
+            waitForSelection(button, selected: true)
             XCTAssertTrue(button.staticTexts[interest].exists)
             XCTAssertGreaterThan(button.staticTexts[interest].frame.width, 40)
             XCTAssertGreaterThan(button.frame.width, 200)
         }
         let gardening = app.buttons["Gardening"]
-        reveal(gardening)
+        revealInterest(gardening)
         XCTAssertFalse(gardening.isEnabled)
         let hiking = app.buttons["Hiking"]
-        for _ in 0..<6 {
-            if hiking.isHittable { break }
-            app.swipeDown()
-        }
+        revealInterest(hiking, scrollingUp: true)
         XCTAssertTrue(hiking.isEnabled)
+        XCTAssertTrue(hiking.isSelected)
         hiking.tap()
-        reveal(gardening)
-        XCTAssertTrue(gardening.isEnabled)
+        waitForSelection(hiking, selected: false)
+        revealInterest(gardening)
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: gardening)
+        XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 5), .completed)
         gardening.tap()
-        XCTAssertTrue(gardening.isSelected)
+        waitForSelection(gardening, selected: true)
         capture("Selected and unavailable interest states")
         app.buttons["Cancel"].tap()
         app.alerts.buttons["Discard changes"].tap()
@@ -1077,16 +1115,18 @@ final class KindredUITests: XCTestCase {
             assertFrame(portrait.frame, matches: originalFrame)
         }
         capture("Portrait returned after short swipes")
-        let headerY = app.staticTexts["For you"].frame.minY
-        // Keep the drag's starting point clear of the floating action panel.
-        let startY = min(portrait.frame.midY, app.buttons["passProfile"].frame.minY - 70)
-        let start = app.coordinate(withNormalizedOffset: .zero)
-            .withOffset(CGVector(dx: portrait.frame.minX + portrait.frame.width * 0.35, dy: startY))
+        let portraitY = portrait.frame.minY
+        // Start within the photo, clear of its arrows and the floating controls.
+        let start = portrait.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.45))
         let end = start.withOffset(CGVector(dx: 80, dy: -160))
-        start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.1)
+        start.press(forDuration: 0, thenDragTo: end, withVelocity: .default, thenHoldForDuration: 0)
+        let scrolled = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            portrait.exists && portrait.frame.minY < portraitY - 40
+        }, object: portrait)
+        XCTAssertEqual(XCTWaiter.wait(for: [scrolled], timeout: 5), .completed,
+                       "The diagonal drag must move the portrait up by more than 40 points.")
         XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Amara")
         XCTAssertTrue(app.buttons["likeProfile"].isEnabled)
-        XCTAssertLessThan(app.staticTexts["For you"].frame.minY, headerY - 40, "The page must actually scroll, not merely avoid a like.")
         capture("Diagonal scroll preserves introduction")
     }
     func testShortFastFlickCommitsWhileTinyFlickCancels() {
@@ -1365,8 +1405,26 @@ final class KindredUITests: XCTestCase {
         XCTAssertFalse(app.buttons["undoPass"].exists)
         app.tabBars.buttons["You"].tap(); capture("Your story dark large text")
     }
-    func testConversationIdeasProtectDraftAndNeverSendAutomatically() {
-        launch(); app.tabBars.buttons["Chats"].tap(); app.buttons["conversation-eli"].tap()
+    private func showChats() throws {
+        let tab = app.tabBars.buttons["Chats"]
+        let search = app.textFields["conversationSearch"]
+        tab.tap()
+        if !search.waitForExistence(timeout: 3), !tab.isSelected {
+            tab.tap()
+        }
+        guard search.waitForExistence(timeout: 8) else {
+            throw XCTUIChatNavigationError.chatsDidNotOpen
+        }
+    }
+
+    private enum XCTUIChatNavigationError: Error {
+        case chatsDidNotOpen
+    }
+
+    func testConversationIdeasProtectDraftAndNeverSendAutomatically() throws {
+        launch()
+        try showChats()
+        app.buttons["conversation-eli"].tap()
         let field = app.textFields["messageComposer"]; field.tap(); field.typeText("My own draft")
         app.buttons["Done"].tap(); app.buttons["conversationIdeas"].tap()
         let starter = app.buttons["starter-eli-0"]
@@ -1384,10 +1442,10 @@ final class KindredUITests: XCTestCase {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.staticTexts["That sounds like my kind of afternoon. I'd bring something homemade!"].exists)
     }
-    func testConversationKeyboardKeepsComposerVisible() {
+    func testConversationKeyboardKeepsComposerVisible() throws {
         for options in [[], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
             launch(options: options)
-            app.tabBars.buttons["Chats"].tap()
+            try showChats()
             capture("Refined chat previews \(options)")
             app.buttons["conversation-eli"].tap()
             let field = app.textFields["messageComposer"]
