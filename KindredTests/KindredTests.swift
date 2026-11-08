@@ -56,6 +56,44 @@ struct KindredTests {
         s.resetPasses()
         #expect(s.discoveryEmptyReason == .unavailable)
     }
+    @Test func savedAccountNameStartsProfileSetupBeforeDiscover() {
+        let s = store()
+        let name = String(repeating: "a", count: 60)
+        s.startAccountOnboarding(displayName: name)
+        #expect(s.isOnboarding)
+        #expect(!s.hasCompletedOnboarding)
+        #expect(s.onboardingStep == 0)
+        #expect(s.onboarding.name == name)
+        #expect(s.onboarding.genders.isEmpty)
+        #expect(s.onboarding.photos.isEmpty)
+    }
+
+    @Test func realAccountStartsEmptyAndKeepsDemoDataSeparate() {
+        let s = store()
+        s.startAccountOnboarding(displayName: "Taylor")
+        #expect(!s.completeOnboarding())
+        s.onboarding.acknowledgedAdult = true
+        s.onboarding.birthDate = Date(timeIntervalSince1970: 0)
+        s.onboarding.gender = .male
+        s.onboarding.genders = [.female]
+        s.onboarding.city = "Oak Park, IL"
+        s.onboarding.intention = .relationship
+        s.onboarding.photos = [.init(id: "own-photo", localData: Data([1]), caption: "Selected photo")]
+        #expect(s.completeOnboarding())
+        #expect(!s.isDemoSession)
+        #expect(s.state.currentProfile.name == "Taylor")
+        #expect(s.state.currentProfile.bio.isEmpty)
+        #expect(s.state.currentProfile.occupation.isEmpty)
+        #expect(s.state.currentProfile.interests.isEmpty)
+        #expect(s.state.currentProfile.prompts.allSatisfy { $0.answer.isEmpty })
+        #expect(s.state.currentProfile.photos.map(\.id) == ["own-photo"])
+        #expect(s.state.members.isEmpty && s.state.likes.isEmpty && s.state.matches.isEmpty && s.state.conversations.isEmpty)
+        s.returnToWelcome()
+        #expect(s.isDemoSession)
+        #expect(s.state.currentProfile.name == "Alex")
+        #expect(!s.state.members.isEmpty && !s.state.conversations.isEmpty)
+    }
+
     @Test func profileValidationIdentifiesFieldsAndPreservesOptionalBlanks() {
         let s = store(); var p = s.state.currentProfile
         p.name = " "; p.city = "x"; p.bio = String(repeating: "a", count: 501)
@@ -63,7 +101,7 @@ struct KindredTests {
         p.prompts[1].answer = "Hi"; p.photos = []
         #expect(p.validationIssues.map(\.id) == ["name", "city", "bio", "faith", "prompt-" + p.prompts[1].id, "photos"])
         #expect(!s.updateProfile(p)); #expect(s.state.currentProfile.name == "Alex")
-        p.name = String(repeating: "a", count: 40); p.city = "NY"
+        p.name = String(repeating: "a", count: 60); p.city = "NY"
         p.bio = String(repeating: "a", count: 500); p.faith.meaning = String(repeating: "a", count: 300)
         p.prompts[0].answer = "     "; p.prompts[1].answer = "Hello"; p.prompts[2].answer = String(repeating: "a", count: 240)
         p.photos = s.state.currentProfile.photos

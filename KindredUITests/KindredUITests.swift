@@ -653,7 +653,7 @@ final class KindredUITests: XCTestCase {
         app.buttons["conversation-eli"].tap()
         let composer = app.textFields["messageComposer"]
         composer.tap(); composer.typeText("A question for Eli")
-        app.buttons["Done"].tap()
+        dismissChatKeyboard()
         app.navigationBars.buttons.element(boundBy: 0).tap()
         app.tabBars.buttons["You"].tap(); app.tabBars.buttons["Chats"].tap()
         app.buttons["conversation-eli"].tap()
@@ -755,7 +755,7 @@ final class KindredUITests: XCTestCase {
         field.typeText("Hello")
         capture("Duo review keyboard")
         XCTAssertTrue(app.buttons["sendMessage"].isHittable)
-        app.buttons["Done"].tap()
+        dismissChatKeyboard()
         XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 5))
     }
     private func tapAndWait(_ button: XCUIElement, for destination: XCUIElement) -> Bool {
@@ -765,6 +765,40 @@ final class KindredUITests: XCTestCase {
             button.tap()
         }
         return destination.waitForExistence(timeout: 8)
+    }
+
+    func testFaithChoicesCanBeChangedAndSaved() {
+        launch()
+        let edit = app.buttons["editProfile"]
+        guard tapAndWait(app.tabBars.buttons["You"], for: edit),
+              tapAndWait(edit, for: app.buttons["saveProfile"]) else {
+            XCTFail("Edit Profile did not open")
+            return
+        }
+        for (label, choice) in [("My Sabbath rhythm", "Worship & community"), ("Around the table", "Plant-based")] {
+            let field = app.buttons[label]
+            reveal(field, attempts: 24)
+            let option = app.buttons[choice]
+            guard tapAndWait(field, for: option) else {
+                XCTFail("Choices did not open for \(label)")
+                return
+            }
+            reveal(option)
+            option.tap()
+            XCTAssertEqual(field.value as? String, choice)
+        }
+        app.buttons["saveProfile"].tap()
+        guard edit.waitForExistence(timeout: 8),
+              tapAndWait(edit, for: app.buttons["saveProfile"]) else {
+            XCTFail("Could not reopen the saved profile")
+            return
+        }
+        let sabbath = app.buttons["My Sabbath rhythm"]
+        reveal(sabbath, attempts: 24)
+        XCTAssertEqual(sabbath.value as? String, "Worship & community")
+        let table = app.buttons["Around the table"]
+        reveal(table, attempts: 8)
+        XCTAssertEqual(table.value as? String, "Plant-based")
     }
 
     func testResponsiveScreenSmoke() throws {
@@ -1251,7 +1285,7 @@ final class KindredUITests: XCTestCase {
         app.buttons["sendMessage"].tap()
         XCTAssertTrue(app.staticTexts["messageDay"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.keyboards.firstMatch.exists, "Sending keeps the active composer ready")
-        app.buttons["Done"].tap(); capture("Conversation with date and saved message")
+        dismissChatKeyboard(); capture("Conversation with date and saved message")
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertEqual(app.buttons.matching(identifier: "conversation-amara").count, 1)
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'You: Hi Amara!'")).firstMatch.exists)
@@ -1463,7 +1497,7 @@ final class KindredUITests: XCTestCase {
         try showChats()
         app.buttons["conversation-eli"].tap()
         let field = app.textFields["messageComposer"]; field.tap(); field.typeText("My own draft")
-        app.buttons["Done"].tap(); app.buttons["conversationIdeas"].tap()
+        dismissChatKeyboard(); app.buttons["conversationIdeas"].tap()
         let starter = app.buttons["starter-eli-0"]
         XCTAssertTrue(starter.waitForExistence(timeout: 3)); XCTAssertTrue(starter.isHittable)
         starter.tap()
@@ -1475,10 +1509,19 @@ final class KindredUITests: XCTestCase {
         XCTAssertFalse(starter.exists, "Choosing an idea returns attention to the editable draft")
         XCTAssertLessThanOrEqual(field.frame.maxY, app.keyboards.firstMatch.frame.minY + 1)
         capture("Conversation starter focused composer")
-        app.buttons["Done"].tap()
+        dismissChatKeyboard()
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.staticTexts["That sounds like my kind of afternoon. I'd bring something homemade!"].exists)
     }
+    private func dismissChatKeyboard() {
+        XCTAssertFalse(app.navigationBars.buttons["Done"].exists)
+        let top = app.navigationBars.firstMatch.frame.maxY
+        let bottom = app.textFields["messageComposer"].frame.minY
+        let point = CGVector(dx: app.frame.width / 2, dy: (top + bottom) / 2 - app.frame.minY)
+        app.coordinate(withNormalizedOffset: .zero).withOffset(point).tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 5))
+    }
+
     func testConversationKeyboardKeepsComposerVisible() throws {
         for options in [[], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
             launch(options: options)
@@ -1491,14 +1534,14 @@ final class KindredUITests: XCTestCase {
             XCTAssertLessThanOrEqual(field.frame.maxY, app.keyboards.firstMatch.frame.minY + 1)
             XCTAssertTrue(app.buttons["sendMessage"].isHittable)
             capture("Refined multiline composer \(options)")
-            app.buttons["Done"].tap()
+            dismissChatKeyboard()
             XCTAssertTrue(field.isHittable)
             field.tap()
             XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
             XCTAssertTrue((field.value as? String)?.contains("thoughtful question") == true)
             app.buttons["sendMessage"].tap()
             XCTAssertTrue(app.keyboards.firstMatch.exists)
-            app.buttons["Done"].tap()
+            dismissChatKeyboard()
             app.navigationBars.buttons.element(boundBy: 0).tap()
             XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'You: A thoughtful question'")).firstMatch.exists)
         }

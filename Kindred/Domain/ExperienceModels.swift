@@ -72,7 +72,7 @@ extension Like {
 
 
 // Offline city-center estimates for the prototype's supported search areas.
-enum SearchCity: String, CaseIterable, Identifiable, Sendable {
+enum SearchCity: String, CaseIterable, Identifiable, Codable, Sendable {
     case chicago = "Chicago, IL", evanston = "Evanston, IL", oakPark = "Oak Park, IL"
     case madison = "Madison, WI", atlanta = "Atlanta, GA", dallas = "Dallas, TX"
     case newYork = "New York, NY", lomaLinda = "Loma Linda, CA"
@@ -102,7 +102,7 @@ enum SearchCity: String, CaseIterable, Identifiable, Sendable {
         return Int((3958.8 * 2 * asin(sqrt(min(1, max(0, a))))).rounded())
     }
 }
-enum LocationStatus: String, CaseIterable, Identifiable, Sendable {
+enum LocationStatus: String, CaseIterable, Identifiable, Codable, Sendable {
     case home = "None", visiting = "Visiting", moving = "Moving to"
     var id: String { rawValue }
 }
@@ -112,7 +112,7 @@ extension MemberProfile {
     }
 }
 
-enum DistanceOpenness: String, CaseIterable, Identifiable, Sendable {
+enum DistanceOpenness: String, CaseIterable, Identifiable, Codable, Sendable {
     case unspecified = "Not shared"
     case local = "Prefer local connections"
     case longDistance = "Open to long distance"

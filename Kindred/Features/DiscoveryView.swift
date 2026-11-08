@@ -29,13 +29,13 @@ struct DiscoverView: View {
                         if typeSize.isAccessibilitySize {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Discovery preferences").font(.headline)
-                                Text("Within \(store.state.discovery.radiusMiles) miles of \(store.state.discovery.searchCity.rawValue)")
+                                Text(store.isDemoSession ? "Within \(store.state.discovery.radiusMiles) miles of \(store.discoverySearchLocation)" : "Within \(store.state.discovery.radiusMiles) miles")
                                 Text("Ages \(store.state.discovery.dating.minimumAge)–\(store.state.discovery.dating.maximumAge)")
                             }.frame(maxWidth: .infinity, alignment: .leading)
                         } else {
                             HStack(spacing: 8) {
                                 Image(systemName: "slider.horizontal.3")
-                                Text("Within \(store.state.discovery.radiusMiles) miles of \(store.state.discovery.searchCity.rawValue)")
+                                Text(store.isDemoSession ? "Within \(store.state.discovery.radiusMiles) miles of \(store.discoverySearchLocation)" : "Within \(store.state.discovery.radiusMiles) miles")
                                 Text("·")
                                 Text("Ages \(store.state.discovery.dating.minimumAge)–\(store.state.discovery.dating.maximumAge)")
                                 Spacer(minLength: 0)
@@ -49,13 +49,13 @@ struct DiscoverView: View {
                         DiscoveryPortrait(profile: profile, selectedPhoto: $selectedPhoto, isLiked: store.isLiked(profile.id), next: skip, interested: { store.like(profile.id) })
                         ViewThatFits(in: .horizontal) {
                             HStack {
-                            Label("Seventh-day Adventist", systemImage: "leaf").font(.footnote.weight(.medium)).foregroundStyle(Color.plum)
+                            if store.isDemoSession { Label("Seventh-day Adventist", systemImage: "leaf").font(.footnote.weight(.medium)).foregroundStyle(Color.plum) }
                             Spacer()
-                            Text("About \(profile.distanceMiles) mi from \(store.state.discovery.searchCity.rawValue)").font(.caption).foregroundStyle(Color.muted)
+                            Text("About \(profile.distanceMiles) mi from \(store.discoverySearchLocation)").font(.caption).foregroundStyle(Color.muted)
                             }
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("Seventh-day Adventist").font(.footnote).foregroundStyle(Color.plum)
-                                Text("About \(profile.distanceMiles) mi from \(store.state.discovery.searchCity.rawValue)").font(.caption).foregroundStyle(Color.muted)
+                                Text("About \(profile.distanceMiles) mi from \(store.discoverySearchLocation)").font(.caption).foregroundStyle(Color.muted)
                             }
                         }
                         DistancePreferencesSummary(profile: profile)
@@ -68,23 +68,35 @@ struct DiscoverView: View {
 
                     }.id(profile.id)
                         .transition(reduceMotion ? .opacity : .opacity.combined(with: .offset(x: transitionDirection * 20)))
+                } else if store.isRefreshingDiscovery {
+                    ProgressView("Finding introductions…").frame(maxWidth: .infinity)
+                } else if let error = store.discoveryLoadError {
+                    EmptyState(symbol: "wifi.exclamationmark", title: "Discover couldn’t load", message: error)
+                    PrimaryButton(title: "Try again") { Task { await store.refreshDiscovery() } }
                 } else {
                     switch store.discoveryEmptyReason {
                     case .paused:
                         EmptyState(symbol: "pause.circle", title: "A little breathing room", message: "Discovery is paused. Resume whenever you're ready.")
-                        PrimaryButton(title: "Resume discovery") { var privacy = store.state.privacy; privacy.discoveryPaused = false; store.updatePrivacy(privacy) }
+                        PrimaryButton(title: "Resume discovery") {
+                            var privacy = store.state.privacy
+                            privacy.discoveryPaused = false
+                            if store.isDemoSession { store.updatePrivacy(privacy) }
+                            else { Task { _ = await store.savePrivacyChanges(privacy) } }
+                        }
                     case .filters:
                         EmptyState(symbol: "slider.horizontal.3", title: "No profiles match your preferences", message: "None of the available fictional members fit your current age, gender and distance preferences. Adjust your filters to explore this demo circle.")
                         PrimaryButton(title: "Adjust preferences") { showPreferences = true }
                     case .seenEveryone:
-                        EmptyState(symbol: "checkmark.circle", title: "You've seen everyone for now", message: "You've passed every available profile that fits your preferences. Revisit them or adjust your filters to explore further.")
-                        PrimaryButton(title: "Revisit passed profiles") { store.resetPasses(); lastPassedID = nil }
+                        EmptyState(symbol: "checkmark.circle", title: "You've seen everyone for now", message: store.isDemoSession ? "You've passed every available profile that fits your preferences. Revisit them or adjust your filters to explore further." : "There are no more profiles to browse with your current preferences.")
+                        if store.isDemoSession || !store.state.passedIDs.isEmpty {
+                            PrimaryButton(title: "Revisit passed profiles") { store.resetPasses(); lastPassedID = nil }
+                        }
                         Button("Adjust preferences") { showPreferences = true }.frame(maxWidth: .infinity, minHeight: 44)
                     case .unavailable, nil:
-                        EmptyState(symbol: "sparkles", title: "No profiles available", message: "There are no new introductions available in this demo session. Find your connections in Likes or Chats. Matched, unmatched and blocked members stay out of Discover.")
+                        EmptyState(symbol: "sparkles", title: "No profiles available", message: store.isDemoSession ? "There are no new introductions available in this demo session. Find your connections in Likes or Chats. Matched, unmatched and blocked members stay out of Discover." : "There are no introductions available yet.")
                     }
                 }
-                NoteCard(symbol: "sparkles", text: "Demo experience · Fictional members and activity. AI-generated portraits.")
+                if store.isDemoSession { NoteCard(symbol: "sparkles", text: "Demo experience · Fictional members and activity. AI-generated portraits.") }
             }.padding(24)
         }.background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -95,8 +107,15 @@ struct DiscoverView: View {
                 }
             }
             .onAppear { selectedID = current?.id }
-            .onChange(of: store.state.likes.count) { old, new in
-                if new > old { scheduleAdvance() } else { cancelAdvance() }
+            .task(id: isActive && scenePhase == .active && !showPreferences) {
+                if isActive && scenePhase == .active && !showPreferences { await store.refreshDiscovery() }
+            }
+            .onChange(of: store.state.privacy.discoveryPaused) { _, paused in
+                if !paused { Task { await store.refreshDiscovery() } }
+            }
+            .refreshable { await store.refreshDiscovery() }
+            .onChange(of: store.discoveryLikeAcknowledgement) { _, saved in
+                if let saved { scheduleAdvance(afterLiking: saved.memberID) }
             }
             .onDisappear { cancelAdvance() }
             .onChange(of: scenePhase) { _, phase in if phase != .active { cancelAdvance() } }
@@ -113,11 +132,10 @@ struct DiscoverView: View {
         advanceTask?.cancel()
         advanceTask = nil
     }
-    private func scheduleAdvance() {
+    private func scheduleAdvance(afterLiking id: String) {
+        guard isActive, scenePhase == .active, !showPreferences, current?.id == id,
+              !store.isMatched(id) else { return }
         cancelAdvance()
-        guard isActive, scenePhase == .active, !showPreferences, let id = selectedID,
-              let like = store.state.likes.last, like.senderID == "me", like.recipientID == id,
-              store.isLiked(id), !store.isMatched(id) else { return }
         let token = advanceToken
         var delay = 900
         #if DEBUG
@@ -126,8 +144,11 @@ struct DiscoverView: View {
         advanceTask = Task { @MainActor in
             do { try await Task.sleep(for: .milliseconds(delay)) } catch { return }
             guard !Task.isCancelled, advanceToken == token, isActive, scenePhase == .active, !showPreferences,
-                  selectedID == id, store.isLiked(id), !store.isMatched(id) else { return }
-            withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) { selectedID = nil }
+                  current?.id == id, (!store.isDemoSession || store.isLiked(id)), !store.isMatched(id) else { return }
+            withAnimation(reduceMotion ? nil : .smooth(duration: 0.32)) {
+                store.advancePastLikedMember(id)
+                selectedID = nil
+            }
         }
     }
     private var undoName: String? {
@@ -331,7 +352,7 @@ struct ProfileDetailView: View {
                             if !profile.faith.meaning.trimmed.isEmpty { Text(profile.faith.meaning).font(.body).lineSpacing(4) }
                             if profile.faith.sabbath != .shareLater { Label(profile.faith.sabbath.rawValue, systemImage: "sun.horizon").font(.subheadline) }
                             if profile.faith.food != .privateChoice { Label(profile.faith.food.rawValue, systemImage: "leaf").font(.subheadline) }
-                            Text("Seventh-day Adventist · Shared values, never a score").font(.caption).foregroundStyle(Color.muted)
+                            Text(store.isDemoSession ? "Seventh-day Adventist · Shared values, never a score" : "Shared values, never a score").font(.caption).foregroundStyle(Color.muted)
                         }.padding(24).background(Color.surface, in: RoundedRectangle(cornerRadius: 24))
                         }
                         if profile.photos.count > 1 {
@@ -346,7 +367,7 @@ struct ProfileDetailView: View {
                         ForEach(profile.prompts.filter { !$0.answer.trimmed.isEmpty }.dropFirst()) { PromptCard(prompt: $0, memberID: memberID).id(SavedInterestTarget.answer($0.id)) }
                         if memberID != "me" {
                             PrimaryButton(title: store.isLiked(memberID) ? "Interest saved" : "I'm interested", symbol: store.isLiked(memberID) ? "checkmark" : "sparkles", isSaved: store.isLiked(memberID)) { store.like(memberID) }.disabled(store.isLiked(memberID)).accessibilityIdentifier("detailLike")
-                            NoteCard(symbol: "shield", text: "Trust your pace. Report or block anytime from the safety menu above. Reports are only saved locally in this prototype.")
+                            NoteCard(symbol: "shield", text: store.isDemoSession ? "Trust your pace. Report or block anytime from the safety menu above. Reports are only saved locally in this prototype." : "Report or block this profile from the safety menu.")
                         }
                     }.padding(24)
                 }.accessibilityIdentifier("memberProfileScroll")
@@ -385,8 +406,13 @@ struct SafetyMenu: View {
             .modifier(UnmatchConfirmation(memberID: $unmatchID))
             .sheet(isPresented: $report) { ReportView(memberID: memberID) }
             .confirmationDialog("Block \(store.member(memberID)?.name ?? "this profile")?", isPresented: $confirmBlock, titleVisibility: .visible) {
-                Button("Block profile", role: .destructive) { store.block(memberID) }
-            } message: { Text("Their profile, likes, and conversations will be removed from this demo session. Unblocking won't restore old messages.") }
+                Button("Block profile", role: .destructive) {
+                    if store.isDemoSession { store.block(memberID) }
+                    else { Task { await store.blockAccountMember(memberID) } }
+                }
+            } message: {
+                Text(store.isDemoSession ? "Their profile, likes, and conversations will be removed from this demo session. Unblocking won't restore old messages." : "You won’t see each other in Discover. You can unblock them in Safety & support.")
+            }
     }
 }
 struct ReportView: View {
@@ -396,17 +422,40 @@ struct ReportView: View {
     @State private var reason = ReportReason.inappropriate
     @State private var details = ""
     @State private var saved = false
+    @State private var submitting = false
+    @State private var submissionError: String?
     var body: some View {
         NavigationStack {
             Form {
-                Section { Text("Your comfort matters.").font(.title2.weight(.semibold)); Text("This report is stored only in memory. It is not sent to a moderation team or reviewed.").foregroundStyle(Color.muted) }
+                Section { Text("Your comfort matters.").font(.title2.weight(.semibold)); Text(store.isDemoSession ? "This report is stored only in memory. It is not sent to a moderation team or reviewed." : "Your report goes to Kindred. The member you report cannot see it.").foregroundStyle(Color.muted) }
                 Section("What happened?") {
                     Picker("Reason", selection: $reason) { ForEach(ReportReason.allCases) { Text($0.rawValue).tag($0) } }
                     TextField("Optional details (up to 1,000 characters)", text: $details, axis: .vertical).lineLimit(4...8)
                 }
-                Button("Save demo report") { saved = store.report(memberID, reason: reason, details: details) }.disabled(details.count > 1000)
-            }.navigationTitle("Report profile").toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
-                .alert("Saved on this device", isPresented: $saved) { Button("Done") { dismiss() } } message: { Text("No report was transmitted. For immediate safety, you can also block this demo profile.") }
+                Button(store.isDemoSession ? "Save demo report" : submitting ? "Submitting…" : "Submit report") {
+                    if store.isDemoSession {
+                        saved = store.report(memberID, reason: reason, details: details)
+                    } else {
+                        submitting = true
+                        submissionError = nil
+                        Task {
+                            saved = await store.submitLiveReport(memberID, reason: reason, details: details)
+                            if !saved {
+                                submissionError = store.errorMessage ?? "Kindred couldn’t submit this report. Please try again."
+                                store.errorMessage = nil
+                            }
+                            submitting = false
+                        }
+                    }
+                }.disabled(details.count > 1000 || submitting)
+                if let submissionError { Text(submissionError).foregroundStyle(Color.plum) }
+            }.disabled(submitting).interactiveDismissDisabled(submitting).navigationTitle("Report profile")
+                .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.disabled(submitting) } }
+                .alert(store.isDemoSession ? "Saved on this device" : "Report submitted", isPresented: $saved) {
+                    Button("Done") { dismiss() }
+                } message: {
+                    Text(store.isDemoSession ? "No report was transmitted. For immediate safety, you can also block this demo profile." : "Kindred received your report. You can also block this profile from the safety menu.")
+                }
         }
     }
 }
@@ -417,12 +466,15 @@ struct UnmatchConfirmation: ViewModifier {
     func body(content: Content) -> some View {
         content.alert("Unmatch with \(memberID.flatMap { store.member($0)?.name } ?? "this person")?", isPresented: Binding(get: { memberID != nil }, set: { if !$0 { memberID = nil } })) {
             Button("Unmatch", role: .destructive) {
-                if let id = memberID { store.unmatch(id) }
+                if let id = memberID {
+                    if store.isDemoSession { store.unmatch(id) }
+                    else { Task { await store.endLiveConnection(id) } }
+                }
                 memberID = nil
             }
             Button("Keep connection", role: .cancel) { memberID = nil }
         } message: {
-            Text("This removes your connection, both sides’ saved interest, and this chat, including messages and your draft, from this demo session. It cannot be undone in this session. This does not block the person. They will stay out of Discover for the rest of this session.")
+            Text(store.isDemoSession ? "This removes your connection, both sides’ saved interest, and this chat, including messages and your draft, from this demo session. It cannot be undone in this session. This does not block the person. They will stay out of Discover for the rest of this session." : "This ends the connection for both of you. The chat and saved interest will no longer be available, and you won’t see each other in Discover.")
         }
     }
 }

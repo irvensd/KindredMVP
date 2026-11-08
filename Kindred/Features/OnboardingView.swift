@@ -6,6 +6,7 @@ struct OnboardingView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.kindredReduceMotion) private var reduceMotion
     @State private var validation: String?
+    @State private var isSavingProfile = false
     @State private var keyboardVisible = false
     private let titles = ["A little hello.", "Your kind of\nconnection.", "Close by.\nLooking ahead.", "A face to\nyour name."]
     private let subtitles = ["Just the essentials to get started. Your birthday stays private; only your age appears on your profile.", "Choose your gender and who you'd like to meet.", "A general city and an honest intention are a good place to start.", "Choose a photo and take a quick look. Your interests, faith story and prompts can come later."]
@@ -31,10 +32,10 @@ struct OnboardingView: View {
                     if let validation {
                         Label(validation, systemImage: "exclamationmark.circle").font(.subheadline).foregroundStyle(Color.plum).accessibilityIdentifier("onboardingError")
                     }
-                    PrimaryButton(title: store.onboardingStep == OnboardingDraft.stepCount - 1 ? "Start discovering" : "Continue", symbol: "arrow.right") { next() }.accessibilityIdentifier("onboardingNext")
-                    Text("This session only. Nothing is uploaded.").font(.caption2).foregroundStyle(Color.muted)
+                    PrimaryButton(title: isSavingProfile ? "Saving profile…" : store.onboardingStep == OnboardingDraft.stepCount - 1 ? "Start discovering" : "Continue", symbol: "arrow.right") { next() }.accessibilityIdentifier("onboardingNext").disabled(isSavingProfile)
+                    Text(store.isDemoSession ? "This session only. Nothing is uploaded." : "Your profile is saved when you finish setup.").font(.caption2).foregroundStyle(Color.muted)
                 }.padding(.horizontal, 24).padding(.vertical, 12).background(Color.paper)
-            }.background(Color.paper).navigationBarTitleDisplayMode(.inline)
+            }.disabled(isSavingProfile).background(Color.paper).navigationBarTitleDisplayMode(.inline)
                 .onChange(of: store.onboarding.validationError(step: store.onboardingStep)) { _, error in
                     if validation != nil { validation = error }
                 }
@@ -44,8 +45,8 @@ struct OnboardingView: View {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
                             dismissKeyboard(); validation = nil
-                            if store.onboardingStep > 0 { store.onboardingStep -= 1 } else { store.isOnboarding = false }
-                        } label: { Image(systemName: "arrow.left").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("Back")
+                            if store.onboardingStep > 0 { store.onboardingStep -= 1 } else { store.returnToWelcome() }
+                        } label: { Image(systemName: "arrow.left").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("Back").disabled(isSavingProfile)
                     }
                     ToolbarItem(placement: .principal) { HStack(spacing: 6) { BrandMark(size: 18); Text("kindred").font(.system(.headline, design: .rounded)) } }
                     if keyboardVisible { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismissKeyboard() } } }
@@ -60,7 +61,7 @@ struct OnboardingView: View {
                 TextField("First name", text: $store.onboarding.name).textContentType(.givenName).font(.title2).padding(18).background(Color.surface, in: RoundedRectangle(cornerRadius: 18)).accessibilityIdentifier("firstName")
                 DatePicker("Birth date", selection: $store.onboarding.birthDate, in: ...Date(), displayedComponents: .date).accessibilityIdentifier("birthDate")
                 Toggle("I am 18 or older", isOn: $store.onboarding.acknowledgedAdult).font(.headline).padding(18).background(Color.surface, in: RoundedRectangle(cornerRadius: 18)).accessibilityIdentifier("adultAcknowledgment")
-                Text("Be kind. Respect boundaries. This is a local prototype for adults, with fictional members and no real connections.").font(.footnote).foregroundStyle(Color.muted)
+                Text(store.isDemoSession ? "Be kind. Respect boundaries. This is a local prototype for adults, with fictional members and no real connections." : "Kindred is for adults 18 and older.").font(.footnote).foregroundStyle(Color.muted)
             }
         case 1:
             VStack(alignment: .leading, spacing: 22) {
@@ -75,10 +76,10 @@ struct OnboardingView: View {
                 Text("I'm looking for").font(.headline)
                 selectionRows(Intention.allCases, selected: store.onboarding.intention) { store.onboarding.intention = $0 }
                 DisclosureGroup("Within \(store.onboarding.radiusMiles) miles · adjust") { RadiusControl(value: $store.onboarding.radiusMiles).padding(.top, 12) }
-                Text("No precise location needed. Demo distances are sample values around Chicago.").font(.footnote).foregroundStyle(Color.muted)
+                Text(store.isDemoSession ? "No precise location needed. Demo distances are sample values around Chicago." : "Enter your general area. No precise location is needed.").font(.footnote).foregroundStyle(Color.muted)
             }
         default:
-            PhotoEditor(photos: $store.onboarding.photos)
+            PhotoEditor(photos: $store.onboarding.photos, showsDemoPortraits: store.isDemoSession)
             if !store.onboarding.photos.isEmpty {
                 VStack(alignment: .leading, spacing: 14) {
                     Text("Your first impression").font(.headline)
@@ -97,10 +98,22 @@ struct OnboardingView: View {
     }
     private func next() {
         dismissKeyboard()
-        if let error = store.onboarding.validationError(step: store.onboardingStep) { validation = error; return }
+        if let error = store.onboarding.validationError(step: store.onboardingStep) {
+            validation = !store.isDemoSession && store.onboardingStep == 3 ? "Add at least one photo to continue." : error
+            return
+        }
         validation = nil
-        if store.onboardingStep == OnboardingDraft.stepCount - 1 { _ = store.completeOnboarding() }
-        else { withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) { store.onboardingStep += 1 } }
+        if store.onboardingStep == OnboardingDraft.stepCount - 1 {
+            if store.isDemoSession { _ = store.completeOnboarding() }
+            else {
+                guard !isSavingProfile else { return }
+                isSavingProfile = true
+                Task {
+                    defer { isSavingProfile = false }
+                    _ = await store.finishOnboarding()
+                }
+            }
+        } else { withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) { store.onboardingStep += 1 } }
     }
     private func selectionRows<T: RawRepresentable & Identifiable & Equatable>(_ values: [T], selected: T?, action: @escaping (T) -> Void) -> some View where T.RawValue == String {
         VStack(spacing: 12) {
@@ -158,14 +171,8 @@ struct FaithEditor: View {
     var validationMessage: String? = nil
     var body: some View {
         Group {
-            VStack(alignment: .leading) {
-                Text("My Sabbath rhythm").font(.headline)
-                Picker("Sabbath rhythm", selection: $faith.sabbath) { ForEach(SabbathPractice.allCases) { Text($0.rawValue).tag($0) } }.pickerStyle(.menu)
-            }
-            VStack(alignment: .leading) {
-                Text("Around the table").font(.headline)
-                Picker("Food preference", selection: $faith.food) { ForEach(FoodPreference.allCases) { Text($0.rawValue).tag($0) } }.pickerStyle(.menu)
-            }
+            FaithChoice(title: "My Sabbath rhythm", options: SabbathPractice.allCases, selection: $faith.sabbath)
+            FaithChoice(title: "Around the table", options: FoodPreference.allCases, selection: $faith.food)
             VStack(alignment: .leading, spacing: 8) {
             Text("What faith means to me (optional)").font(.headline)
             TextField("Your own words", text: $faith.meaning, axis: .vertical).lineLimit(3...6).padding(16).background(Color.surface, in: RoundedRectangle(cornerRadius: 16))
@@ -175,6 +182,60 @@ struct FaithEditor: View {
         }
     }
 }
+private struct FaithChoice<Option: Identifiable & RawRepresentable & Equatable>: View where Option.RawValue == String {
+    let title: String
+    let options: [Option]
+    @Binding var selection: Option
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button {
+                expanded.toggle()
+            } label: {
+                HStack(alignment: .center, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(title).font(.headline).foregroundStyle(Color.ink)
+                        Text(selection.rawValue).font(.subheadline).foregroundStyle(Color.muted)
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                    Image(systemName: expanded ? "chevron.up" : "chevron.down")
+                        .foregroundStyle(Color.plum).accessibilityHidden(true)
+                }
+                .padding(.vertical, 10)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(KindredPressStyle())
+            .accessibilityLabel(title)
+            .accessibilityValue(selection.rawValue)
+            .accessibilityHint(expanded ? "Hides choices" : "Shows choices")
+
+            if expanded {
+                ForEach(options) { option in
+                    Button {
+                        selection = option
+                        expanded = false
+                    } label: {
+                        HStack(spacing: 12) {
+                            Text(option.rawValue).frame(maxWidth: .infinity, alignment: .leading)
+                            if selection == option {
+                                Image(systemName: "checkmark").accessibilityHidden(true)
+                            }
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(KindredPressStyle())
+                    .foregroundStyle(selection == option ? Color.plum : Color.ink)
+                    .accessibilityAddTraits(selection == option ? .isSelected : [])
+                }
+            }
+        }
+    }
+}
+
 struct PromptEditor: View {
     @Binding var prompts: [ProfilePrompt]
     var issues: [ProfileValidationIssue] = []
@@ -194,6 +255,7 @@ struct PromptEditor: View {
 struct PhotoEditor: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Binding var photos: [ProfilePhoto]
+    let showsDemoPortraits: Bool
     @State private var items: [PhotosPickerItem] = []
     @State private var importing = false
     @State private var importError: String?
@@ -242,16 +304,18 @@ struct PhotoEditor: View {
                 Label("Choose from photo library", systemImage: "photo.badge.plus").font(.headline).frame(maxWidth: .infinity, minHeight: 50)
             }.disabled(importing || photos.count >= 6).buttonStyle(.bordered)
             if importing { ProgressView("Importing photos…") }
-            Text("Or try a fictional demo portrait").font(.subheadline.weight(.medium))
-            HStack(spacing: 12) {
-                ForEach(DemoData.people) { profile in
-                    Button {
-                        guard let photo = profile.photos.first, photos.count < 6, !photos.contains(where: { $0.id == photo.id }) else { return }
-                        photos.append(photo)
-                    } label: { Avatar(profile: profile, size: 58) }.buttonStyle(KindredPressStyle()).accessibilityLabel("Use demo portrait \(profile.name)")
+            if showsDemoPortraits {
+                Text("Or try a fictional demo portrait").font(.subheadline.weight(.medium))
+                HStack(spacing: 12) {
+                    ForEach(DemoData.people) { profile in
+                        Button {
+                            guard let photo = profile.photos.first, photos.count < 6, !photos.contains(where: { $0.id == photo.id }) else { return }
+                            photos.append(photo)
+                        } label: { Avatar(profile: profile, size: 58) }.buttonStyle(KindredPressStyle()).accessibilityLabel("Use demo portrait \(profile.name)")
+                    }
                 }
             }
-            NoteCard(symbol: "lock", text: "Photos stay in memory and are never uploaded. Imported images are resized and stripped of original metadata. AI portraits are for demo use only.")
+            NoteCard(symbol: "lock", text: showsDemoPortraits ? "Photos stay on this device for this session. Imported images are resized and stripped of original metadata." : "Imported photos are resized and stripped of original metadata. Saving your profile shares these photos with eligible members.")
             if let importError { Text(importError).font(.footnote).foregroundStyle(Color.plum) }
         }.confirmationDialog("Edit photo", isPresented: Binding(get: { editingPhoto != nil }, set: { if !$0 { editingPhoto = nil } }), titleVisibility: .visible) {
             if let photo = editingPhoto {

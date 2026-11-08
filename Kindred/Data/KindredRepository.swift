@@ -29,6 +29,19 @@ final class InMemoryKindredRepository: KindredRepository {
         self.state = state ?? DemoData.snapshot(now: now())
     }
     func snapshot() -> SessionSnapshot { state }
+    func replaceMembers(_ members: [MemberProfile]) { state.members = members }
+    func replaceBlocks(_ summaries: [BackendAccount.BlockedMemberSummary]) {
+        state.blocks = summaries.map {
+            Block(memberID: $0.blocked_id.uuidString.lowercased(), createdAt: now(), displayName: $0.display_name)
+        }
+    }
+    func replaceActivity(_ activity: BackendAccount.Activity) {
+        state.likes = activity.likes
+        state.matches = activity.matches
+        state.conversations = activity.conversations
+        state.unmatchedIDs = activity.endedMemberIDs
+    }
+
     private func requireMember(_ id: String) throws {
         guard state.members.contains(where: { $0.id == id }), !state.blocks.contains(where: { $0.memberID == id }) else { throw KindredError.unavailable }
     }
@@ -99,9 +112,7 @@ final class InMemoryKindredRepository: KindredRepository {
         state.currentProfile = normalized
     }
     func updateDiscovery(_ preferences: DiscoveryPreferences) throws {
-        guard preferences.dating.minimumAge >= 18, preferences.dating.maximumAge <= 100,
-              preferences.dating.minimumAge <= preferences.dating.maximumAge,
-              !preferences.dating.genders.isEmpty, (5...250).contains(preferences.radiusMiles) else { throw KindredError.invalid("Choose at least one dating preference and a valid adult age range and radius.") }
+        guard preferences.isValid else { throw KindredError.invalid("Choose at least one dating preference and a valid adult age range and radius.") }
         state.discovery = preferences
     }
     func updatePrivacy(_ preferences: PrivacyPreferences) { state.privacy = preferences }

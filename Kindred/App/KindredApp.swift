@@ -61,6 +61,7 @@ struct RootView: View {
 }
 struct MainTabs: View {
     @Environment(AppStore.self) private var store
+    @Environment(\.scenePhase) private var scenePhase
     private enum Destination: Hashable { case discover, likes, chats, you }
     @State private var selectedTab = Destination.discover
     @State private var chatPath: [String] = []
@@ -69,7 +70,9 @@ struct MainTabs: View {
         @Bindable var store = store
         TabView(selection: $selectedTab) {
             Tab("Discover", systemImage: "sparkles", value: Destination.discover) { NavigationStack { DiscoverView(isActive: selectedTab == .discover) } }
-            Tab("Likes", systemImage: "heart", value: Destination.likes) { NavigationStack { LikesView() } }
+            Tab("Likes", systemImage: "heart", value: Destination.likes) {
+                NavigationStack { LikesView(isActive: selectedTab == .likes) }
+            }.badge(store.unseenLikesCount)
             Tab("Chats", systemImage: "bubble.left.and.bubble.right", value: Destination.chats) {
                 NavigationStack(path: $chatPath) {
                     ChatsView().navigationDestination(for: String.self) { ConversationView(conversationID: $0) }
@@ -77,6 +80,19 @@ struct MainTabs: View {
             }.badge(store.conversations.reduce(0) { $0 + $1.unreadCount })
             Tab("You", systemImage: "person.crop.circle", value: Destination.you) { NavigationStack { YouView() } }
         }.tint(Color.plum)
+            .task(id: scenePhase) {
+                guard !store.isDemoSession, scenePhase == .active else { return }
+                while !Task.isCancelled {
+                    await store.refreshActivity()
+                    do { try await Task.sleep(for: .seconds(12)) }
+                    catch { return }
+                }
+            }
+            .onChange(of: selectedTab) { _, tab in
+                if !store.isDemoSession && (tab == .likes || tab == .chats) {
+                    Task { await store.refreshActivity() }
+                }
+            }
             .fullScreenCover(item: $store.presentedMatch, onDismiss: {
                 if let id = pendingConversation {
                     pendingConversation = nil

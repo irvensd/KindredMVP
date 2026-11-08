@@ -33,7 +33,7 @@ struct OnboardingDraft: Sendable {
     func validationError(step: Int, now: Date = Date()) -> String? {
         switch step {
         case 0:
-            guard (1...40).contains(name.trimmed.count) else { return "Tell us your first name (1–40 characters)." }
+            guard (1...60).contains(name.trimmed.count) else { return "Tell us your first name (1–60 characters)." }
             guard acknowledgedAdult else { return "Please confirm that you are at least 18 to continue." }
             return Self.isEligible(birthDate: birthDate, now: now) ? nil : "Kindred is for adults 18 and older. Check your birth date."
         case 1:
@@ -49,7 +49,7 @@ struct OnboardingDraft: Sendable {
     }
     func profile(now: Date = Date()) -> MemberProfile {
         .init(id: "me", name: name.trimmed, age: Self.age(on: now, birthDate: birthDate), gender: gender ?? .male,
-              city: city.trimmed, distanceMiles: 0, occupation: "A new chapter", bio: "Here for shared faith and genuine connection.",
+              city: city.trimmed, distanceMiles: 0, occupation: "", bio: "",
               intention: intention ?? .intentional, faith: faith, interests: interests, prompts: prompts, photos: photos, isDemo: false)
     }
 }

@@ -17,7 +17,11 @@ struct ChatsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 PageHeader(eyebrow: "Let the conversation unfold", title: "Say hello", subtitle: "Big connections start with small words.")
-                NoteCard(symbol: "bubble.left.and.text.bubble.right", text: "Demo chats · Messages stay in this session and are never delivered.")
+                if let error = store.activityLoadError {
+                    NoteCard(symbol: "wifi.exclamationmark", text: error)
+                    Button("Refresh chats") { Task { await store.refreshActivity() } }
+                }
+                if store.isDemoSession { NoteCard(symbol: "bubble.left.and.text.bubble.right", text: "Demo chats · Messages stay in this session and are never delivered.") }
                 if !store.conversations.isEmpty {
                     VStack(spacing: 14) {
                         HStack(spacing: 10) {
@@ -41,7 +45,7 @@ struct ChatsView: View {
                     }
                 }
                 if store.conversations.isEmpty {
-                    EmptyState(symbol: "bubble.left", title: "Your next hello is waiting", message: "Like back from Likes to start a local chat.")
+                    EmptyState(symbol: "bubble.left", title: "Your next hello is waiting", message: store.isDemoSession ? "Like back from Likes to start a local chat." : "You don’t have any conversations yet.")
                 } else if visibleConversations.isEmpty {
                     EmptyState(
                         symbol: unreadOnly ? "envelope.open" : "magnifyingglass",
@@ -73,7 +77,7 @@ struct ChatsView: View {
                                             Text(conversation.preview).font(.subheadline).foregroundStyle(Color.muted).lineLimit(typeSize.isAccessibilitySize ? nil : 2).multilineTextAlignment(.leading)
                                         }
                                         if conversation.unreadCount > 0 {
-                                            Text("\(conversation.unreadCount)").font(.caption2.bold()).foregroundStyle(Color.onPlum).padding(7).background(Color.plum, in: Circle()).accessibilityLabel("\(conversation.unreadCount) unread sample messages")
+                                            Text("\(conversation.unreadCount)").font(.caption2.bold()).foregroundStyle(Color.onPlum).padding(7).background(Color.plum, in: Circle()).accessibilityLabel("\(conversation.unreadCount) unread messages")
                                         }
                                     }.padding(.vertical, 18)
                                 }.buttonStyle(KindredPressStyle()).accessibilityIdentifier("conversation-\(conversation.memberID)")
@@ -91,6 +95,7 @@ struct ChatsView: View {
             }.padding(24)
         }.scrollDismissesKeyboard(.interactively)
             .onDisappear { searching = false }
+            .refreshable { await store.refreshActivity() }
             .background(Color.paper).scrollEdgeEffectStyle(.hard, for: .bottom).modifier(StatusAreaProtection()).toolbar(.hidden, for: .navigationBar)
     }
     private func previewDate(_ date: Date) -> String {
@@ -122,7 +127,7 @@ struct ConversationView: View {
                             }.frame(maxWidth: .infinity).padding(.vertical, 18)
                             if conversation.messages.isEmpty {
                                 Text("Your conversation starts here").font(.headline).accessibilityAddTraits(.isHeader)
-                                Text("A thoughtful question is enough. This demo won't generate replies.").font(.subheadline).foregroundStyle(Color.muted)
+                                Text(store.isDemoSession ? "A thoughtful question is enough. This demo won't generate replies." : "Start with a hello or ask something about their profile.").font(.subheadline).foregroundStyle(Color.muted)
                             }
                             if !profile.conversationStarters.isEmpty && showStarters {
                                 starterIdeas(profile).id("starterIdeas")
@@ -138,13 +143,18 @@ struct ConversationView: View {
                             }
                             Color.clear.frame(height: 1).id("bottom")
                         }.padding(20)
-                    }.scrollDismissesKeyboard(.interactively)
+                            .contentShape(Rectangle())
+                            .onTapGesture { composing = false }
+                    }
+                        .accessibilityIdentifier("conversationHistory")
+                        .scrollDismissesKeyboard(.interactively)
                         .defaultScrollAnchor(.bottom)
                         .defaultScrollAnchor(.top, for: .alignment)
                         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { _ in
                             if composing { proxy.scrollTo("bottom", anchor: .bottom) }
                         }
-                        .onChange(of: conversation.messages.count) { _, _ in
+                        .onChange(of: conversation.messages.last?.id) { _, _ in
+                            if !store.isDemoSession { store.markRead(conversationID) }
                             withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) { proxy.scrollTo("bottom", anchor: .bottom) }
                         }
                         .onChange(of: showStarters) { _, shown in
@@ -166,14 +176,27 @@ struct ConversationView: View {
                         HStack(alignment: .bottom, spacing: 10) {
                             TextField("Write a message…", text: Binding(get: { draft }, set: { draft = $0 }), axis: .vertical).lineLimit(1...5).focused($composing)
                                 .padding(.horizontal, 16).padding(.vertical, 13).background(Color.surface, in: RoundedRectangle(cornerRadius: 24)).accessibilityIdentifier("messageComposer")
+                                .accessibilityAction(named: "Dismiss keyboard") { composing = false }
                             Button {
-                                if store.send(draft, conversationID: conversationID) { draft = ""; showStarters = false }
+                                if store.isDemoSession {
+                                    if store.send(draft, conversationID: conversationID) { draft = ""; showStarters = false }
+                                } else {
+                                    let text = draft
+                                    Task {
+                                        if await store.sendLive(text, conversationID: conversationID) { showStarters = false }
+                                    }
+                                }
                             } label: { Image(systemName: "arrow.up").font(.headline).frame(width: 48, height: 48).foregroundStyle(Color.onPlum).background(Color.plum, in: Circle()) }
                                 .buttonStyle(KindredPressStyle())
-                                .disabled(draft.trimmed.isEmpty || draft.trimmed.count > 2000).accessibilityLabel("Save demo message").accessibilityIdentifier("sendMessage")
+                                .disabled(draft.trimmed.isEmpty || draft.trimmed.count > 2000 || store.isSending.contains(conversationID))
+                                .accessibilityLabel(store.isDemoSession ? "Save demo message" : "Send message").accessibilityIdentifier("sendMessage")
                         }
-                        Group {
-                            Text(draft.trimmed.count > 2000 ? "Keep your message to 2,000 characters." : "Demo chat · Nothing is sent; replies are not generated.").font(.caption2).foregroundStyle(Color.muted)
+                        if draft.trimmed.count > 2000 {
+                            Text("Keep your message to 2,000 characters.").font(.caption2).foregroundStyle(Color.muted)
+                        } else if store.isDemoSession {
+                            Text("Demo chat · Nothing is sent; replies are not generated.").font(.caption2).foregroundStyle(Color.muted)
+                        } else if store.isSending.contains(conversationID) {
+                            Text("Sending…").font(.caption2).foregroundStyle(Color.muted)
                         }
                     }.padding(.horizontal, 16).padding(.vertical, 10).background(Color.paper)
                 }
@@ -183,9 +206,6 @@ struct ConversationView: View {
         }.background(Color.paper).navigationTitle(conversation.flatMap { store.member($0.memberID)?.name } ?? "Conversation").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if let conversation { ToolbarItem(placement: .topBarTrailing) { SafetyMenu(memberID: conversation.memberID) } }
-                if composing {
-                    ToolbarItem(placement: .topBarTrailing) { Button("Done") { composing = false } }
-                }
             }
             .alert("Replace your draft?", isPresented: Binding(get: { pendingStarter != nil }, set: { if !$0 { pendingStarter = nil } })) {
                 Button("Use suggestion") { if let text = pendingStarter { useStarter(text) }; pendingStarter = nil }
@@ -219,6 +239,7 @@ struct ConversationView: View {
     }
 }
 struct MessageBubble: View {
+    @Environment(AppStore.self) private var store
     let message: Message
     let memberName: String
     private var outgoing: Bool { message.senderID == "me" }
@@ -230,10 +251,10 @@ struct MessageBubble: View {
                     .background(outgoing ? Color.plum : Color.surface, in: RoundedRectangle(cornerRadius: 22))
                 HStack(spacing: 5) {
                     Text(message.createdAt, style: .time)
-                    if outgoing { Text("· saved locally") }
+                    if outgoing && store.isDemoSession { Text("· saved locally") }
                 }.font(.caption2).foregroundStyle(Color.muted)
             }
             if !outgoing { Spacer(minLength: 35) }
-        }.accessibilityElement(children: .combine).accessibilityLabel("\(outgoing ? "You" : memberName): \(message.text). \(message.createdAt.formatted(date: .abbreviated, time: .shortened)). \(outgoing ? "Saved locally" : "Sample message")")
+        }.accessibilityElement(children: .combine).accessibilityLabel("\(outgoing ? "You" : memberName): \(message.text). \(message.createdAt.formatted(date: .abbreviated, time: .shortened)). \(store.isDemoSession ? (outgoing ? "Saved locally" : "Sample message") : "")")
     }
 }

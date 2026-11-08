@@ -2,7 +2,8 @@ import SwiftUI
 
 struct WelcomeView: View {
     @Environment(AppStore.self) private var store
-    @State private var showSignIn = false
+    @State private var accountMode: BackendAccountView.Mode?
+    @State private var completedAccount: (String, BackendAccount.Session, BackendAccount.DiscoveryProfile?)?
     var body: some View {
         ScrollView {
             VStack(spacing: 25) {
@@ -26,23 +27,25 @@ struct WelcomeView: View {
                         .font(.body).foregroundStyle(Color.muted).multilineTextAlignment(.center).padding(.horizontal, 8)
                 }
                 VStack(spacing: 10) {
-                    PrimaryButton(title: "Get Started", symbol: "arrow.right") { store.isOnboarding = true }.accessibilityIdentifier("getStarted")
-                    Button("Already have an account? Sign in") { showSignIn = true }.font(.subheadline.weight(.medium)).frame(minHeight: 44)
-                    Text("18+ · Private, in-memory prototype\nFictional members. No real accounts or connections.")
+                    PrimaryButton(title: "Create account", symbol: "arrow.right") { accountMode = .create }
+                    Button("Sign in") { accountMode = .signIn }
+                        .font(.headline).frame(minHeight: 44)
+                    Button("Explore the demo") { store.startDemoOnboarding() }
+                        .font(.subheadline.weight(.medium)).frame(minHeight: 44)
+                        .accessibilityIdentifier("getStarted")
+                    Text("18+ · Demo profiles and activity are fictional.")
                         .font(.caption).foregroundStyle(Color.muted).multilineTextAlignment(.center)
                 }
             }.padding(.horizontal, 24).padding(.bottom, 24)
-        }.background(Color.paper).sheet(isPresented: $showSignIn) {
-            NavigationStack {
-                VStack(spacing: 24) {
-                    BrandMark(size: 48)
-                    Text("Your next chapter\nstarts here.").font(.largeTitle.weight(.semibold)).multilineTextAlignment(.center)
-                    Text("Authentication preview").font(.headline)
-                    Text("Sign-in is unavailable in Phase 1. No credentials are collected. You can explore fictional profiles in a fresh, local demo session.").foregroundStyle(Color.muted).multilineTextAlignment(.center)
-                    PrimaryButton(title: "Explore the demo", symbol: "sparkles") { showSignIn = false; store.hasCompletedOnboarding = true }
-                }.padding(28).frame(maxHeight: .infinity).background(Color.paper)
-                    .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Close") { showSignIn = false } } }
-            }.presentationDetents([.large])
+        }.background(Color.paper).sheet(item: $accountMode, onDismiss: {
+            guard let (name, session, profile) = completedAccount else { return }
+            completedAccount = nil
+            store.openAccount(displayName: name, session: session, profile: profile)
+        }) { mode in
+            BackendAccountView(mode: mode) { name, session, profile in
+                completedAccount = (name, session, profile)
+                accountMode = nil
+            }.tint(Color.plum)
         }
     }
 }

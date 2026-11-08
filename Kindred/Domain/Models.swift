@@ -27,7 +27,7 @@ enum Interest: String, CaseIterable, Identifiable, Codable, Sendable {
         }
     }
 }
-struct ProfilePhoto: Identifiable, Equatable, Sendable {
+struct ProfilePhoto: Identifiable, Equatable, Codable, Sendable {
     var id: String
     var assetName: String?
     var localData: Data?
@@ -37,17 +37,17 @@ struct ProfilePhoto: Identifiable, Equatable, Sendable {
     var cropY: Double = 0
     static func bundled(_ name: String, caption: String) -> Self { .init(id: name, assetName: name, caption: caption) }
 }
-struct ProfilePrompt: Identifiable, Equatable, Sendable {
+struct ProfilePrompt: Identifiable, Equatable, Codable, Sendable {
     var id: String
     var question: String
     var answer: String
 }
-struct FaithPreferences: Equatable, Sendable {
+struct FaithPreferences: Equatable, Codable, Sendable {
     var sabbath: SabbathPractice = .shareLater
     var food: FoodPreference = .privateChoice
     var meaning: String = ""
 }
-struct MemberProfile: Identifiable, Equatable, Sendable {
+struct MemberProfile: Identifiable, Equatable, Codable, Sendable {
     let id: String
     var name: String
     var age: Int
@@ -67,17 +67,29 @@ struct MemberProfile: Identifiable, Equatable, Sendable {
     var distanceOpenness = DistanceOpenness.unspecified
     var openToRelocating = false
 }
-struct DatingPreferences: Equatable, Sendable {
+struct DatingPreferences: Equatable, Codable, Sendable {
     var genders: Set<Gender> = Set(Gender.allCases)
     var minimumAge = 24
     var maximumAge = 38
 }
-struct DiscoveryPreferences: Equatable, Sendable {
+struct DiscoveryPreferences: Equatable, Codable, Sendable {
     var dating = DatingPreferences()
     var radiusMiles = 75
     var searchCity = SearchCity.chicago
+    var useHomeCityForSearch = false
 }
-struct PrivacyPreferences: Equatable, Sendable {
+extension DiscoveryPreferences {
+    var isValid: Bool {
+        !dating.genders.isEmpty && dating.minimumAge >= 18 && dating.maximumAge <= 100
+            && dating.minimumAge <= dating.maximumAge && (5...250).contains(radiusMiles)
+    }
+
+    static func defaults(forHomeCity city: String) -> Self {
+        .init(dating: .init(minimumAge: 18, maximumAge: 100), searchCity: SearchCity.matching(city) ?? .chicago,
+              useHomeCityForSearch: true)
+    }
+}
+struct PrivacyPreferences: Equatable, Codable, Sendable {
     var showCity = true
     var discoveryPaused = false
 }
@@ -86,7 +98,7 @@ struct NotificationPreferences: Equatable, Sendable {
     var messages = true
     var sabbathQuietMode = false
 }
-struct Like: Identifiable, Equatable, Sendable {
+struct Like: Identifiable, Equatable, Sendable, Codable {
     let id: String
     let senderID: String
     let recipientID: String
@@ -94,18 +106,18 @@ struct Like: Identifiable, Equatable, Sendable {
     var photoID: String? = nil
     let createdAt: Date
 }
-struct Match: Identifiable, Equatable, Sendable {
+struct Match: Identifiable, Equatable, Sendable, Codable {
     let id: String
     let memberID: String
     let createdAt: Date
 }
-struct Message: Identifiable, Equatable, Sendable {
+struct Message: Identifiable, Equatable, Sendable, Codable {
     let id: String
     let senderID: String
     let text: String
     let createdAt: Date
 }
-struct Conversation: Identifiable, Equatable, Sendable {
+struct Conversation: Identifiable, Equatable, Sendable, Codable {
     let id: String
     let memberID: String
     var messages: [Message]
@@ -126,6 +138,7 @@ struct Block: Identifiable, Equatable, Sendable {
     var id: String { memberID }
     let memberID: String
     let createdAt: Date
+    var displayName: String? = nil
 }
 struct SessionSnapshot: Sendable {
     var currentProfile: MemberProfile
@@ -162,8 +175,8 @@ extension MemberProfile {
     /// Ordered to match the profile editor; shared with the repository save boundary.
     var validationIssues: [ProfileValidationIssue] {
         var issues: [ProfileValidationIssue] = []
-        if !(1...40).contains(name.trimmed.count) {
-            issues.append(.init(id: "name", message: name.trimmed.isEmpty ? "Enter your first name." : "Keep your first name to 40 characters or fewer."))
+        if !(1...60).contains(name.trimmed.count) {
+            issues.append(.init(id: "name", message: name.trimmed.isEmpty ? "Enter your first name." : "Keep your first name to 60 characters or fewer."))
         }
         if !(2...60).contains(city.trimmed.count) {
             issues.append(.init(id: "city", message: "Enter a city or general area using 2–60 characters."))

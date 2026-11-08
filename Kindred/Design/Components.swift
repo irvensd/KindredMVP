@@ -201,8 +201,11 @@ struct PhotoGallery: View {
                     Text(travel).font(.footnote)
                 }
             }
-            Text(selection == 0 ? profile.occupation : "A glimpse of the little things")
-                .font(.footnote).contentTransition(reduceMotion ? .identity : .opacity)
+            if selection == 0 && !profile.occupation.trimmed.isEmpty {
+                Text(profile.occupation).font(.footnote)
+            } else if selection != 0 && profile.isDemo {
+                Text("A glimpse of the little things").font(.footnote)
+            }
         }.foregroundStyle(color).fixedSize(horizontal: false, vertical: true)
     }
 }

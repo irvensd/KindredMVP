@@ -34,7 +34,9 @@ struct MatchCelebrationView: View {
                             .padding(18).background(Color.sand, in: RoundedRectangle(cornerRadius: 22))
                             .accessibilityIdentifier("matchSavedInterest")
                     }
-                    NoteCard(symbol: "sparkles", text: "A simulated mutual match between demo profiles. No one was notified, and nothing will be sent.")
+                    if store.isDemoSession {
+                        NoteCard(symbol: "sparkles", text: "A simulated mutual match between demo profiles. No one was notified, and nothing will be sent.")
+                    }
                 }
             }.multilineTextAlignment(.center).frame(maxWidth: .infinity).padding(28)
         }.background(Color.paper)
