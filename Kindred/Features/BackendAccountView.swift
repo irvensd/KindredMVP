@@ -9,10 +9,12 @@ struct BackendAccountView: View {
 
     @State private var mode: Mode
     @State private var awaitingConfirmation = false
+    @State private var requestingReset = false
+    @State private var resetRequested = false
 
-    private let onComplete: (String, BackendAccount.Session, BackendAccount.DiscoveryProfile?) -> Void
+    private let onComplete: (String, BackendAccount.Session, BackendAccount.DiscoveryProfile?, Bool) -> Void
 
-    init(mode: Mode, onComplete: @escaping (String, BackendAccount.Session, BackendAccount.DiscoveryProfile?) -> Void) {
+    init(mode: Mode, onComplete: @escaping (String, BackendAccount.Session, BackendAccount.DiscoveryProfile?, Bool) -> Void) {
         self.onComplete = onComplete
         _mode = State(initialValue: mode)
     }
@@ -48,7 +50,33 @@ struct BackendAccountView: View {
 
     private var credentialsForm: some View {
         Form {
-            if awaitingConfirmation {
+            if requestingReset {
+                Section {
+                    Text(resetRequested ? "Check your email" : "Reset your password")
+                        .font(.largeTitle.bold()).accessibilityAddTraits(.isHeader)
+                    if resetRequested {
+                        Text("If this address has a Kindred account, you’ll receive a reset link. Open it on this device.")
+                            .foregroundStyle(Color.muted)
+                    } else {
+                        Text("Enter the email you use to sign in.")
+                            .foregroundStyle(Color.muted)
+                        TextField("Email address", text: $email)
+                            .keyboardType(.emailAddress).textInputAutocapitalization(.never)
+                            .autocorrectionDisabled().textContentType(.emailAddress)
+                        PrimaryButton(title: busy ? "Sending…" : "Send reset link") {
+                            perform {
+                                try await backend.sendPasswordReset(to: cleanEmail)
+                                resetRequested = true
+                            }
+                        }.disabled(!validEmail)
+                    }
+                    Button("Back to sign in") {
+                        requestingReset = false
+                        resetRequested = false
+                        status = nil
+                    }.frame(minHeight: 44)
+                }
+            } else if awaitingConfirmation {
                 Section {
                     Text("Check your email").font(.title2.bold())
                         .accessibilityAddTraits(.isHeader)
@@ -78,7 +106,15 @@ struct BackendAccountView: View {
                         Text("Use at least 8 characters.").font(.footnote).foregroundStyle(Color.muted)
                     }
                     PrimaryButton(title: mode.title, symbol: "arrow.right") { submit() }
+                        .accessibilityIdentifier("submitAccountCredentials")
                         .disabled(!validEmail || password.count < (mode == .create ? 8 : 1))
+                    if mode == .signIn {
+                        Button("Forgot password?") {
+                            password = ""
+                            status = nil
+                            requestingReset = true
+                        }.frame(minHeight: 44)
+                    }
                     Button(mode == .create ? "Already have an account? Sign in" : "New to Kindred? Create account") {
                         mode = mode == .create ? .signIn : .create
                         password = ""
@@ -131,7 +167,7 @@ struct BackendAccountView: View {
                     nameFocused = false
                     perform {
                         try await backend.saveProfile(name: name, session: session)
-                        onComplete(name, session, nil)
+                        onComplete(name, session, nil, false)
                     }
                 }
                 .disabled(cleanDisplayName.isEmpty || cleanDisplayName.count > 60)
@@ -184,10 +220,11 @@ struct BackendAccountView: View {
                 let name: String
                 if let complete { name = complete.profile.name }
                 else { name = try await backend.loadProfile(session: signedIn) }
-                if name.isEmpty {
+                let staffOnly = complete == nil ? (try? await backend.isSafetyReviewer(session: signedIn)) == true : false
+                if name.isEmpty && !staffOnly {
                     session = signedIn
                 } else {
-                    onComplete(name, signedIn, complete)
+                    onComplete(name, signedIn, complete, staffOnly)
                 }
             }
             password = ""

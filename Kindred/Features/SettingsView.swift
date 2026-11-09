@@ -387,6 +387,7 @@ struct NotificationsView: View {
 struct SafetyCenterView: View {
     @Environment(AppStore.self) private var store
     @State private var loading = false
+    @State private var canReviewReports = false
     @State private var hasLoaded = false
     @State private var loadFailed = false
     @State private var unblocking: Set<String> = []
@@ -396,6 +397,11 @@ struct SafetyCenterView: View {
                 Text("Take your time. Keep early conversations in-app, protect private details, and choose a public place for a first meeting. You never owe anyone a conversation.").font(.body)
                 if store.isDemoSession {
                     Text("Profiles here are fictional and unverified. Demo reports are not sent to or reviewed by anyone.").font(.footnote).foregroundStyle(Color.muted)
+                }
+            }
+            if canReviewReports {
+                Section {
+                    NavigationLink("Safety review queue") { SafetyReviewView() }
                 }
             }
             Section {
@@ -437,7 +443,11 @@ struct SafetyCenterView: View {
                     Text("Use the safety menu on any profile or conversation to report or block. Unblocking never restores removed chats or likes.").font(.footnote).foregroundStyle(Color.muted)
                 }
             }
-        }.task { await loadBlocks() }
+        }.task {
+            async let blocks: () = loadBlocks()
+            canReviewReports = await store.canReviewSafetyReports()
+            await blocks
+        }
             .scrollContentBackground(.hidden).background(Color.paper).navigationTitle("Safety & support")
     }
     private func loadBlocks() async {

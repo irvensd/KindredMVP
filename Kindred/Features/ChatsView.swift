@@ -112,6 +112,8 @@ struct ConversationView: View {
     @FocusState private var composing: Bool
     @State private var showStarters = false
     @State private var pendingStarter: String?
+    @State private var historyAnchor: String?
+    @State private var nearLatestMessage = true
     @Environment(\.kindredReduceMotion) private var reduceMotion
     private var conversation: Conversation? { store.conversations.first { $0.id == conversationID } }
     var body: some View {
@@ -119,7 +121,7 @@ struct ConversationView: View {
             if let conversation, let profile = store.member(conversation.memberID) {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        VStack(spacing: 20) {
+                        LazyVStack(spacing: 20) {
                             VStack(spacing: 10) {
                                 Avatar(profile: profile, size: 80)
                                 Text("A little hello to \(profile.name)").font(.title3.weight(.semibold))
@@ -131,6 +133,34 @@ struct ConversationView: View {
                             }
                             if !profile.conversationStarters.isEmpty && showStarters {
                                 starterIdeas(profile).id("starterIdeas")
+                            }
+                            if conversation.hasOlderMessages == true {
+                                VStack(spacing: 8) {
+                                    if let error = store.historyErrors[conversationID] {
+                                        Text(error).font(.footnote).foregroundStyle(Color.muted)
+                                    }
+                                    Button {
+                                        historyAnchor = conversation.messages.first?.id
+                                        Task { await store.loadOlderMessages(conversationID) }
+                                    } label: {
+                                        Group {
+                                            if store.loadingHistory.contains(conversationID) {
+                                                ProgressView("Loading older messages…")
+                                            } else {
+                                                Text("Load older messages")
+                                            }
+                                        }
+                                        .padding(.horizontal, 16)
+                                        .frame(minHeight: 44)
+                                        .background(Color.surface, in: Capsule())
+                                        .contentShape(Capsule())
+                                    }
+                                    .buttonStyle(KindredPressStyle())
+                                    .foregroundStyle(Color.plum)
+                                    .font(.subheadline.weight(.medium))
+                                    .disabled(store.loadingHistory.contains(conversationID))
+                                    .accessibilityIdentifier("loadOlderMessages")
+                                }.frame(maxWidth: .infinity)
                             }
                             ForEach(conversation.days()) { day in
                                 Text(day.date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day().year()))
@@ -148,12 +178,25 @@ struct ConversationView: View {
                     }
                         .accessibilityIdentifier("conversationHistory")
                         .scrollDismissesKeyboard(.interactively)
-                        .defaultScrollAnchor(.bottom)
+                        .defaultScrollAnchor(.bottom, for: .initialOffset)
                         .defaultScrollAnchor(.top, for: .alignment)
+                        .onScrollGeometryChange(for: Bool.self) { geometry in
+                            geometry.contentSize.height - geometry.visibleRect.maxY < 100
+                        } action: { _, nearLatest in
+                            nearLatestMessage = nearLatest
+                            if nearLatest && !store.isDemoSession { store.markRead(conversationID) }
+                        }
+                        .onChange(of: conversation.messages.first?.id) { _, _ in
+                            guard let anchor = historyAnchor,
+                                  conversation.messages.contains(where: { $0.id == anchor }) else { return }
+                            historyAnchor = nil
+                            proxy.scrollTo(anchor, anchor: .top)
+                        }
                         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { _ in
                             if composing { proxy.scrollTo("bottom", anchor: .bottom) }
                         }
                         .onChange(of: conversation.messages.last?.id) { _, _ in
+                            guard store.isDemoSession || nearLatestMessage || composing else { return }
                             if !store.isDemoSession { store.markRead(conversationID) }
                             withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) { proxy.scrollTo("bottom", anchor: .bottom) }
                         }
@@ -165,40 +208,44 @@ struct ConversationView: View {
                         }
                         .onAppear { store.markRead(conversationID); showStarters = conversation.messages.isEmpty && draft.isEmpty }
                         .onDisappear { composing = false }
-                }.safeAreaInset(edge: .bottom) {
-                    VStack(spacing: 8) {
-                        if !profile.conversationStarters.isEmpty && !composing {
-                            Button(showStarters ? "Hide conversation ideas" : "Conversation ideas") { showStarters.toggle() }
-                                .font(.subheadline.weight(.medium)).frame(minHeight: 44)
-                                .accessibilityHint("Optional questions based on their profile. Choosing one fills a draft.")
-                                .accessibilityIdentifier("conversationIdeas")
-                        }
-                        HStack(alignment: .bottom, spacing: 10) {
-                            TextField("Write a message…", text: Binding(get: { draft }, set: { draft = $0 }), axis: .vertical).lineLimit(1...5).focused($composing)
-                                .padding(.horizontal, 16).padding(.vertical, 13).background(Color.surface, in: RoundedRectangle(cornerRadius: 24)).accessibilityIdentifier("messageComposer")
-                                .accessibilityAction(named: "Dismiss keyboard") { composing = false }
-                            Button {
-                                if store.isDemoSession {
-                                    if store.send(draft, conversationID: conversationID) { draft = ""; showStarters = false }
-                                } else {
-                                    let text = draft
-                                    Task {
-                                        if await store.sendLive(text, conversationID: conversationID) { showStarters = false }
+                    .safeAreaInset(edge: .bottom) {
+                        VStack(spacing: 8) {
+                            if !profile.conversationStarters.isEmpty && !composing {
+                                Button(showStarters ? "Hide conversation ideas" : "Conversation ideas") { showStarters.toggle() }
+                                    .font(.subheadline.weight(.medium)).frame(minHeight: 44)
+                                    .accessibilityHint("Optional questions based on their profile. Choosing one fills a draft.")
+                                    .accessibilityIdentifier("conversationIdeas")
+                            }
+                            HStack(alignment: .bottom, spacing: 10) {
+                                TextField("Write a message…", text: Binding(get: { draft }, set: { draft = $0 }), axis: .vertical).lineLimit(1...5).focused($composing)
+                                    .padding(.horizontal, 16).padding(.vertical, 13).background(Color.surface, in: RoundedRectangle(cornerRadius: 24)).accessibilityIdentifier("messageComposer")
+                                    .accessibilityAction(named: "Dismiss keyboard") { composing = false }
+                                Button {
+                                    if store.isDemoSession {
+                                        if store.send(draft, conversationID: conversationID) { draft = ""; showStarters = false }
+                                    } else {
+                                        let text = draft
+                                        Task {
+                                            if await store.sendLive(text, conversationID: conversationID) {
+                                                showStarters = false
+                                                proxy.scrollTo("bottom", anchor: .bottom)
+                                            }
+                                        }
                                     }
-                                }
-                            } label: { Image(systemName: "arrow.up").font(.headline).frame(width: 48, height: 48).foregroundStyle(Color.onPlum).background(Color.plum, in: Circle()) }
-                                .buttonStyle(KindredPressStyle())
-                                .disabled(draft.trimmed.isEmpty || draft.trimmed.count > 2000 || store.isSending.contains(conversationID))
-                                .accessibilityLabel(store.isDemoSession ? "Save demo message" : "Send message").accessibilityIdentifier("sendMessage")
-                        }
-                        if draft.trimmed.count > 2000 {
-                            Text("Keep your message to 2,000 characters.").font(.caption2).foregroundStyle(Color.muted)
-                        } else if store.isDemoSession {
-                            Text("Demo chat · Nothing is sent; replies are not generated.").font(.caption2).foregroundStyle(Color.muted)
-                        } else if store.isSending.contains(conversationID) {
-                            Text("Sending…").font(.caption2).foregroundStyle(Color.muted)
-                        }
-                    }.padding(.horizontal, 16).padding(.vertical, 10).background(Color.paper)
+                                } label: { Image(systemName: "arrow.up").font(.headline).frame(width: 48, height: 48).foregroundStyle(Color.onPlum).background(Color.plum, in: Circle()) }
+                                    .buttonStyle(KindredPressStyle())
+                                    .disabled(draft.trimmed.isEmpty || draft.trimmed.count > 2000 || store.isSending.contains(conversationID))
+                                    .accessibilityLabel(store.isDemoSession ? "Save demo message" : "Send message").accessibilityIdentifier("sendMessage")
+                            }
+                            if draft.trimmed.count > 2000 {
+                                Text("Keep your message to 2,000 characters.").font(.caption2).foregroundStyle(Color.muted)
+                            } else if store.isDemoSession {
+                                Text("Demo chat · Nothing is sent; replies are not generated.").font(.caption2).foregroundStyle(Color.muted)
+                            } else if store.isSending.contains(conversationID) {
+                                Text("Sending…").font(.caption2).foregroundStyle(Color.muted)
+                            }
+                        }.padding(.horizontal, 16).padding(.vertical, 10).background(Color.paper)
+                    }
                 }
             } else {
                 EmptyState(symbol: "hand.raised", title: "Conversation unavailable", message: "This connection has ended or the profile was blocked. The chat is no longer available.")

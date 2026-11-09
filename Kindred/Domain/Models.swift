@@ -122,6 +122,7 @@ struct Conversation: Identifiable, Equatable, Sendable, Codable {
     let memberID: String
     var messages: [Message]
     var unreadCount: Int
+    var hasOlderMessages: Bool? = nil
 }
 enum ReportReason: String, CaseIterable, Identifiable, Sendable {
     case inappropriate = "Inappropriate content", impersonation = "Impersonation", harassment = "Harassment", underage = "May be under 18", other = "Something else"

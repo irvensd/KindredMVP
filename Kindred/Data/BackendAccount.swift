@@ -1,12 +1,37 @@
 import Foundation
+import CryptoKit
+import Security
 
 struct BackendAccount {
-    struct Session: Decodable, Sendable {
+    struct Session: Codable, Sendable {
         let access_token: String
         let user: User
+        var refresh_token: String? = nil
+        var expires_at: TimeInterval? = nil
+
+        var expiresAt: Date {
+            Date(timeIntervalSince1970: expires_at ?? claims?.exp ?? 0)
+        }
+
+        var loginID: String { claims?.session_id ?? access_token }
+
+        private var claims: Claims? {
+            let segments = access_token.split(separator: ".")
+            guard segments.count == 3 else { return nil }
+            var payload = String(segments[1]).replacingOccurrences(of: "-", with: "+")
+                .replacingOccurrences(of: "_", with: "/")
+            payload += String(repeating: "=", count: (4 - payload.count % 4) % 4)
+            guard let data = Data(base64Encoded: payload) else { return nil }
+            return try? JSONDecoder().decode(Claims.self, from: data)
+        }
+
+        private struct Claims: Decodable {
+            let exp: TimeInterval?
+            let session_id: String?
+        }
     }
 
-    struct User: Decodable, Sendable {
+    struct User: Codable, Sendable {
         let id: UUID
         let email: String?
     }
@@ -17,10 +42,17 @@ struct BackendAccount {
 
     enum RequestError: LocalizedError {
         case rejected(Int)
+        var invalidSession: Bool {
+            switch self {
+            case .rejected(400), .rejected(401), .rejected(403): true
+            default: false
+            }
+        }
         var errorDescription: String? {
             switch self {
             case .rejected(400), .rejected(401): "Check your email and password, or sign in again."
             case .rejected(403): "This profile or conversation is no longer available."
+            case .rejected(409): "This report changed. Refresh the queue and try again."
             case .rejected(429): "Too many attempts. Please try again later."
             default: "Kindred couldn’t complete this request. Please try again."
             }
@@ -34,6 +66,69 @@ struct BackendAccount {
         let data = try await request("/auth/v1/token?grant_type=password", method: "POST",
                                      body: JSONEncoder().encode(["email": email, "password": password]))
         return try JSONDecoder().decode(Session.self, from: data)
+    }
+
+    func refresh(session: Session) async throws -> Session {
+        guard let token = session.refresh_token else { throw RequestError.rejected(401) }
+        let data = try await request("/auth/v1/token?grant_type=refresh_token", method: "POST",
+                                     body: JSONEncoder().encode(["refresh_token": token]))
+        let renewed = try JSONDecoder().decode(Session.self, from: data)
+        guard renewed.user.id == session.user.id, renewed.loginID == session.loginID,
+              renewed.refresh_token != nil else { throw RequestError.rejected(401) }
+        return renewed
+    }
+
+    static let passwordResetURL = URL(string: "com.kindred.prototype://auth/reset-password")!
+
+    static func isPasswordResetURL(_ url: URL) -> Bool {
+        url.scheme == passwordResetURL.scheme && url.host == passwordResetURL.host
+            && url.path == passwordResetURL.path && url.port == nil && url.user == nil
+    }
+
+    func sendPasswordReset(to email: String) async throws {
+        var bytes = [UInt8](repeating: 0, count: 32)
+        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else {
+            throw KindredError.invalid("Couldn’t prepare a secure reset link. Please try again.")
+        }
+        let verifier = base64URL(Data(bytes))
+        let challenge = base64URL(Data(SHA256.hash(data: Data(verifier.utf8))))
+        try AccountKeychain.save(verifier, for: .passwordRecovery)
+        var endpoint = URLComponents()
+        endpoint.path = "/auth/v1/recover"
+        endpoint.queryItems = [.init(name: "redirect_to", value: Self.passwordResetURL.absoluteString)]
+        guard let path = endpoint.string else { throw KindredError.unavailable }
+        do {
+            _ = try await request(path, method: "POST", body: JSONEncoder().encode([
+                "email": email, "code_challenge": challenge, "code_challenge_method": "s256"
+            ]))
+        } catch RequestError.rejected(400) {
+            throw KindredError.invalid("Kindred couldn’t send a reset email. Check the address and try again.")
+        }
+    }
+
+    func exchangePasswordResetLink(_ url: URL) async throws -> Session {
+        guard Self.isPasswordResetURL(url),
+              let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?
+                .first(where: { $0.name == "code" })?.value,
+              UUID(uuidString: code) != nil,
+              let verifier = try AccountKeychain.load(String.self, for: .passwordRecovery) else {
+            throw KindredError.invalid("This reset link can’t be opened here. Request a new link on this device.")
+        }
+        let data = try await request("/auth/v1/token?grant_type=pkce", method: "POST",
+                                     body: JSONEncoder().encode(["auth_code": code, "code_verifier": verifier]))
+        let session = try JSONDecoder().decode(Session.self, from: data)
+        try? AccountKeychain.remove(.passwordRecovery)
+        return session
+    }
+
+    func resetPassword(_ password: String, session: Session) async throws {
+        _ = try await request("/auth/v1/user", method: "PUT",
+                              body: JSONEncoder().encode(["password": password]), session: session)
+    }
+
+    private func base64URL(_ data: Data) -> String {
+        data.base64EncodedString().replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
     }
 
     func signOut(session: Session) async throws {
@@ -63,16 +158,12 @@ struct BackendAccount {
     }
 
     func createAccount(email: String, password: String) async throws -> Session? {
-        struct SignupResponse: Decodable {
-            let access_token: String?
-            let user: User?
-        }
         let data = try await request("/auth/v1/signup", method: "POST",
                                      body: JSONEncoder().encode(["email": email, "password": password]))
+        struct SignupResponse: Decodable { let access_token: String? }
         let response = try JSONDecoder().decode(SignupResponse.self, from: data)
-        guard let token = response.access_token else { return nil }
-        guard let user = response.user else { throw RequestError.rejected(500) }
-        return Session(access_token: token, user: user)
+        guard response.access_token != nil else { return nil }
+        return try JSONDecoder().decode(Session.self, from: data)
     }
 
     func loadProfile(session: Session) async throws -> String {
@@ -126,23 +217,51 @@ struct BackendAccount {
         }
     }
 
-    func discover(session: Session) async throws -> [MemberProfile] {
-        struct Results: Decodable {
-            let profiles: [MemberProfile]
-            init(from decoder: Decoder) throws {
-                var rows = try decoder.unkeyedContainer()
-                var valid: [MemberProfile] = []
-                while !rows.isAtEnd {
-                    let row = try rows.superDecoder()
-                    guard var profile = try? MemberProfile(from: row) else { continue }
-                    profile.photos = profile.photos.filter { $0.localData != nil && $0.assetName == nil }
-                    if !profile.photos.isEmpty { valid.append(profile) }
-                }
-                profiles = valid
-            }
+    struct DiscoveryPage: Decodable, Sendable {
+        struct Cursor: Decodable, Sendable {
+            let miles: Int
+            let id: UUID
         }
-        let data = try await request("/rest/v1/rpc/discover_profiles", method: "POST", body: Data("{}".utf8), session: session)
-        return try JSONDecoder().decode(Results.self, from: data).profiles
+
+        let profiles: [MemberProfile]
+        let next: Cursor?
+
+        private enum CodingKeys: String, CodingKey { case profiles, next }
+
+        init(from decoder: Decoder) throws {
+            let page = try decoder.container(keyedBy: CodingKeys.self)
+            next = try page.decodeIfPresent(Cursor.self, forKey: .next)
+            var rows = try page.nestedUnkeyedContainer(forKey: .profiles)
+            var valid: [MemberProfile] = []
+            while !rows.isAtEnd {
+                let row = try rows.superDecoder()
+                guard var profile = try? MemberProfile(from: row) else { continue }
+                profile.photos = profile.photos.filter { $0.localData != nil && $0.assetName == nil }
+                if !profile.photos.isEmpty { valid.append(profile) }
+            }
+            profiles = valid
+        }
+    }
+
+    func discover(after cursor: DiscoveryPage.Cursor?, session: Session) async throws -> DiscoveryPage {
+        struct Request: Encodable {
+            let after_miles: Int?
+            let after_id: UUID?
+        }
+        let body = try JSONEncoder().encode(Request(after_miles: cursor?.miles, after_id: cursor?.id))
+        let data = try await request("/rest/v1/rpc/discovery_page", method: "POST", body: body, session: session)
+        return try JSONDecoder().decode(DiscoveryPage.self, from: data)
+    }
+
+    struct MessagePage: Decodable, Sendable {
+        let messages: [Message]
+        let hasMore: Bool
+    }
+
+    func conversationHistory(threadID: UUID, before messageID: UUID, session: Session) async throws -> MessagePage {
+        let body = try JSONEncoder().encode(["thread_id": threadID, "before_id": messageID])
+        let data = try await request("/rest/v1/rpc/conversation_history", method: "POST", body: body, session: session)
+        return try timestampDecoder().decode(MessagePage.self, from: data)
     }
 
     struct MemberBlock: Codable {
@@ -205,6 +324,57 @@ struct BackendAccount {
     func loadActivity(session: Session) async throws -> Activity {
         let data = try await request("/rest/v1/rpc/member_activity", method: "POST",
                                      body: Data("{}".utf8), session: session)
+        var activity = try timestampDecoder().decode(Activity.self, from: data)
+        for index in activity.members.indices {
+            activity.members[index].photos.removeAll { $0.localData == nil || $0.assetName != nil }
+        }
+        return activity
+    }
+
+    func markLikesSeen(_ ids: Set<String>, session: Session) async throws {
+        let body = try JSONEncoder().encode(["like_ids": ids.sorted()])
+        _ = try await request("/rest/v1/rpc/mark_likes_seen", method: "POST", body: body, session: session)
+    }
+
+    struct SafetyReport: Decodable, Identifiable, Sendable {
+        let id: UUID
+        let reason: String
+        let details: String
+        let created_at: Date
+        let reported_id: UUID
+        let reported_name: String?
+        let assigned_to_me: Bool
+        let assigned: Bool
+        let reviewed_at: Date?
+        let resolution: String?
+    }
+
+    enum SafetyAction: String, Encodable, Sendable {
+        case claim, release, resolve
+    }
+
+    func isSafetyReviewer(session: Session) async throws -> Bool {
+        let data = try await request("/rest/v1/rpc/is_safety_reviewer", method: "POST",
+                                     body: Data("{}".utf8), session: session)
+        return try JSONDecoder().decode(Bool.self, from: data)
+    }
+
+    func loadSafetyQueue(reviewed: Bool, offset: Int, session: Session) async throws -> [SafetyReport] {
+        struct Query: Encodable { let include_reviewed: Bool; let page_offset: Int }
+        let data = try await request("/rest/v1/rpc/safety_report_queue", method: "POST",
+                                     body: JSONEncoder().encode(Query(include_reviewed: reviewed, page_offset: offset)),
+                                     session: session)
+        return try timestampDecoder().decode([SafetyReport].self, from: data)
+    }
+
+    func reviewSafetyReport(_ reportID: UUID, action: SafetyAction, note: String? = nil, session: Session) async throws {
+        struct Review: Encodable { let report_id: UUID; let action: SafetyAction; let note: String? }
+        _ = try await request("/rest/v1/rpc/review_safety_report", method: "POST",
+                              body: JSONEncoder().encode(Review(report_id: reportID, action: action, note: note)),
+                              session: session)
+    }
+
+    private func timestampDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .custom { decoder in
             let container = try decoder.singleValueContainer()
@@ -216,16 +386,7 @@ struct BackendAccount {
             if let date = formatter.date(from: value) { return date }
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid message date")
         }
-        var activity = try decoder.decode(Activity.self, from: data)
-        for index in activity.members.indices {
-            activity.members[index].photos.removeAll { $0.localData == nil || $0.assetName != nil }
-        }
-        return activity
-    }
-
-    func markLikesSeen(_ ids: Set<String>, session: Session) async throws {
-        let body = try JSONEncoder().encode(["like_ids": ids.sorted()])
-        _ = try await request("/rest/v1/rpc/mark_likes_seen", method: "POST", body: body, session: session)
+        return decoder
     }
 
     private func request(_ path: String, method: String = "GET", body: Data? = nil, session: Session? = nil) async throws -> Data {

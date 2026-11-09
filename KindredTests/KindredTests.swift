@@ -17,6 +17,34 @@ struct KindredTests {
         draft.photos = DemoData.people[0].photos
         return draft
     }
+    @Test func olderChatPagesSurviveForegroundRefreshAndDisappearWhenTheConnectionEnds() throws {
+        let repository = InMemoryKindredRepository(now: { now })
+        let messages = (0...173).map { index in
+            Message(id: "message-\(index)", senderID: "eli", text: "Message \(index)", createdAt: now)
+        }
+        func activity(_ messages: ArraySlice<Message>, hasOlder: Bool = true) -> BackendAccount.Activity {
+            let conversation = Conversation(id: "thread", memberID: "eli", messages: Array(messages),
+                                            unreadCount: 1, hasOlderMessages: hasOlder)
+            return .init(members: [], likes: [], matches: [], conversations: [conversation], endedMemberIDs: [])
+        }
+        repository.replaceActivity(activity(messages[73..<173]))
+        let initial = try #require(repository.snapshot().conversations.first)
+        repository.replaceActivity(activity(messages[74...173]))
+        repository.prependHistory(.init(messages: Array(messages[23..<73]), hasMore: true), to: initial)
+        let withFirstPage = try #require(repository.snapshot().conversations.first)
+        #expect(withFirstPage.messages == Array(messages[23...173]))
+
+        repository.prependHistory(.init(messages: Array(messages[..<23]), hasMore: false), to: withFirstPage)
+        repository.replaceActivity(activity(messages[74...173]))
+        let complete = try #require(repository.snapshot().conversations.first)
+        #expect(complete.messages == messages)
+        #expect(complete.hasOlderMessages == false)
+
+        repository.replaceActivity(.init(members: [], likes: [], matches: [], conversations: [], endedMemberIDs: ["eli"]))
+        repository.prependHistory(.init(messages: [], hasMore: false), to: withFirstPage)
+        #expect(repository.snapshot().conversations.isEmpty)
+    }
+
     @Test func discoveryPrioritizesNewInterestAndExcludesConnections() {
         let s = store()
         var preferences = s.state.discovery; preferences.radiusMiles = 250; preferences.dating.genders = [.male, .female]

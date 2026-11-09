@@ -23,6 +23,7 @@ protocol KindredRepository: AnyObject {
 @MainActor
 final class InMemoryKindredRepository: KindredRepository {
     private var state: SessionSnapshot
+    private var conversationsWithLoadedHistory: Set<String> = []
     private let now: () -> Date
     init(state: SessionSnapshot? = nil, now: @escaping () -> Date = Date.init) {
         self.now = now
@@ -38,8 +39,39 @@ final class InMemoryKindredRepository: KindredRepository {
     func replaceActivity(_ activity: BackendAccount.Activity) {
         state.likes = activity.likes
         state.matches = activity.matches
-        state.conversations = activity.conversations
+        let previous = Dictionary(uniqueKeysWithValues: state.conversations.map { ($0.id, $0) })
+        state.conversations = activity.conversations.map { latest in
+            guard conversationsWithLoadedHistory.contains(latest.id),
+                  let history = previous[latest.id],
+                  let combined = mergeHistory(history, into: latest) else {
+                conversationsWithLoadedHistory.remove(latest.id)
+                return latest
+            }
+            return combined
+        }
+        conversationsWithLoadedHistory.formIntersection(state.conversations.map(\.id))
         state.unmatchedIDs = activity.endedMemberIDs
+    }
+
+    func prependHistory(_ page: BackendAccount.MessagePage, to previous: Conversation) {
+        guard let index = state.conversations.firstIndex(where: { $0.id == previous.id }) else { return }
+        var history = previous
+        history.messages.insert(contentsOf: page.messages, at: 0)
+        history.hasOlderMessages = page.hasMore
+        guard let combined = mergeHistory(history, into: state.conversations[index]) else { return }
+        state.conversations[index] = combined
+        conversationsWithLoadedHistory.insert(previous.id)
+    }
+
+    private func mergeHistory(_ history: Conversation, into latest: Conversation) -> Conversation? {
+        // Only merge contiguous windows. A refresh can have replaced the latest
+        // batch while a page request was in flight.
+        guard let first = latest.messages.first,
+              let overlap = history.messages.firstIndex(where: { $0.id == first.id }) else { return nil }
+        var conversation = latest
+        conversation.messages = Array(history.messages[..<overlap]) + latest.messages
+        conversation.hasOlderMessages = history.hasOlderMessages
+        return conversation
     }
 
     private func requireMember(_ id: String) throws {

@@ -6,9 +6,19 @@ final class AppStore {
     private var repository: any KindredRepository
     private let demoRepository: any KindredRepository
     private(set) var isDemoSession = true
+    private(set) var isStaffOnlySession = false
     private var accountSession: BackendAccount.Session?
+    private let persistLogin: Bool
+    private var sessionRefresh: Task<BackendAccount.Session, Error>?
+    private(set) var needsAccountRestore: Bool
+    private(set) var isRestoringAccount = false
+    private(set) var accountRestoreError: String?
     private let backend = BackendAccount()
     private var liveDiscoverMembers: [MemberProfile] = []
+    private var discoveryCursor: BackendAccount.DiscoveryPage.Cursor?
+    private var discoveryPageCount = 0
+    private var discoveryRevision = 0
+    var hasMoreDiscoveryProfiles: Bool { discoveryCursor != nil && !state.privacy.discoveryPaused }
     private var liveActivityMembers: [MemberProfile] = []
     private var activityRevision = 0
     private var pendingLikes: Set<String> = []
@@ -22,6 +32,8 @@ final class AppStore {
     private var pendingMessages: [String: (text: String, id: UUID)] = [:]
     private(set) var isSending: Set<String> = []
     private var pendingReads: Set<String> = []
+    private(set) var loadingHistory: Set<String> = []
+    private(set) var historyErrors: [String: String] = [:]
     private var pendingMatchMember: String?
     private(set) var activityLoadError: String?
     private(set) var unseenLikeIDs: Set<String> = []
@@ -40,8 +52,10 @@ final class AppStore {
     var presentedMatch: Match?
     private let now: () -> Date
 
-    init(repository: (any KindredRepository)? = nil, now: @escaping () -> Date = Date.init) {
+    init(repository: (any KindredRepository)? = nil, now: @escaping () -> Date = Date.init, persistLogin: Bool = false) {
         self.now = now
+        self.persistLogin = persistLogin
+        needsAccountRestore = persistLogin
         let source = repository ?? InMemoryKindredRepository(now: now)
         self.repository = source
         self.demoRepository = source
@@ -100,16 +114,16 @@ final class AppStore {
     }
 
     func markIncomingLikesSeen() async {
-        guard let session = accountSession else { return }
+        guard let session = await activeAccountSession() else { return }
         let ids = unseenLikeIDs.subtracting(markingLikesSeen)
         guard !ids.isEmpty else { return }
         markingLikesSeen.formUnion(ids)
         defer {
-            if accountSession?.access_token == session.access_token { markingLikesSeen.subtract(ids) }
+            if accountSession?.loginID == session.loginID { markingLikesSeen.subtract(ids) }
         }
         do {
             try await backend.markLikesSeen(ids, session: session)
-            guard accountSession?.access_token == session.access_token else { return }
+            guard accountSession?.loginID == session.loginID else { return }
             unseenLikeIDs.subtract(ids)
             await refreshActivity()
         } catch {
@@ -158,7 +172,7 @@ final class AppStore {
             Task {
                 defer { pendingLikes.remove(key) }
                 guard let result = await performActivity(.like, target: id, promptID: promptID, photoID: photoID),
-                      accountSession?.access_token == session.access_token else { return }
+                      accountSession?.loginID == session.loginID else { return }
                 if result.matched {
                     pendingMatchMember = id
                 } else {
@@ -231,10 +245,10 @@ final class AppStore {
     }
 
     func blockAccountMember(_ memberID: String) async {
-        guard let session = accountSession, let id = UUID(uuidString: memberID) else { return }
+        guard let session = await activeAccountSession(showError: true), let id = UUID(uuidString: memberID) else { return }
         do {
             try await backend.block(id, session: session)
-            guard accountSession?.access_token == session.access_token else { return }
+            guard accountSession?.loginID == session.loginID else { return }
             mutate({ try repository.block(memberID: memberID) }, feedback: "Profile blocked")
             await refreshActivity()
             await refreshDiscovery()
@@ -242,10 +256,10 @@ final class AppStore {
     }
 
     func unblockAccountMember(_ memberID: String) async {
-        guard let session = accountSession, let id = UUID(uuidString: memberID) else { return }
+        guard let session = await activeAccountSession(showError: true), let id = UUID(uuidString: memberID) else { return }
         do {
             try await backend.unblock(id, session: session)
-            guard accountSession?.access_token == session.access_token else { return }
+            guard accountSession?.loginID == session.loginID else { return }
             mutate({ repository.unblock(memberID: memberID) }, feedback: "Profile unblocked")
             await refreshAccountBlocks()
             await refreshDiscovery()
@@ -254,10 +268,10 @@ final class AppStore {
 
     @discardableResult
     func refreshAccountBlocks() async -> Bool {
-        guard let session = accountSession else { return isDemoSession }
+        guard let session = await activeAccountSession() else { return isDemoSession }
         do {
             let summaries = try await backend.loadBlockedMembers(session: session)
-            guard accountSession?.access_token == session.access_token,
+            guard accountSession?.loginID == session.loginID,
                   let accountRepository = repository as? InMemoryKindredRepository else { return false }
             accountRepository.replaceBlocks(summaries)
             state = repository.snapshot()
@@ -300,6 +314,38 @@ final class AppStore {
         await performActivity(.report, target: id, reason: reason, details: details) != nil
     }
 
+    func loadOlderMessages(_ id: String) async {
+        guard let session = await activeAccountSession(),
+              let threadID = UUID(uuidString: id),
+              let conversation = conversations.first(where: { $0.id == id }),
+              conversation.hasOlderMessages == true,
+              let first = conversation.messages.first,
+              let messageID = UUID(uuidString: first.id),
+              loadingHistory.insert(id).inserted else { return }
+        historyErrors[id] = nil
+        defer {
+            if accountSession?.loginID == session.loginID { loadingHistory.remove(id) }
+        }
+        do {
+            let page = try await backend.conversationHistory(threadID: threadID, before: messageID, session: session)
+            guard !Task.isCancelled, accountSession?.loginID == session.loginID,
+                  let accountRepository = repository as? InMemoryKindredRepository else { return }
+            accountRepository.prependHistory(page, to: conversation)
+            state = repository.snapshot()
+        } catch {
+            guard !Task.isCancelled, accountSession?.loginID == session.loginID else { return }
+            if case BackendAccount.RequestError.rejected(401) = error {
+                returnToWelcome()
+                errorMessage = "Your session ended. Please sign in again."
+            } else if case BackendAccount.RequestError.rejected(403) = error {
+                await refreshActivity()
+                if conversations.contains(where: { $0.id == id }) { historyErrors[id] = "Couldn’t load older messages. Try again." }
+            } else {
+                historyErrors[id] = "Couldn’t load older messages. Try again."
+            }
+        }
+    }
+
     func markRead(_ id: String) {
         if isDemoSession { mutate { repository.markRead(conversationID: id) }; return }
         guard let conversation = conversations.first(where: { $0.id == id }),
@@ -317,27 +363,27 @@ final class AppStore {
                                  promptID: String? = nil, photoID: String? = nil, text: String? = nil,
                                  messageID: UUID? = nil, readMessageID: UUID? = nil,
                                  reason: ReportReason? = nil, details: String? = nil) async -> BackendAccount.ActivityResult? {
-        guard let session = accountSession, let targetID = UUID(uuidString: target) else { return nil }
+        guard let session = await activeAccountSession(showError: true), let targetID = UUID(uuidString: target) else { return nil }
         let action = BackendAccount.ActivityAction(action: kind, target: targetID, prompt_id: promptID, photo_id: photoID,
                                                    message_body: text, message_id: messageID, read_message_id: readMessageID,
                                                    report_reason: reason == .other ? "Other" : reason?.rawValue, report_details: details)
         do {
             let result = try await backend.perform(action, session: session)
-            guard accountSession?.access_token == session.access_token else { return nil }
+            guard accountSession?.loginID == session.loginID else { return nil }
             return result
         } catch {
-            if accountSession?.access_token == session.access_token { errorMessage = error.localizedDescription }
+            if accountSession?.loginID == session.loginID { errorMessage = error.localizedDescription }
             return nil
         }
     }
 
     func refreshActivity() async {
-        guard let session = accountSession, hasCompletedOnboarding else { return }
+        guard let session = await activeAccountSession(), hasCompletedOnboarding else { return }
         activityRevision += 1
         let revision = activityRevision
         do {
             let activity = try await backend.loadActivity(session: session)
-            guard !Task.isCancelled, revision == activityRevision, accountSession?.access_token == session.access_token,
+            guard !Task.isCancelled, revision == activityRevision, accountSession?.loginID == session.loginID,
                   let accountRepository = repository as? InMemoryKindredRepository else { return }
             activityLoadError = nil
             unseenLikeIDs = activity.unseenLikeIDs ?? []
@@ -355,6 +401,7 @@ final class AppStore {
             let available = Set(state.conversations.map(\.id))
             conversationDrafts = conversationDrafts.filter { available.contains($0.key) }
             pendingMessages = pendingMessages.filter { available.contains($0.key) }
+            historyErrors = historyErrors.filter { available.contains($0.key) }
             if let member = pendingMatchMember,
                let match = state.matches.first(where: { $0.memberID == member }) {
                 pendingMatchMember = nil
@@ -362,7 +409,11 @@ final class AppStore {
                 feedback = nil
             }
         } catch {
-            if !Task.isCancelled, revision == activityRevision, accountSession?.access_token == session.access_token {
+            guard !Task.isCancelled, revision == activityRevision, accountSession?.loginID == session.loginID else { return }
+            if case BackendAccount.RequestError.rejected(401) = error {
+                returnToWelcome()
+                errorMessage = "Your session ended. Please sign in again."
+            } else {
                 activityLoadError = error.localizedDescription
             }
         }
@@ -385,13 +436,120 @@ final class AppStore {
         }
         isOnboarding = true
     }
+    func restoreAccount() async {
+        guard needsAccountRestore, !isRestoringAccount else { return }
+        isRestoringAccount = true
+        accountRestoreError = nil
+        defer { isRestoringAccount = false }
+        do {
+            guard var session = try AccountKeychain.load(BackendAccount.Session.self, for: .session) else {
+                needsAccountRestore = false
+                return
+            }
+            // Confirm the saved login is still valid, even if its access token hasn't expired.
+            session = try await backend.refresh(session: session)
+            guard needsAccountRestore else { return }
+            try AccountKeychain.save(session, for: .session)
+            try Task.checkCancellation()
+            let profile = try await backend.loadDiscoveryProfile(session: session)
+            let staffOnly = profile == nil ? (try? await backend.isSafetyReviewer(session: session)) == true : false
+            let name: String
+            if let profile { name = profile.profile.name }
+            else { name = try await backend.loadProfile(session: session) }
+            try Task.checkCancellation()
+            guard needsAccountRestore else { return }
+            openAccount(displayName: name, session: session, profile: profile, staffOnly: staffOnly)
+            needsAccountRestore = false
+        } catch let error as BackendAccount.RequestError where error.invalidSession {
+            try? AccountKeychain.remove(.session)
+            needsAccountRestore = false
+        } catch {
+            if !Task.isCancelled { accountRestoreError = error.localizedDescription }
+        }
+    }
+
+    func forgetSavedLogin() {
+        do {
+            try AccountKeychain.remove(.session)
+            needsAccountRestore = false
+            accountRestoreError = nil
+        } catch { accountRestoreError = error.localizedDescription }
+    }
+
+    func maintainAccountSession() async {
+        while !Task.isCancelled {
+            if needsAccountRestore && accountRestoreError == nil { await restoreAccount() }
+            _ = await activeAccountSession()
+            do { try await Task.sleep(for: .seconds(20)) }
+            catch { return }
+        }
+    }
+
+    private func activeAccountSession(showError: Bool = false) async -> BackendAccount.Session? {
+        do { return try await refreshAccountSessionIfNeeded() }
+        catch {
+            if showError && !Task.isCancelled { errorMessage = error.localizedDescription }
+            return nil
+        }
+    }
+
+    private func refreshAccountSessionIfNeeded() async throws -> BackendAccount.Session? {
+        guard let session = accountSession else { return nil }
+        guard session.expiresAt.timeIntervalSince(now()) <= 60 else { return session }
+        let refresh: Task<BackendAccount.Session, Error>
+        if let sessionRefresh { refresh = sessionRefresh }
+        else {
+            let api = backend
+            refresh = Task { try await api.refresh(session: session) }
+            sessionRefresh = refresh
+        }
+        do {
+            let updated = try await refresh.value
+            guard accountSession?.loginID == session.loginID else { return nil }
+            if accountSession?.access_token == session.access_token {
+                accountSession = updated
+                sessionRefresh = nil
+                if persistLogin {
+                    do { try AccountKeychain.save(updated, for: .session) }
+                    catch { errorMessage = error.localizedDescription }
+                }
+            }
+            return accountSession
+        } catch {
+            guard accountSession?.loginID == session.loginID else { return nil }
+            sessionRefresh = nil
+            if let rejected = error as? BackendAccount.RequestError, rejected.invalidSession {
+                returnToWelcome()
+                errorMessage = "Your session ended. Please sign in again."
+            } else if session.expiresAt > now() {
+                return session
+            }
+            throw error
+        }
+    }
+
+    func passwordWasReset(for userID: UUID) {
+        if accountSession?.user.id == userID {
+            returnToWelcome()
+        } else if persistLogin,
+                  let saved = try? AccountKeychain.load(BackendAccount.Session.self, for: .session),
+                  saved.user.id == userID {
+            forgetSavedLogin()
+        }
+        feedback = "Password updated. Sign in with your new password."
+        feedbackCount += 1
+    }
+
     func signOutAccount() async throws {
         guard let session = accountSession else {
             returnToWelcome()
             return
         }
-        try await backend.signOut(session: session)
-        guard accountSession?.access_token == session.access_token else { return }
+        let active = try await refreshAccountSessionIfNeeded() ?? session
+        guard accountSession?.loginID == session.loginID else { return }
+        try await backend.signOut(session: active)
+        guard accountSession?.loginID == session.loginID else { return }
+        if persistLogin { try AccountKeychain.remove(.session) }
         returnToWelcome()
     }
 
@@ -400,7 +558,7 @@ final class AppStore {
     func deleteAccount(password: String) async throws {
         guard let session = accountSession else { throw KindredError.invalid("Sign in to delete your account.") }
         try await backend.deleteAccount(session: session, password: password)
-        guard accountSession?.access_token == session.access_token else { return }
+        guard accountSession?.loginID == session.loginID else { return }
         returnToWelcome()
     }
 
@@ -409,7 +567,14 @@ final class AppStore {
         isOnboarding = false
         if !isDemoSession {
             accountSession = nil
+            isStaffOnlySession = false
+            sessionRefresh?.cancel()
+            sessionRefresh = nil
+            if persistLogin { try? AccountKeychain.remove(.session) }
             liveDiscoverMembers = []
+            discoveryCursor = nil
+            discoveryPageCount = 0
+            discoveryRevision += 1
             liveActivityMembers = []
             pendingLikes.removeAll()
             dismissedLikedMembers.removeAll()
@@ -417,6 +582,8 @@ final class AppStore {
             discoveryLikeAcknowledgement = nil
             pendingMessages.removeAll()
             pendingReads.removeAll()
+            loadingHistory.removeAll()
+            historyErrors.removeAll()
             isSending.removeAll()
             pendingMatchMember = nil
             activityLoadError = nil
@@ -443,12 +610,35 @@ final class AppStore {
         onboardingStep = 0
         isOnboarding = true
     }
-    func openAccount(displayName: String, session: BackendAccount.Session, profile: BackendAccount.DiscoveryProfile?) {
+    func openAccount(displayName: String, session: BackendAccount.Session, profile: BackendAccount.DiscoveryProfile?,
+                     staffOnly: Bool = false) {
         startAccountOnboarding(displayName: displayName)
         accountSession = session
-        if let profile {
-            enterAccount(profile)
+        if persistLogin {
+            do { try AccountKeychain.save(session, for: .session) }
+            catch { errorMessage = error.localizedDescription }
         }
+        isStaffOnlySession = staffOnly
+        if staffOnly { isOnboarding = false }
+        else if let profile { enterAccount(profile) }
+    }
+
+    func canReviewSafetyReports() async -> Bool {
+        guard let session = await activeAccountSession() else { return false }
+        let allowed = (try? await backend.isSafetyReviewer(session: session)) == true
+        return allowed && accountSession?.loginID == session.loginID
+    }
+
+    func loadSafetyReports(reviewed: Bool, offset: Int) async throws -> [BackendAccount.SafetyReport] {
+        guard let session = try await refreshAccountSessionIfNeeded() else { throw KindredError.unavailable }
+        let reports = try await backend.loadSafetyQueue(reviewed: reviewed, offset: offset, session: session)
+        guard accountSession?.loginID == session.loginID else { throw KindredError.unavailable }
+        return reports
+    }
+
+    func reviewSafetyReport(_ id: UUID, action: BackendAccount.SafetyAction, note: String? = nil) async throws {
+        guard let session = try await refreshAccountSessionIfNeeded() else { throw KindredError.unavailable }
+        try await backend.reviewSafetyReport(id, action: action, note: note, session: session)
     }
 
     private func enterAccount(_ row: BackendAccount.DiscoveryProfile) {
@@ -463,33 +653,65 @@ final class AppStore {
         feedback = nil
     }
 
-    func refreshDiscovery() async {
-        guard let session = accountSession, hasCompletedOnboarding, !isRefreshingDiscovery else { return }
+    func refreshDiscovery(reset: Bool = false) async {
+        await loadDiscoveryPages(append: false, reset: reset)
+    }
+
+    func loadMoreDiscovery() async {
+        guard hasMoreDiscoveryProfiles else { return }
+        await loadDiscoveryPages(append: true, reset: false)
+    }
+
+    private func loadDiscoveryPages(append: Bool, reset: Bool) async {
+        guard let session = await activeAccountSession(), hasCompletedOnboarding,
+              let accountRepository = repository as? InMemoryKindredRepository,
+              reset || !isRefreshingDiscovery else { return }
+        let pageTarget = max(discoveryPageCount, 1)
+        if reset {
+            liveDiscoverMembers = []
+            discoveryCursor = nil
+            discoveryPageCount = 0
+        }
+        discoveryRevision += 1
+        let revision = discoveryRevision
         isRefreshingDiscovery = true
         discoveryLoadError = nil
+        if reset { mergeLiveMembers(in: accountRepository) }
         defer {
-            if accountSession?.access_token == session.access_token { isRefreshingDiscovery = false }
+            if discoveryRevision == revision { isRefreshingDiscovery = false }
         }
         do {
-            let members = try await backend.discover(session: session)
-            guard accountSession?.access_token == session.access_token,
-                  let accountRepository = repository as? InMemoryKindredRepository else { return }
+            var members = append ? liveDiscoverMembers : []
+            var cursor = append ? discoveryCursor : nil
+            var pageCount = append ? discoveryPageCount : 0
+            var seen = Set(members.map(\.id))
+            repeat {
+                let page = try await backend.discover(after: cursor, session: session)
+                guard !Task.isCancelled, discoveryRevision == revision,
+                      accountSession?.loginID == session.loginID else { return }
+                members += page.profiles.filter { seen.insert($0.id).inserted }
+                cursor = page.next
+                pageCount += 1
+            } while !append && !reset && pageCount < pageTarget && cursor != nil
             liveDiscoverMembers = members
+            discoveryCursor = cursor
+            discoveryPageCount = pageCount
             mergeLiveMembers(in: accountRepository)
         } catch {
-            guard !Task.isCancelled, accountSession?.access_token == session.access_token else { return }
+            guard !Task.isCancelled, discoveryRevision == revision, accountSession?.loginID == session.loginID else { return }
             discoveryLoadError = error.localizedDescription
         }
     }
 
     func finishOnboarding() async -> Bool {
-        guard let session = accountSession else { return completeOnboarding() }
+        if isDemoSession { return completeOnboarding() }
+        guard let session = await activeAccountSession(showError: true) else { return false }
         guard let profile = validatedOnboardingProfile() else { return false }
         let row = BackendAccount.DiscoveryProfile(user_id: session.user.id, profile: profile,
                                                   preferences: onboardingPreferences(), privacy: .init())
         do {
             try await backend.saveDiscoveryProfile(row, session: session)
-            guard accountSession?.access_token == session.access_token else { return false }
+            guard accountSession?.loginID == session.loginID else { return false }
             enterAccount(row)
             return true
         } catch {
@@ -523,17 +745,26 @@ final class AppStore {
     }
 
     private func saveAccountChanges(_ change: BackendAccount.SettingsChange, feedback: String?) async -> Bool {
-        guard let session = accountSession else { return false }
+        guard let session = await activeAccountSession(showError: true) else { return false }
         do {
             try await backend.saveSettings(change, session: session)
-            guard accountSession?.access_token == session.access_token else { return false }
-            return mutate({
+            guard accountSession?.loginID == session.loginID else { return false }
+            let previousProfile = state.currentProfile
+            let previousDiscovery = state.discovery
+            let wasPaused = state.privacy.discoveryPaused
+            let saved = mutate({
                 if let profile = change.profile { try repository.updateProfile(profile) }
                 if let preferences = change.preferences { try repository.updateDiscovery(preferences) }
                 if let privacy = change.privacy { repository.updatePrivacy(privacy) }
             }, feedback: feedback)
+            if saved && (previousDiscovery != state.discovery || wasPaused != state.privacy.discoveryPaused
+                || previousProfile.city != state.currentProfile.city || previousProfile.age != state.currentProfile.age
+                || previousProfile.gender != state.currentProfile.gender) {
+                await refreshDiscovery(reset: true)
+            }
+            return saved
         } catch {
-            if accountSession?.access_token == session.access_token { errorMessage = error.localizedDescription }
+            if accountSession?.loginID == session.loginID { errorMessage = error.localizedDescription }
             return false
         }
     }

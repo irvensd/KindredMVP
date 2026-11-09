@@ -72,7 +72,15 @@ struct DiscoverView: View {
                     ProgressView("Finding introductions…").frame(maxWidth: .infinity)
                 } else if let error = store.discoveryLoadError {
                     EmptyState(symbol: "wifi.exclamationmark", title: "Discover couldn’t load", message: error)
-                    PrimaryButton(title: "Try again") { Task { await store.refreshDiscovery() } }
+                    PrimaryButton(title: "Try again") {
+                        Task {
+                            if store.hasMoreDiscoveryProfiles { await store.loadMoreDiscovery() }
+                            else { await store.refreshDiscovery() }
+                        }
+                    }
+                } else if store.hasMoreDiscoveryProfiles {
+                    PrimaryButton(title: "Find more introductions") { Task { await store.loadMoreDiscovery() } }
+                        .accessibilityIdentifier("moreDiscoveryProfiles")
                 } else {
                     switch store.discoveryEmptyReason {
                     case .paused:
@@ -109,9 +117,6 @@ struct DiscoverView: View {
             .onAppear { selectedID = current?.id }
             .task(id: isActive && scenePhase == .active && !showPreferences) {
                 if isActive && scenePhase == .active && !showPreferences { await store.refreshDiscovery() }
-            }
-            .onChange(of: store.state.privacy.discoveryPaused) { _, paused in
-                if !paused { Task { await store.refreshDiscovery() } }
             }
             .refreshable { await store.refreshDiscovery() }
             .onChange(of: store.discoveryLikeAcknowledgement) { _, saved in

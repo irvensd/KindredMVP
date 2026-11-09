@@ -10,8 +10,12 @@ struct KindredApp: App {
             return AppStore(repository: InMemoryKindredRepository(state: state))
         }
         #endif
-        if !ProcessInfo.processInfo.arguments.contains("--uitesting") || ProcessInfo.processInfo.arguments.contains("--expanded-demo") {
-            return AppStore(repository: InMemoryKindredRepository(state: DemoData.expandedSnapshot(now: Date())))
+        let process = ProcessInfo.processInfo
+        if !process.arguments.contains("--uitesting") || process.arguments.contains("--expanded-demo") {
+            let persistLogin = !process.arguments.contains("--demo") && !process.arguments.contains("--uitesting")
+                && process.environment["XCTestConfigurationFilePath"] == nil
+            return AppStore(repository: InMemoryKindredRepository(state: DemoData.expandedSnapshot(now: Date())),
+                            persistLogin: persistLogin)
         }
         return AppStore()
     }()
@@ -29,14 +33,46 @@ struct KindredApp: App {
 struct RootView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.kindredReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var recoveryLink: URL?
+
     var body: some View {
         @Bindable var store = store
         Group {
-            if store.hasCompletedOnboarding { MainTabs() }
+            if let recoveryLink {
+                PasswordRecoveryView(link: recoveryLink) { userID in
+                    self.recoveryLink = nil
+                    if let userID { store.passwordWasReset(for: userID) }
+                }
+            } else if store.needsAccountRestore {
+                VStack(spacing: 18) {
+                    BrandMark(size: 34).accessibilityHidden(true)
+                    if let error = store.accountRestoreError {
+                        Text("Couldn’t restore your sign-in").font(.headline)
+                        Text(error).foregroundStyle(Color.muted)
+                        PrimaryButton(title: "Try again") { Task { await store.restoreAccount() } }
+                        Button("Forget saved sign-in") { store.forgetSavedLogin() }
+                    } else {
+                        ProgressView("Restoring your sign-in…")
+                    }
+                }
+                .multilineTextAlignment(.center)
+                .padding(24)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if store.isStaffOnlySession {
+                NavigationStack { SafetyReviewView(showsSignOut: true) }
+            } else if store.hasCompletedOnboarding { MainTabs() }
             else if store.isOnboarding { OnboardingView() }
             else { WelcomeView() }
         }
         .foregroundStyle(Color.ink).background(Color.paper)
+        .onOpenURL { url in
+            guard recoveryLink == nil, BackendAccount.isPasswordResetURL(url) else { return }
+            recoveryLink = url
+        }
+        .task(id: scenePhase) {
+            if scenePhase == .active { await store.maintainAccountSession() }
+        }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: store.hasCompletedOnboarding)
         .sensoryFeedback(.success, trigger: store.feedbackCount)
         .overlay(alignment: .top) {

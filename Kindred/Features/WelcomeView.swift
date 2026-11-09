@@ -3,7 +3,7 @@ import SwiftUI
 struct WelcomeView: View {
     @Environment(AppStore.self) private var store
     @State private var accountMode: BackendAccountView.Mode?
-    @State private var completedAccount: (String, BackendAccount.Session, BackendAccount.DiscoveryProfile?)?
+    @State private var completedAccount: (String, BackendAccount.Session, BackendAccount.DiscoveryProfile?, Bool)?
     var body: some View {
         ScrollView {
             VStack(spacing: 25) {
@@ -29,6 +29,7 @@ struct WelcomeView: View {
                 VStack(spacing: 10) {
                     PrimaryButton(title: "Create account", symbol: "arrow.right") { accountMode = .create }
                     Button("Sign in") { accountMode = .signIn }
+                        .accessibilityIdentifier("openAccountSignIn")
                         .font(.headline).frame(minHeight: 44)
                     Button("Explore the demo") { store.startDemoOnboarding() }
                         .font(.subheadline.weight(.medium)).frame(minHeight: 44)
@@ -38,12 +39,12 @@ struct WelcomeView: View {
                 }
             }.padding(.horizontal, 24).padding(.bottom, 24)
         }.background(Color.paper).sheet(item: $accountMode, onDismiss: {
-            guard let (name, session, profile) = completedAccount else { return }
+            guard let (name, session, profile, staffOnly) = completedAccount else { return }
             completedAccount = nil
-            store.openAccount(displayName: name, session: session, profile: profile)
+            store.openAccount(displayName: name, session: session, profile: profile, staffOnly: staffOnly)
         }) { mode in
-            BackendAccountView(mode: mode) { name, session, profile in
-                completedAccount = (name, session, profile)
+            BackendAccountView(mode: mode) { name, session, profile, staffOnly in
+                completedAccount = (name, session, profile, staffOnly)
                 accountMode = nil
             }.tint(Color.plum)
         }
