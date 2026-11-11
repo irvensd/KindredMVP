@@ -414,46 +414,83 @@ final class KindredUITests: XCTestCase {
     }
     private func checkDistanceOpenness(options: [String]) {
         launch(options: options)
-        app.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        let edit = app.buttons["editProfile"]
+        let save = app.buttons["saveProfile"]
+        let preview = app.buttons["publicPreview"]
+        let profile = app.scrollViews["memberProfileScroll"]
         let longDistance = app.buttons["Open to long distance"]
-        reveal(longDistance, attempts: 15); longDistance.tap()
-        XCTAssertTrue(longDistance.isSelected)
         let relocate = app.switches["openToRelocating"]
-        reveal(relocate); relocate.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-        XCTAssertEqual(relocate.value as? String, "1")
+        let summary = app.descendants(matching: .any).matching(identifier: "distancePreferencesSummary").firstMatch
+
+        func revealEditorControl(_ control: XCUIElement) -> Bool {
+            for _ in 0..<20 {
+                let top = app.navigationBars.firstMatch.frame.maxY
+                let bottom = app.frame.maxY - 24
+                if control.exists, control.frame.minY > top, control.frame.maxY < bottom, control.isHittable {
+                    return true
+                }
+                let scrollTowardTop = control.exists && control.frame.minY <= top
+                let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.55))
+                let end = start.withOffset(CGVector(dx: 0, dy: scrollTowardTop ? 160 : -160))
+                start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.15)
+            }
+            return false
+        }
+        func select(_ choice: XCUIElement) {
+            XCTAssertTrue(revealEditorControl(choice), "The full distance option should be visible")
+            choice.tap()
+            let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: choice)
+            XCTAssertEqual(XCTWaiter.wait(for: [selected], timeout: 5), .completed)
+        }
+        func setRelocation(from current: String, to expected: String) {
+            XCTAssertTrue(revealEditorControl(relocate), "The full relocation switch should be visible")
+            XCTAssertEqual(relocate.value as? String, current)
+            relocate.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+            let changed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", expected), object: relocate)
+            XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 5), .completed)
+        }
+        func openPreview() {
+            for _ in 0..<10 {
+                if preview.isHittable { break }
+                app.swipeDown()
+            }
+            XCTAssertTrue(tapAndWait(preview, for: profile))
+        }
+
+        XCTAssertTrue(tapAndWait(app.tabBars.buttons["You"], for: edit))
+        XCTAssertTrue(tapAndWait(edit, for: save))
+        select(longDistance)
+        setRelocation(from: "0", to: "1")
         app.buttons["Cancel"].tap()
         XCTAssertTrue(app.alerts["Discard changes?"].waitForExistence(timeout: 5))
         app.alerts.buttons["Keep editing"].tap()
         app.buttons["saveProfile"].tap()
-        let preview = app.buttons["publicPreview"]
-        for _ in 0..<10 {
-            if preview.isHittable { break }
-            app.swipeDown()
-        }
-        preview.tap()
-        let summary = app.descendants(matching: .any).matching(identifier: "distancePreferencesSummary").firstMatch
+        XCTAssertTrue(save.waitForNonExistence(timeout: 8))
+
+        openPreview()
         reveal(summary, attempts: 15)
         XCTAssertTrue(summary.label.contains("Open to long distance"))
         XCTAssertTrue(summary.label.contains("Open to relocating"))
         capture("Saved distance and relocation preferences")
-        let back = app.buttons["BackButton"]
-        if back.exists { back.tap() } else { app.navigationBars.buttons.element(boundBy: 0).tap() }
-        app.buttons["editProfile"].tap()
-        reveal(longDistance, attempts: 15)
+
+        XCTAssertTrue(tapAndWait(app.buttons["BackButton"], for: edit))
+        XCTAssertTrue(tapAndWait(edit, for: save))
+        XCTAssertTrue(revealEditorControl(longDistance))
         XCTAssertTrue(longDistance.isSelected)
-        app.buttons["Prefer local connections"].tap()
-        app.buttons["Cancel"].tap(); app.alerts.buttons["Discard changes"].tap()
-        app.buttons["editProfile"].tap()
-        reveal(longDistance, attempts: 15)
+        select(app.buttons["Prefer local connections"])
+        app.buttons["Cancel"].tap()
+        XCTAssertTrue(app.alerts["Discard changes?"].waitForExistence(timeout: 5))
+        app.alerts.buttons["Discard changes"].tap()
+        XCTAssertTrue(save.waitForNonExistence(timeout: 8))
+
+        XCTAssertTrue(tapAndWait(edit, for: save))
+        XCTAssertTrue(revealEditorControl(longDistance))
         XCTAssertTrue(longDistance.isSelected)
-        let unspecified = app.buttons["Not shared"]; unspecified.tap()
-        reveal(relocate); relocate.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-        app.buttons["saveProfile"].tap()
-        for _ in 0..<10 {
-            if preview.isHittable { break }
-            app.swipeDown()
-        }
-        preview.tap()
+        select(app.buttons["Not shared"])
+        setRelocation(from: "1", to: "0")
+        save.tap()
+        XCTAssertTrue(save.waitForNonExistence(timeout: 8))
+        openPreview()
         for _ in 0..<5 { app.swipeUp() }
         XCTAssertFalse(summary.exists)
     }
