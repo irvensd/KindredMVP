@@ -213,9 +213,14 @@ final class KindredUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 5.3)
         app.activate()
         XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Amara")
-        app.buttons["You"].tap(); app.buttons["editProfile"].tap()
+        let edit = app.buttons["editProfile"]
         let name = app.textFields["editName"]
-        name.tap(); name.typeText(" Grace")
+        XCTAssertTrue(tapAndWait(app.tabBars.buttons["You"], for: edit))
+        XCTAssertTrue(tapAndWait(edit, for: name))
+        let keyboard = app.keyboards.firstMatch
+        XCTAssertTrue(tapAndWait(name, for: keyboard), "The first-name field should open the keyboard")
+        name.typeText(" Grace")
+        XCTAssertEqual(name.value as? String, "Alex Grace")
         XCUIDevice.shared.press(.home)
         app.activate()
         XCTAssertEqual(name.value as? String, "Alex Grace")
@@ -226,7 +231,7 @@ final class KindredUITests: XCTestCase {
         let save = app.buttons["saveProfile"]
         save.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).doubleTap()
         XCTAssertTrue(save.waitForNonExistence(timeout: 5))
-        app.buttons["editProfile"].tap()
+        XCTAssertTrue(tapAndWait(edit, for: name))
         XCTAssertEqual(name.value as? String, "Alex Grace")
         app.buttons["Cancel"].tap()
     }
@@ -533,20 +538,29 @@ final class KindredUITests: XCTestCase {
                 }
             }
             let edit = app.buttons["editProfile"]
-            edit.tap()
+            let profileSave = app.buttons["saveProfile"]
+            XCTAssertTrue(tapAndWait(edit, for: profileSave))
             app.buttons["Cancel"].tap()
-            XCTAssertTrue(edit.waitForExistence(timeout: 5))
+            XCTAssertTrue(profileSave.waitForNonExistence(timeout: 8))
             XCTAssertTrue(edit.isHittable)
-            app.buttons["Discover"].tap()
+            XCTAssertTrue(tapAndWait(app.tabBars.buttons["Discover"], for: app.buttons["passProfile"]))
             let preferences = app.buttons["discoveryPreferences"]
             for _ in 0..<6 {
                 if preferences.isHittable { break }
                 app.swipeDown()
             }
-            preferences.tap()
+            let preferencesSave = app.buttons["savePreferences"]
+            XCTAssertTrue(tapAndWait(preferences, for: preferencesSave))
             app.buttons["Cancel"].tap()
-            XCTAssertTrue(preferences.waitForExistence(timeout: 5))
-            XCTAssertTrue(preferences.isHittable)
+            XCTAssertTrue(preferencesSave.waitForNonExistence(timeout: 8))
+            let preferencesReady = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in preferences.isHittable },
+                object: preferences
+            )
+            XCTAssertEqual(XCTWaiter.wait(for: [preferencesReady], timeout: 5), .completed)
+            XCTAssertTrue(tapAndWait(preferences, for: preferencesSave))
+            app.buttons["Cancel"].tap()
+            XCTAssertTrue(preferencesSave.waitForNonExistence(timeout: 8))
             XCTAssertTrue(app.buttons["Next photo"].isEnabled)
             XCTAssertTrue(app.buttons["passProfile"].isEnabled)
             XCTAssertTrue(app.buttons["likeProfile"].isEnabled)
@@ -617,27 +631,23 @@ final class KindredUITests: XCTestCase {
     func testConversationNameSearchAndUnreadFilter() {
         for options in [[], ["--large-text", "--dark", "--reduce-motion"]] as [[String]] {
             launch(options: options + ["--expanded-demo"])
-            app.buttons["Chats"].tap()
             let search = app.textFields["conversationSearch"]
-            XCTAssertTrue(search.waitForExistence(timeout: 5))
-            search.tap(); search.typeText("  NAOMI  ")
-            app.keyboards.buttons["Search"].tap()
+            XCTAssertTrue(tapAndWait(app.tabBars.buttons["Chats"], for: search))
+            searchConversations("  NAOMI  ", in: search)
             let naomi = app.buttons["conversation-demo-naomi"]
+            XCTAssertTrue(naomi.waitForExistence(timeout: 5))
             reveal(naomi)
             XCTAssertTrue(naomi.isHittable)
             XCTAssertFalse(app.buttons["conversation-demo-caleb"].exists)
-            naomi.tap()
-            XCTAssertTrue(app.textFields["messageComposer"].waitForExistence(timeout: 5))
-            let railBack = app.buttons["BackButton"]
-            if railBack.exists { railBack.tap() } else { app.navigationBars.buttons.element(boundBy: 0).tap() }
+            XCTAssertTrue(tapAndWait(naomi, for: app.textFields["messageComposer"]))
+            XCTAssertTrue(tapAndWait(app.buttons["BackButton"], for: search))
             XCTAssertEqual(search.value as? String, "  NAOMI  ")
             app.buttons["Unread"].tap()
             XCTAssertFalse(naomi.exists)
             XCTAssertTrue(app.buttons["Show all conversations"].exists)
             app.buttons["Show all conversations"].tap()
             XCTAssertTrue(app.buttons["conversation-eli"].exists)
-            search.tap(); search.typeText("No such member")
-            app.keyboards.buttons["Search"].tap()
+            searchConversations("No such member", in: search)
             XCTAssertTrue(app.staticTexts["No conversations found"].exists)
             app.buttons["Clear name search"].tap()
             app.buttons["Unread"].tap()
@@ -647,21 +657,40 @@ final class KindredUITests: XCTestCase {
         }
     }
 
+    private func searchConversations(_ query: String, in field: XCUIElement) {
+        let keyboard = app.keyboards.firstMatch
+        XCTAssertTrue(tapAndWait(field, for: keyboard))
+        field.typeText(query)
+        XCTAssertEqual(field.value as? String, query)
+        let submit = keyboard.buttons["Search"]
+        submit.tap()
+        if !keyboard.waitForNonExistence(timeout: 3), submit.isHittable {
+            submit.tap()
+        }
+        XCTAssertTrue(keyboard.waitForNonExistence(timeout: 5))
+    }
+
     func testConversationDraftSurvivesReopeningAndClearsAfterSend() {
         launch()
-        app.tabBars.buttons["Chats"].tap()
-        app.buttons["conversation-eli"].tap()
+        let chats = app.tabBars.buttons["Chats"]
+        let eli = app.buttons["conversation-eli"]
         let composer = app.textFields["messageComposer"]
-        composer.tap(); composer.typeText("A question for Eli")
+        let back = app.buttons["BackButton"]
+        XCTAssertTrue(tapAndWait(chats, for: eli))
+        XCTAssertTrue(tapAndWait(eli, for: composer))
+        XCTAssertTrue(tapAndWait(composer, for: app.keyboards.firstMatch))
+        composer.typeText("A question for Eli")
         dismissChatKeyboard()
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.tabBars.buttons["You"].tap(); app.tabBars.buttons["Chats"].tap()
-        app.buttons["conversation-eli"].tap()
+        XCTAssertTrue(tapAndWait(back, for: eli))
+        XCTAssertTrue(tapAndWait(app.tabBars.buttons["You"], for: app.buttons["editProfile"]))
+        XCTAssertTrue(tapAndWait(chats, for: eli))
+        XCTAssertTrue(tapAndWait(eli, for: composer))
         XCTAssertEqual(composer.value as? String, "A question for Eli")
         capture("Restored conversation draft")
         app.buttons["sendMessage"].tap()
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.buttons["conversation-eli"].tap()
+        XCTAssertTrue(app.staticTexts["A question for Eli"].waitForExistence(timeout: 5))
+        XCTAssertTrue(tapAndWait(back, for: eli))
+        XCTAssertTrue(tapAndWait(eli, for: composer))
         XCTAssertFalse(app.buttons["sendMessage"].isEnabled)
         XCTAssertTrue(app.staticTexts["A question for Eli"].exists)
     }
@@ -1148,6 +1177,12 @@ final class KindredUITests: XCTestCase {
         launch()
         let portrait = app.descendants(matching: .any).matching(identifier: "discoveryPortrait").firstMatch
         XCTAssertTrue(portrait.waitForExistence(timeout: 5))
+        let initialY = portrait.frame.minY
+        func swipeAcrossPortrait(_ distance: CGFloat) {
+            let start = portrait.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4))
+            let end = start.withOffset(CGVector(dx: distance, dy: 0))
+            start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
+        }
         let start = portrait.coordinate(withNormalizedOffset: CGVector(dx: 0.45, dy: 0.35))
         let short = portrait.coordinate(withNormalizedOffset: CGVector(dx: 0.52, dy: 0.35))
         start.press(forDuration: 0.15, thenDragTo: short)
@@ -1157,11 +1192,18 @@ final class KindredUITests: XCTestCase {
         XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Amara")
         XCTAssertTrue(app.buttons["likeProfile"].isEnabled)
         app.swipeDown()
-        portrait.swipeRight(velocity: .slow)
-        XCTAssertTrue(app.buttons["matchKeepDiscovering"].waitForExistence(timeout: 3))
-        app.buttons["matchKeepDiscovering"].tap()
+        let portraitRestored = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in portrait.exists && portrait.frame.minY >= initialY - 20 },
+            object: portrait
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [portraitRestored], timeout: 5), .completed)
+        swipeAcrossPortrait(120)
+        let keepDiscovering = app.buttons["matchKeepDiscovering"]
+        XCTAssertTrue(keepDiscovering.waitForExistence(timeout: 8))
+        keepDiscovering.tap()
+        XCTAssertTrue(keepDiscovering.waitForNonExistence(timeout: 8))
         XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
-        portrait.swipeLeft(velocity: .slow)
+        swipeAcrossPortrait(-120)
         XCTAssertTrue(app.staticTexts["You've seen everyone for now"].waitForExistence(timeout: 3))
         app.buttons["undoPass"].tap()
         XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
@@ -1394,7 +1436,10 @@ final class KindredUITests: XCTestCase {
     }
     func testCompletedStoryIsCompactAndCanBeDismissed() throws {
         for options in [[], ["--dark"], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
-            launch(options: options); app.tabBars.buttons["You"].tap()
+            launch(options: options)
+            let you = app.tabBars.buttons["You"]
+            let story = app.staticTexts["Your story"]
+            XCTAssertTrue(tapAndWait(you, for: story))
             let summary = app.descendants(matching: .any).matching(identifier: "completedStorySummary").firstMatch
             XCTAssertTrue(summary.waitForExistence(timeout: 3))
             XCTAssertFalse(app.buttons["completeProfile"].exists, "Completed stories should not repeat the edit action")
@@ -1424,7 +1469,8 @@ final class KindredUITests: XCTestCase {
             reveal(preferences); preferences.tap()
             XCTAssertTrue(app.buttons["savePreferences"].waitForExistence(timeout: 3))
             app.buttons["Cancel"].tap()
-            app.tabBars.buttons["Discover"].tap(); app.tabBars.buttons["You"].tap()
+            XCTAssertTrue(tapAndWait(app.tabBars.buttons["Discover"], for: app.buttons["discoveryPreferences"]))
+            XCTAssertTrue(tapAndWait(you, for: story))
             XCTAssertFalse(summary.exists, "The optional summary stays hidden across tabs")
         }
     }
