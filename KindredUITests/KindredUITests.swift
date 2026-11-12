@@ -1281,20 +1281,36 @@ final class KindredUITests: XCTestCase {
     }
     func testShortFastFlickCommitsWhileTinyFlickCancels() {
         launch(options: ["--pending-interest-demo", "--slow-discovery-advance"])
-        let portrait = app.descendants(matching: .any).matching(identifier: "discoveryPortrait").firstMatch
-        XCTAssertTrue(portrait.waitForExistence(timeout: 5))
-        func flick(_ distance: CGFloat) {
-            let start = portrait.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4))
-            start.press(forDuration: 0.1, thenDragTo: start.withOffset(CGVector(dx: distance, dy: 0)), withVelocity: .fast, thenHoldForDuration: 0)
+        let amaraPhoto = app.images["Amara, photo 1 of 2"]
+        let eliPhoto = app.images["Eli, photo 1 of 2"]
+        let next = app.buttons["passProfile"]
+        let interest = app.buttons["likeProfile"]
+        XCTAssertTrue(amaraPhoto.waitForExistence(timeout: 5))
+
+        func flick(_ distance: CGFloat, on photo: XCUIElement) {
+            let start = photo.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4))
+            let end = start.withOffset(CGVector(dx: distance, dy: 0))
+            // Simulator event sampling can report a lower release velocity than requested.
+            let flickVelocity = XCUIGestureVelocity(rawValue: 1100)
+            start.press(forDuration: 0, thenDragTo: end, withVelocity: flickVelocity, thenHoldForDuration: 0)
         }
-        flick(25)
-        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Amara")
-        XCTAssertTrue(app.buttons["likeProfile"].isEnabled)
-        flick(-70)
-        XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip Eli")
-        flick(70)
-        XCTAssertEqual(app.buttons["likeProfile"].label, "Interest saved for Eli")
-        XCTAssertFalse(app.buttons["likeProfile"].isEnabled)
+
+        flick(25, on: amaraPhoto)
+        XCTAssertEqual(next.label, "Next introduction, skip Amara")
+        XCTAssertTrue(interest.isEnabled)
+
+        flick(-70, on: amaraPhoto)
+        XCTAssertTrue(amaraPhoto.waitForNonExistence(timeout: 5), "The short left flick should advance to Eli")
+        let eliReady = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true"), object: eliPhoto)
+        XCTAssertEqual(XCTWaiter.wait(for: [eliReady], timeout: 5), .completed)
+        XCTAssertEqual(next.label, "Next introduction, skip Eli")
+
+        flick(70, on: eliPhoto)
+        let saved = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "label == %@ AND enabled == false", "Interest saved for Eli"),
+            object: interest
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [saved], timeout: 4), .completed, "The short right flick should save interest in Eli")
         capture("Short deliberate flick saved interest")
     }
     func testReducedMotionSwipesAndRepeatedInterest() {
@@ -1531,15 +1547,26 @@ final class KindredUITests: XCTestCase {
     }
 
     func testProfilePreviewAndCancelPreserveSavedStory() {
-        launch(); app.tabBars.buttons["You"].tap()
+        launch()
+        let preview = app.buttons["publicPreview"]
+        XCTAssertTrue(tapAndWait(app.tabBars.buttons["You"], for: preview), "The You tab should show Preview")
         capture("Your story completion")
-        app.buttons["publicPreview"].tap()
-        XCTAssertTrue(app.staticTexts["Your public profile preview".uppercased()].waitForExistence(timeout: 3))
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.buttons["editProfile"].tap()
-        let field = app.textFields["editName"]; field.tap(); field.typeText(" changed")
+        let previewTitle = app.staticTexts["YOUR PUBLIC PROFILE PREVIEW"]
+        XCTAssertTrue(tapAndWait(preview, for: previewTitle))
+
+        let edit = app.buttons["editProfile"]
+        XCTAssertTrue(tapAndWait(app.buttons["BackButton"], for: edit))
+        let field = app.textFields["editName"]
+        XCTAssertTrue(tapAndWait(edit, for: field))
+        XCTAssertTrue(tapAndWait(field, for: app.keyboards.firstMatch))
+        field.typeText(" changed")
+        XCTAssertEqual(field.value as? String, "Alex changed")
+
         app.buttons["Cancel"].tap()
-        app.buttons["Discard changes"].tap()
+        let discard = app.alerts.buttons["Discard changes"]
+        XCTAssertTrue(discard.waitForExistence(timeout: 5))
+        discard.tap()
+        XCTAssertTrue(field.waitForNonExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["Alex, 28"].exists)
     }
     func testDarkLargeTypeReduceMotionAndAccessibleActions() throws {
