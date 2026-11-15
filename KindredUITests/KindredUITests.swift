@@ -18,37 +18,211 @@ final class KindredUITests: XCTestCase {
         let attachment = XCTAttachment(screenshot: app.screenshot()); attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
     }
     func next() { let button = app.buttons["onboardingNext"]; XCTAssertTrue(button.waitForExistence(timeout: 3)); button.tap() }
+    func testLosingPlusWhileLikesIsOpenKeepsMatchAndChat() {
+        launch(options: ["--test-plus-expiration", "--reduce-motion"])
+        let tabs = app.tabBars.firstMatch
+        let keepDiscovering = app.buttons["matchKeepDiscovering"]
+        XCTAssertTrue(tapAndWait(app.buttons["likeProfile"], for: keepDiscovering))
+        keepDiscovering.tap()
+
+        let likeBack = app.buttons["Like back June"]
+        let pass = app.buttons["Pass on June"]
+        let unlock = app.buttons["See who likes you"]
+        let sayHello = app.buttons["sayHello-amara"]
+        XCTAssertTrue(tapAndWait(tabs.buttons["Likes"], for: sayHello))
+        reveal(likeBack)
+        XCTAssertTrue(likeBack.exists)
+        XCTAssertTrue(pass.exists)
+        XCTAssertFalse(unlock.exists)
+
+        let expire = app.buttons["Simulate Plus expiration"]
+        for _ in 0..<6 {
+            if expire.isHittable { break }
+            app.swipeDown()
+        }
+        XCTAssertTrue(tapAndWait(expire, for: unlock))
+        XCTAssertTrue(tabs.buttons["Likes"].isSelected)
+        XCTAssertTrue(app.staticTexts["1 person likes you"].exists)
+        XCTAssertFalse(likeBack.exists)
+        XCTAssertFalse(pass.exists)
+        XCTAssertFalse(app.staticTexts["June, 27"].exists)
+        XCTAssertTrue(sayHello.exists)
+
+        let remaining = app.buttons["12 likes left"]
+        XCTAssertTrue(tapAndWait(tabs.buttons["Discover"], for: remaining))
+
+        let chat = app.buttons["conversation-amara"]
+        XCTAssertTrue(tapAndWait(tabs.buttons["Chats"], for: chat))
+        reveal(chat)
+        XCTAssertTrue(tapAndWait(chat, for: app.textFields["messageComposer"]))
+        XCTAssertTrue(app.navigationBars["Amara"].exists)
+    }
+
+    func testLockedLikesDarkModeLargestTextAndAccessibility() {
+        launch(options: ["--locked-likes-demo", "--dark", "--largest-text", "--reduce-motion"])
+        let count = app.staticTexts["2 people like you"]
+        let upgrade = app.buttons["See who likes you"]
+        XCTAssertTrue(tapAndWait(app.tabBars.buttons["Likes"], for: count))
+        capture("Locked Likes count and placeholders")
+
+        let tabBar = app.tabBars.firstMatch
+        for _ in 0..<8 {
+            if upgrade.isHittable, upgrade.frame.maxY < tabBar.frame.minY { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(upgrade.isHittable)
+        XCTAssertLessThanOrEqual(upgrade.frame.maxY, tabBar.frame.minY)
+        XCTAssertGreaterThanOrEqual(upgrade.frame.height, 44)
+        capture("Locked Likes placeholders and upgrade")
+
+        let scroll = app.scrollViews.firstMatch
+        let privateContent = scroll.descendants(matching: .any).matching(NSPredicate(
+            format: "label CONTAINS[c] %@ OR label CONTAINS[c] %@ OR label BEGINSWITH[c] %@ OR label BEGINSWITH[c] %@",
+            "Amara", "June", "Like back", "Pass on"
+        ))
+        XCTAssertFalse(privateContent.firstMatch.exists)
+        let placeholderSymbols = scroll.images.matching(NSPredicate(
+            format: "identifier == %@ OR label ==[c] %@ OR label ==[c] %@",
+            "person.fill", "person", "person.fill"
+        ))
+        XCTAssertFalse(placeholderSymbols.firstMatch.exists, "Decorative silhouettes should stay out of the accessibility tree")
+        XCTAssertTrue(tapAndWait(upgrade, for: app.buttons["demoPlan-kindred_plus_monthly"]))
+    }
+
+    func testFreeDiscoverStopsAtTwelveLikesAndKeepsCurrentProfile() {
+        launch(options: ["--free-like-limit-demo", "--reduce-motion"])
+        let like = app.buttons["likeProfile"]
+
+        func counter(_ remaining: Int) -> XCUIElement {
+            app.buttons[remaining == 1 ? "1 like left" : "\(remaining) likes left"]
+        }
+        func waitForProfile(_ number: Int) {
+            let label = NSPredicate(format: "label == %@", "I'm interested in Member \(number)")
+            let ready = XCTNSPredicateExpectation(predicate: label, object: like)
+            XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 10), .completed)
+        }
+
+        XCTAssertTrue(counter(12).waitForExistence(timeout: 8))
+        for number in 1...12 {
+            waitForProfile(number)
+            XCTAssertTrue(tapAndWait(like, for: counter(12 - number)))
+        }
+
+        waitForProfile(13)
+        let monthly = app.buttons["demoPlan-kindred_plus_monthly"]
+        XCTAssertTrue(tapAndWait(like, for: monthly))
+        let reset = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "They reset")).firstMatch
+        XCTAssertTrue(reset.exists)
+        app.buttons["Close"].tap()
+        XCTAssertTrue(monthly.waitForNonExistence(timeout: 8))
+        waitForProfile(13)
+        XCTAssertTrue(like.isEnabled)
+        XCTAssertTrue(counter(0).exists)
+    }
+
+    func testPendingPlusHidesPurchaseButtonsUntilActivationIsConfirmed() {
+        launch(options: ["--locked-likes-demo", "--pending-plus-demo", "--reduce-motion"])
+        let entry = app.buttons["settingsKindredPlus"]
+        XCTAssertTrue(tapAndWait(app.tabBars.buttons["You"], for: entry))
+        reveal(entry)
+        let monthly = app.buttons["demoPlan-kindred_plus_monthly"]
+        let threeMonths = app.buttons["demoPlan-kindred_plus_3month"]
+        XCTAssertTrue(tapAndWait(entry, for: monthly))
+        let confirm = app.alerts.buttons["Simulate purchase"]
+        XCTAssertTrue(tapAndWait(monthly, for: confirm))
+        let check = app.buttons["Check again"]
+        XCTAssertTrue(tapAndWait(confirm, for: check))
+        XCTAssertTrue(app.staticTexts["Activating Plus"].exists)
+        XCTAssertFalse(monthly.exists)
+        XCTAssertFalse(threeMonths.exists)
+
+        app.buttons["Close"].tap()
+        XCTAssertTrue(check.waitForNonExistence(timeout: 8))
+        XCTAssertTrue(tapAndWait(entry, for: check))
+        XCTAssertFalse(monthly.exists)
+        XCTAssertTrue(tapAndWait(check, for: app.buttons["Continue exploring"]))
+        XCTAssertFalse(check.exists)
+        XCTAssertFalse(threeMonths.exists)
+    }
+
+    func testDemoPlusLocksIncomingLikesAndUnlocksWithoutPurchasing() {
+        launch()
+        let tabBar = app.tabBars.firstMatch
+        let entry = app.buttons["settingsKindredPlus"]
+        let reset = app.buttons["resetDemoPlus"]
+        XCTAssertTrue(tapAndWait(tabBar.buttons["You"], for: entry))
+        reveal(entry)
+        XCTAssertTrue(tapAndWait(entry, for: reset))
+        let monthly = app.buttons["demoPlan-kindred_plus_monthly"]
+        XCTAssertTrue(tapAndWait(reset, for: monthly))
+        app.buttons["Close"].tap()
+        XCTAssertTrue(monthly.waitForNonExistence(timeout: 8))
+
+        let unlock = app.buttons["See who likes you"]
+        XCTAssertTrue(tapAndWait(tabBar.buttons["Likes"], for: app.buttons["Liked you"]))
+        reveal(unlock)
+        XCTAssertFalse(app.buttons["Like back Amara"].exists)
+        XCTAssertTrue(app.staticTexts["2 people like you"].exists)
+        XCTAssertTrue(tapAndWait(unlock, for: monthly))
+        let threeMonths = app.buttons["demoPlan-kindred_plus_3month"]
+        XCTAssertTrue(threeMonths.exists)
+        let confirmation = app.alerts["Simulate subscription?"]
+        XCTAssertTrue(tapAndWait(threeMonths, for: confirmation))
+        confirmation.buttons["Cancel"].tap()
+        XCTAssertTrue(confirmation.waitForNonExistence(timeout: 8))
+        XCTAssertTrue(tapAndWait(monthly, for: confirmation))
+        confirmation.buttons["Simulate purchase"].tap()
+        XCTAssertTrue(app.buttons["Continue exploring"].waitForExistence(timeout: 8))
+        app.buttons["Continue exploring"].tap()
+        XCTAssertTrue(app.buttons["Like back Amara"].waitForExistence(timeout: 8))
+        XCTAssertFalse(unlock.exists)
+    }
+
     func testRemoveInterestAndConfirmedUnmatch() {
         for options in [[], ["--dark", "--large-text", "--reduce-motion"]] as [[String]] {
             launch(options: options)
-            app.buttons["likeProfile"].tap()
-            XCTAssertTrue(app.buttons["matchKeepDiscovering"].waitForExistence(timeout: 4))
-            app.buttons["matchKeepDiscovering"].tap()
-            app.tabBars.buttons["Likes"].tap(); app.buttons["Your likes"].tap()
+            let keepDiscovering = app.buttons["matchKeepDiscovering"]
+            XCTAssertTrue(tapAndWait(app.buttons["likeProfile"], for: keepDiscovering))
+            keepDiscovering.tap()
+            let yourLikes = app.buttons["Your likes"]
+            XCTAssertTrue(tapAndWait(app.tabBars.buttons["Likes"], for: yourLikes))
+            yourLikes.tap()
             let explanation = app.staticTexts["Removes your saved interest, including photo and answer likes. Your connection and chat stay."]
             reveal(explanation, attempts: 12); XCTAssertTrue(explanation.exists)
             capture("Remove interest explanation \(options.isEmpty ? "standard" : "large")")
             let remove = app.buttons["removeLike-amara"]; reveal(remove, attempts: 12); remove.tap()
-            app.buttons["Liked you"].tap()
-            let unmatch = app.buttons["unmatch-amara"]; reveal(unmatch, attempts: 12); unmatch.tap()
-            XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 3))
-            capture("Unmatch confirmation \(options.isEmpty ? "standard" : "large")")
-            if !options.isEmpty {
-                for _ in 0..<5 {
-                    let alert = app.alerts.firstMatch
-                    alert.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)).press(forDuration: 0.05, thenDragTo: alert.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2)))
-                }
-                capture("Unmatch explanation scrolled large")
+            let likedYou = app.buttons["Liked you"]
+            for _ in 0..<8 {
+                if likedYou.isHittable, likedYou.frame.minY > 70 { break }
+                app.swipeDown()
             }
-            app.alerts.buttons["Keep connection"].tap()
-            let hello = app.buttons["sayHello-amara"]; reveal(hello, attempts: 12); hello.tap()
-            XCTAssertTrue(app.navigationBars["Amara"].waitForExistence(timeout: 3))
-            app.buttons["Profile safety options"].tap(); app.buttons["Unmatch"].tap()
-            app.alerts.buttons["Unmatch"].tap()
+            XCTAssertTrue(tapAndWait(likedYou, for: app.staticTexts["Mutual connections"]))
+            let unmatch = app.buttons["unmatch-amara"]
+            let confirmation = app.buttons["Keep connection"]
+            reveal(unmatch, attempts: 12)
+            XCTAssertTrue(tapAndWait(unmatch, for: confirmation))
+            capture("Unmatch confirmation \(options.isEmpty ? "standard" : "large")")
+            let keepConnection = app.buttons["Keep connection"]
+            if !options.isEmpty { reveal(keepConnection, attempts: 12) }
+            XCTAssertTrue(keepConnection.isHittable)
+            keepConnection.tap()
+            XCTAssertTrue(confirmation.waitForNonExistence(timeout: 8))
+            XCTAssertTrue(app.buttons["unmatch-amara"].exists)
+            let chat = app.buttons["conversation-amara"]
+            XCTAssertTrue(tapAndWait(app.tabBars.buttons["Chats"], for: chat))
+            reveal(chat, attempts: 12)
+            XCTAssertTrue(tapAndWait(chat, for: app.navigationBars["Amara"]))
+            let endConnection = app.buttons["Unmatch"]
+            XCTAssertTrue(tapAndWait(app.buttons["Profile safety options"], for: endConnection))
+            XCTAssertTrue(tapAndWait(endConnection, for: confirmation))
+            let confirm = options.isEmpty ? app.alerts.buttons["Unmatch"] : app.buttons["Unmatch"]
+            if !options.isEmpty { reveal(confirm, attempts: 12) }
+            confirm.tap()
             XCTAssertTrue(app.staticTexts["Conversation unavailable"].waitForExistence(timeout: 3))
-            app.tabBars.buttons["Chats"].tap()
-            XCTAssertFalse(app.buttons["conversation-amara"].exists)
-            app.tabBars.buttons["Likes"].tap()
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            XCTAssertTrue(app.staticTexts["Say hello"].waitForExistence(timeout: 8))
+            XCTAssertFalse(chat.exists)
+            XCTAssertTrue(tapAndWait(app.tabBars.buttons["Likes"], for: app.buttons["Liked you"]))
             XCTAssertFalse(app.buttons["unmatch-amara"].exists)
         }
     }
@@ -1000,7 +1174,9 @@ final class KindredUITests: XCTestCase {
         capture("Personal photo match")
         app.buttons["matchKeepDiscovering"].tap()
         XCTAssertEqual(app.buttons["passProfile"].label, "Next introduction, skip June")
-        app.tabBars.buttons["Likes"].tap(); app.buttons["Your likes"].tap()
+        let yourLikes = app.buttons["Your likes"]
+        XCTAssertTrue(tapAndWait(app.tabBars.buttons["Likes"], for: yourLikes))
+        yourLikes.tap()
         let saved = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Amara’s photo 2")).firstMatch
         reveal(saved); saved.tap()
         let gallery = app.scrollViews["memberProfileScroll"]

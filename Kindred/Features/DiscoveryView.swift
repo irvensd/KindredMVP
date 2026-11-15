@@ -44,6 +44,15 @@ struct DiscoverView: View {
                         }
                     }.font(.caption.weight(.medium)).foregroundStyle(Color.muted).padding(.vertical, 13).padding(.horizontal, 15).background(Color.sand.opacity(0.7), in: RoundedRectangle(cornerRadius: 24))
                 }.buttonStyle(.plain).accessibilityLabel("Discovery preferences").accessibilityIdentifier("discoveryPreferences").accessibilityFocused($preferencesFocused)
+                if store.isPlus && !store.isDemoSession {
+                    Label("Unlimited likes with Kindred Plus", systemImage: "heart")
+                        .font(.footnote).foregroundStyle(Color.muted)
+                } else if let remaining = store.likesRemaining {
+                    Button { store.isShowingPlus = true } label: {
+                        Text(remaining == 1 ? "1 like left" : "\(remaining) likes left")
+                            .font(.footnote.weight(.medium))
+                    }.buttonStyle(KindredPressStyle()).foregroundStyle(Color.plum)
+                }
                 if let profile = current {
                     VStack(alignment: .leading, spacing: 18) {
                         DiscoveryPortrait(profile: profile, selectedPhoto: $selectedPhoto, isLiked: store.isLiked(profile.id), next: skip, interested: { store.like(profile.id) })
@@ -467,19 +476,49 @@ struct ReportView: View {
 
 struct UnmatchConfirmation: ViewModifier {
     @Environment(AppStore.self) private var store
+    @Environment(\.dynamicTypeSize) private var textSize
     @Binding var memberID: String?
+
+    private var title: String {
+        "Unmatch with \(memberID.flatMap { store.member($0)?.name } ?? "this person")?"
+    }
+
+    private var message: String {
+        store.isDemoSession
+            ? "This removes your connection, saved interest, and chat, including messages and your draft. You won’t see each other in Discover for the rest of this demo."
+            : "This ends the connection for both of you. The chat and saved interest will no longer be available, and you won’t see each other in Discover."
+    }
+
     func body(content: Content) -> some View {
-        content.alert("Unmatch with \(memberID.flatMap { store.member($0)?.name } ?? "this person")?", isPresented: Binding(get: { memberID != nil }, set: { if !$0 { memberID = nil } })) {
-            Button("Unmatch", role: .destructive) {
-                if let id = memberID {
-                    if store.isDemoSession { store.unmatch(id) }
-                    else { Task { await store.endLiveConnection(id) } }
+        let presented = Binding(get: { memberID != nil }, set: { if !$0 { memberID = nil } })
+        if textSize.isAccessibilitySize {
+            content.sheet(isPresented: presented) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        Text(title).font(.title2.bold()).accessibilityAddTraits(.isHeader)
+                            .accessibilityIdentifier("unmatchConfirmationTitle")
+                        Text(message).foregroundStyle(Color.muted)
+                        Button("Keep connection") { memberID = nil }
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                        Button("Unmatch", role: .destructive, action: confirm)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }.padding(24).foregroundStyle(Color.ink)
                 }
-                memberID = nil
+                .presentationBackground(Color.paper)
+                .presentationDragIndicator(.visible)
             }
-            Button("Keep connection", role: .cancel) { memberID = nil }
-        } message: {
-            Text(store.isDemoSession ? "This removes your connection, both sides’ saved interest, and this chat, including messages and your draft, from this demo session. It cannot be undone in this session. This does not block the person. They will stay out of Discover for the rest of this session." : "This ends the connection for both of you. The chat and saved interest will no longer be available, and you won’t see each other in Discover.")
+        } else {
+            content.alert(title, isPresented: presented) {
+                Button("Unmatch", role: .destructive, action: confirm)
+                Button("Keep connection", role: .cancel) { memberID = nil }
+            } message: { Text(message) }
         }
+    }
+
+    private func confirm() {
+        guard let id = memberID else { return }
+        memberID = nil
+        if store.isDemoSession { store.unmatch(id) }
+        else { Task { await store.endLiveConnection(id) } }
     }
 }

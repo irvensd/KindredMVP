@@ -9,6 +9,12 @@ struct YouView: View {
     private enum SheetAction: Hashable { case edit, complete, preferences }
     @State private var editingAction = SheetAction.edit
     @AccessibilityFocusState private var focusedAction: SheetAction?
+    private var plusStatus: String {
+        if store.isPlus { return store.isDemoSession ? "Demo Plus active" : "Active" }
+        if store.isPlusActivationPending { return "Activating Plus" }
+        return store.isDemoSession ? "Try a subscription in demo" : "View plans"
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 26) {
@@ -30,6 +36,13 @@ struct YouView: View {
                         NavigationLink("Preview") { ProfileDetailView(memberID: "me") }.buttonStyle(.bordered).accessibilityIdentifier("publicPreview").accessibilityHint("Shows your saved profile with your privacy preferences applied.")
                     }.controlSize(.large)
                 }.padding(22).frame(maxWidth: .infinity).background(Color.surface, in: RoundedRectangle(cornerRadius: 26))
+                Button { store.isShowingPlus = true } label: {
+                    SettingsRow(symbol: "sparkles", title: "Kindred Plus", subtitle: plusStatus)
+                }
+                .buttonStyle(KindredPressStyle())
+                .padding(.horizontal, 18)
+                .background(Color.surface, in: RoundedRectangle(cornerRadius: 24))
+                .accessibilityIdentifier("settingsKindredPlus")
                 if showStoryGuide {
                     let profile = store.state.currentProfile
                     if profile.missingStorySections.isEmpty {
@@ -79,6 +92,12 @@ struct YouView: View {
                     Divider().padding(.leading, 56)
                     NavigationLink { SafetyCenterView() } label: { SettingsRow(symbol: "shield.lefthalf.filled", title: "Safety & support", subtitle: "Boundaries are a good thing") }.buttonStyle(KindredPressStyle())
                     Divider().padding(.leading, 56)
+                    if !store.isDemoSession {
+                        Link(destination: BackendProject.manageSubscriptionsURL) {
+                            SettingsRow(symbol: "creditcard", title: "Manage subscription", subtitle: "App Store subscription settings")
+                        }.buttonStyle(KindredPressStyle())
+                        Divider().padding(.leading, 56)
+                    }
                     NavigationLink { AccountView() } label: { SettingsRow(symbol: "person.crop.circle", title: store.isDemoSession ? "Account & prototype" : "Account", subtitle: store.isDemoSession ? "What's real, and what's simulated" : "Your Kindred account") }.buttonStyle(KindredPressStyle())
                 }.padding(.horizontal, 18).background(Color.surface, in: RoundedRectangle(cornerRadius: 26))
                 HStack(spacing: 8) { BrandMark(size: 18); Text("Shared faith. Genuine connection.").font(.footnote).foregroundStyle(Color.muted) }.frame(maxWidth: .infinity).padding(.top, 12)
@@ -581,6 +600,14 @@ private struct DeleteAccountView: View {
                         .accessibilityAddTraits(.isHeader)
                     Text("Your account, profile, and conversations will be permanently removed. This can’t be undone.")
                         .foregroundStyle(Color.muted)
+                    if store.isPlus {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Apple will continue billing until you cancel your subscription. Please cancel Kindred Plus before deleting your account.")
+                                .foregroundStyle(Color.muted)
+                            Link("Manage subscription", destination: BackendProject.manageSubscriptionsURL)
+                                .frame(minHeight: 44)
+                        }
+                    }
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Confirm your password").font(.headline)
                         SecureField("Password", text: $password)

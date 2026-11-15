@@ -42,6 +42,8 @@ struct BackendAccount {
 
     enum RequestError: LocalizedError {
         case rejected(Int)
+        case likeLimitReached(LikeAllowance)
+        case missingConfiguration
         var invalidSession: Bool {
             switch self {
             case .rejected(400), .rejected(401), .rejected(403): true
@@ -50,6 +52,8 @@ struct BackendAccount {
         }
         var errorDescription: String? {
             switch self {
+            case .missingConfiguration: "This build is missing its Kindred server configuration."
+            case .likeLimitReached: "You’ve used all your free likes."
             case .rejected(400), .rejected(401): "Check your email and password, or sign in again."
             case .rejected(403): "This profile or conversation is no longer available."
             case .rejected(409): "This report changed. Refresh the queue and try again."
@@ -60,7 +64,6 @@ struct BackendAccount {
     }
 
     private static let transport = URLSession(configuration: .ephemeral)
-    private let baseURL = URL(string: "https://yogyhusnjlgwkudqtixq.supabase.co")!
 
     func signIn(email: String, password: String) async throws -> Session {
         let data = try await request("/auth/v1/token?grant_type=password", method: "POST",
@@ -295,7 +298,11 @@ struct BackendAccount {
         let matches: [Match]
         let conversations: [Conversation]
         let endedMemberIDs: Set<String>
-        var unseenLikeIDs: Set<String>?
+        var unseenIncomingCount: Int?
+        var incomingLikesCount: Int?
+        var likesRemaining: Int?
+        var likesResetAtEpoch: TimeInterval?
+        var entitlement: PlusEntitlement?
     }
 
     struct ActivityAction: Encodable, Sendable {
@@ -331,9 +338,31 @@ struct BackendAccount {
         return activity
     }
 
-    func markLikesSeen(_ ids: Set<String>, session: Session) async throws {
-        let body = try JSONEncoder().encode(["like_ids": ids.sorted()])
-        _ = try await request("/rest/v1/rpc/mark_likes_seen", method: "POST", body: body, session: session)
+    struct IncomingLikes: Decodable, Sendable {
+        let count: Int
+        var profiles: [MemberProfile]?
+    }
+
+    func loadIncomingLikes(session: Session) async throws -> IncomingLikes {
+        let data = try await request("/rest/v1/rpc/liked_me", method: "POST",
+                                     body: Data("{}".utf8), session: session)
+        var incoming = try timestampDecoder().decode(IncomingLikes.self, from: data)
+        incoming.profiles = incoming.profiles?.map { profile in
+            var profile = profile
+            profile.photos.removeAll { $0.localData == nil || $0.assetName != nil }
+            return profile
+        }
+        return incoming
+    }
+
+    func passIncomingLike(_ id: UUID, session: Session) async throws {
+        let body = try JSONEncoder().encode(["target": id])
+        _ = try await request("/rest/v1/rpc/pass_incoming_like", method: "POST", body: body, session: session)
+    }
+
+    func markIncomingLikesSeen(session: Session) async throws {
+        _ = try await request("/rest/v1/rpc/mark_incoming_likes_seen", method: "POST",
+                              body: Data("{}".utf8), session: session)
     }
 
     struct SafetyReport: Decodable, Identifiable, Sendable {
@@ -390,10 +419,12 @@ struct BackendAccount {
     }
 
     private func request(_ path: String, method: String = "GET", body: Data? = nil, session: Session? = nil) async throws -> Data {
-        var request = URLRequest(url: URL(string: path, relativeTo: baseURL)!)
+        guard let baseURL = BackendProject.url, let key = BackendProject.publishableKey,
+              let url = URL(string: path, relativeTo: baseURL) else { throw RequestError.missingConfiguration }
+        var request = URLRequest(url: url)
         request.httpMethod = method
         request.httpBody = body
-        request.setValue(BackendProject.publishableKey, forHTTPHeaderField: "apikey")
+        request.setValue(key, forHTTPHeaderField: "apikey")
         if let session { request.setValue("Bearer \(session.access_token)", forHTTPHeaderField: "Authorization") }
         if body != nil { request.setValue("application/json", forHTTPHeaderField: "Content-Type") }
         if method == "POST" && ["/rest/v1/member_profiles", "/rest/v1/discovery_profiles"].contains(path) { request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer") }
@@ -403,7 +434,12 @@ struct BackendAccount {
         if method == "PATCH" { request.setValue("return=representation", forHTTPHeaderField: "Prefer") }
         let (data, response) = try await Self.transport.data(for: request)
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
-        guard (200..<300).contains(status) else { throw RequestError.rejected(status) }
+        guard (200..<300).contains(status) else {
+            if status == 429, let allowance = LikeAllowance.limitReached(in: data) {
+                throw RequestError.likeLimitReached(allowance)
+            }
+            throw RequestError.rejected(status)
+        }
         return data
     }
 }

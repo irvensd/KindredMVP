@@ -4,6 +4,27 @@ import SwiftUI
 struct KindredApp: App {
     @State private var store: AppStore = {
         #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--locked-likes-demo") {
+            let store = AppStore()
+            store.demoPlusEnabled = false
+            return store
+        }
+        if ProcessInfo.processInfo.arguments.contains("--free-like-limit-demo") {
+            var state = DemoData.snapshot(now: Date())
+            let template = DemoData.people[0]
+            state.members = (1...13).map { index in
+                DemoData.member(id: "quota-\(index)", name: "Member \(index)", age: template.age,
+                                gender: template.gender, city: template.city, miles: 0,
+                                job: template.occupation, image: "amara", bio: template.bio,
+                                interests: template.interests, answers: template.prompts.map(\.answer))
+            }
+            state.likes = []
+            state.matches = []
+            state.conversations = []
+            let store = AppStore(repository: InMemoryKindredRepository(state: state))
+            store.demoPlusEnabled = false
+            return store
+        }
         if ProcessInfo.processInfo.arguments.contains("--pending-interest-demo") {
             var state = DemoData.snapshot(now: Date())
             state.likes = []; state.matches = []; state.discovery.radiusMiles = 250
@@ -14,8 +35,10 @@ struct KindredApp: App {
         if !process.arguments.contains("--uitesting") || process.arguments.contains("--expanded-demo") {
             let persistLogin = !process.arguments.contains("--demo") && !process.arguments.contains("--uitesting")
                 && process.environment["XCTestConfigurationFilePath"] == nil
-            return AppStore(repository: InMemoryKindredRepository(state: DemoData.expandedSnapshot(now: Date())),
-                            persistLogin: persistLogin)
+            let store = AppStore(repository: InMemoryKindredRepository(state: DemoData.expandedSnapshot(now: Date())),
+                                 persistLogin: persistLogin)
+            store.demoPlusEnabled = process.arguments.contains("--uitesting")
+            return store
         }
         return AppStore()
     }()
@@ -124,6 +147,13 @@ struct MainTabs: View {
                     catch { return }
                 }
             }
+            .task(id: store.scheduledFreeLikeReset) {
+                guard let reset = store.scheduledFreeLikeReset else { return }
+                do { try await Task.sleep(for: .seconds(max(0, reset.timeIntervalSinceNow))) }
+                catch { return }
+                await store.refreshFreeLikeAllowance(at: reset)
+            }
+            .sheet(isPresented: $store.isShowingPlus) { PaywallView() }
             .onChange(of: selectedTab) { _, tab in
                 if !store.isDemoSession && (tab == .likes || tab == .chats) {
                     Task { await store.refreshActivity() }

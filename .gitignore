@@ -8,3 +8,5 @@ xcuserdata/
 !.env.example
 
 supabase/.temp/
+
+Kindred.local.xcconfig

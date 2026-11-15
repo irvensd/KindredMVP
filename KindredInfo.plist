@@ -2,6 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>KindredSupabaseURL</key>
+    <string>$(KINDRED_SUPABASE_URL)</string>
+    <key>KindredSupabasePublishableKey</key>
+    <string>$(KINDRED_SUPABASE_PUBLISHABLE_KEY)</string>
+    <key>KindredRevenueCatPublicKey</key>
+    <string>$(KINDRED_REVENUECAT_PUBLIC_KEY)</string>
+    <key>KindredPrivacyPolicyURL</key>
+    <string>$(KINDRED_PRIVACY_POLICY_URL)</string>
+    <key>KindredTermsURL</key>
+    <string>$(KINDRED_TERMS_URL)</string>
     <key>CFBundleURLTypes</key>
     <array>
         <dict>

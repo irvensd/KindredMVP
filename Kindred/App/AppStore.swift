@@ -36,8 +36,48 @@ final class AppStore {
     private(set) var historyErrors: [String: String] = [:]
     private var pendingMatchMember: String?
     private(set) var activityLoadError: String?
-    private(set) var unseenLikeIDs: Set<String> = []
-    private var markingLikesSeen: Set<String> = []
+    private(set) var unseenLikesCount = 0
+    private var markingLikesSeen = false
+    private var entitlement: PlusEntitlement?
+    private var liveLikesRemaining: Int?
+    private var liveLikeReset: Date?
+    private var demoLikeAllowance = DemoLikeAllowance()
+    var demoPlusEnabled = true
+    var isShowingPlus = false
+    private(set) var isPlusActivationPending = false
+    private let purchases = PlusPurchases()
+    private(set) var incomingActivityCount: Int?
+    private var liveIncomingCount: Int?
+    private(set) var incomingLikesError: String?
+    private var incomingLikesRevision = 0
+    private var liveIncoming: [MemberProfile] = []
+    private var passedIncomingIDs: Set<String> = []
+    var isPlus: Bool { isDemoSession ? demoPlusEnabled : entitlement?.isActive(at: now()) == true }
+    var likesRemaining: Int? {
+        guard !isPlus else { return nil }
+        if isDemoSession { return demoLikeAllowance.remaining(at: now()) }
+        return liveLikeReset.map { $0 <= now() } == true ? LikeAllowance.dailyLimit : liveLikesRemaining
+    }
+    var scheduledFreeLikeReset: Date? {
+        guard !isPlus else { return nil }
+        return isDemoSession ? demoLikeAllowance.reset : liveLikeReset
+    }
+
+    func refreshFreeLikeAllowance(at reset: Date) async {
+        guard scheduledFreeLikeReset == reset, now() >= reset else { return }
+        if isDemoSession {
+            demoLikeAllowance = DemoLikeAllowance()
+        } else {
+            liveLikesRemaining = LikeAllowance.dailyLimit
+            liveLikeReset = nil
+            await refreshActivity()
+        }
+    }
+
+    var nextFreeLikeReset: Date? {
+        guard likesRemaining == 0 else { return nil }
+        return isDemoSession ? demoLikeAllowance.nextReset(at: now()) : liveLikeReset
+    }
     private(set) var isRefreshingDiscovery = false
     private(set) var discoveryLoadError: String?
     private(set) var state: SessionSnapshot
@@ -68,7 +108,9 @@ final class AppStore {
             if !state.privacy.showCity { profile.city = "Location private"; profile.locationStatus = .home }
             return profile
         }
-        return state.members.first { $0.id == id && !blockedIDs.contains(id) }
+        guard !blockedIDs.contains(id) else { return nil }
+        return state.members.first { $0.id == id }
+            ?? (isPlus ? liveIncoming.first { $0.id == id && !state.unmatchedIDs.contains(id) } : nil)
     }
     enum DiscoveryEmptyReason { case paused, filters, seenEveryone, unavailable }
     private var availableDiscoveryMembers: [MemberProfile] {
@@ -106,30 +148,104 @@ final class AppStore {
     var incomingProfiles: [MemberProfile] {
         state.members.filter { person in !blockedIDs.contains(person.id) && state.likes.contains { $0.senderID == person.id && $0.recipientID == "me" } }
     }
-    var unseenLikesCount: Int {
-        Set(state.likes.filter {
-            $0.recipientID == "me" && unseenLikeIDs.contains($0.id)
-                && !blockedIDs.contains($0.senderID) && !isMatched($0.senderID)
-        }.map(\.senderID)).count
+    var pendingIncomingProfiles: [MemberProfile] {
+        guard isPlus else { return [] }
+        return (isDemoSession ? incomingProfiles : liveIncoming).filter {
+            !isMatched($0.id) && !blockedIDs.contains($0.id) && !state.unmatchedIDs.contains($0.id)
+                && !passedIncomingIDs.contains($0.id)
+        }
+    }
+
+    var pendingIncomingCount: Int? {
+        if !isDemoSession { return isPlus ? liveIncomingCount : incomingActivityCount ?? liveIncomingCount }
+        return incomingProfiles.count(where: { !isMatched($0.id) && !passedIncomingIDs.contains($0.id) })
+    }
+
+    func refreshIncomingLikes() async {
+        guard let session = await activeAccountSession() else { return }
+        incomingLikesRevision += 1
+        let revision = incomingLikesRevision
+        do {
+            let incoming = try await backend.loadIncomingLikes(session: session)
+            guard !Task.isCancelled, accountSession?.loginID == session.loginID,
+                  revision == incomingLikesRevision else { return }
+            liveIncomingCount = incoming.count
+            liveIncoming = isPlus ? incoming.profiles ?? [] : []
+            incomingLikesError = nil
+        } catch {
+            guard !Task.isCancelled, accountSession?.loginID == session.loginID,
+                  revision == incomingLikesRevision else { return }
+            incomingLikesError = error.localizedDescription
+        }
+    }
+
+    func passIncomingLike(_ id: String) async {
+        guard isPlus, !passedIncomingIDs.contains(id) else { return }
+        if isDemoSession { passedIncomingIDs.insert(id); return }
+        guard let session = await activeAccountSession(showError: true), let target = UUID(uuidString: id) else { return }
+        do {
+            try await backend.passIncomingLike(target, session: session)
+            guard accountSession?.loginID == session.loginID else { return }
+            passedIncomingIDs.insert(id)
+            await refreshIncomingLikes()
+            await refreshActivity()
+        } catch {
+            if accountSession?.loginID == session.loginID { errorMessage = error.localizedDescription }
+        }
     }
 
     func markIncomingLikesSeen() async {
-        guard let session = await activeAccountSession() else { return }
-        let ids = unseenLikeIDs.subtracting(markingLikesSeen)
-        guard !ids.isEmpty else { return }
-        markingLikesSeen.formUnion(ids)
-        defer {
-            if accountSession?.loginID == session.loginID { markingLikesSeen.subtract(ids) }
-        }
+        guard unseenLikesCount > 0, !markingLikesSeen,
+              let session = await activeAccountSession(), !markingLikesSeen else { return }
+        markingLikesSeen = true
+        defer { if accountSession?.loginID == session.loginID { markingLikesSeen = false } }
         do {
-            try await backend.markLikesSeen(ids, session: session)
+            try await backend.markIncomingLikesSeen(session: session)
             guard accountSession?.loginID == session.loginID else { return }
-            unseenLikeIDs.subtract(ids)
             await refreshActivity()
         } catch {
             // Keep the badge until the server acknowledges it.
         }
     }
+
+    func plusOffers() async throws -> [PlusPurchases.Offer] {
+        guard let userID = accountSession?.user.id else { throw KindredError.unavailable }
+        return try await purchases.offers(for: userID)
+    }
+
+    func activatePlus(offer: PlusPurchases.Offer? = nil) async throws -> String? {
+        guard let session = accountSession else { throw KindredError.unavailable }
+        guard !isPlusActivationPending, !isPlus else { return nil }
+        if let offer {
+            guard try await purchases.purchase(offer, for: session.user.id) else { return nil }
+        } else {
+            let found = try await purchases.restore(for: session.user.id)
+            guard accountSession?.loginID == session.loginID else { return nil }
+            guard found else { return "No active Kindred Plus subscription was found." }
+        }
+        guard accountSession?.loginID == session.loginID, !isPlus else { return nil }
+        isPlusActivationPending = true
+        return nil
+    }
+
+    func checkPlusActivation() async {
+        guard isPlusActivationPending else { return }
+        #if DEBUG
+        if isDemoSession {
+            demoPlusEnabled = true
+            isPlusActivationPending = false
+            return
+        }
+        #endif
+        await refreshActivity()
+    }
+
+    #if DEBUG
+    func simulatePendingPlusActivation() {
+        guard isDemoSession else { return }
+        isPlusActivationPending = true
+    }
+    #endif
 
     var conversations: [Conversation] {
         state.conversations.filter { !blockedIDs.contains($0.memberID) }.sorted {
@@ -170,7 +286,7 @@ final class AppStore {
             let key = id + ":" + (promptID.map { "prompt:" + $0 } ?? photoID.map { "photo:" + $0 } ?? "profile")
             guard let session = accountSession, pendingLikes.insert(key).inserted else { return }
             Task {
-                defer { pendingLikes.remove(key) }
+                defer { if accountSession?.loginID == session.loginID { pendingLikes.remove(key) } }
                 guard let result = await performActivity(.like, target: id, promptID: promptID, photoID: photoID),
                       accountSession?.loginID == session.loginID else { return }
                 if result.matched {
@@ -179,11 +295,14 @@ final class AppStore {
                     announceDiscoveryLike(id, promptID: promptID, photoID: photoID)
                 }
                 await refreshActivity()
+                if liveIncoming.contains(where: { $0.id == id }) { await refreshIncomingLikes() }
             }
             return
         }
+        guard likesRemaining != 0 else { isShowingPlus = true; return }
         let alreadyMatched = isMatched(id)
         guard mutate({ try repository.like(memberID: id, promptID: promptID, photoID: photoID) }) else { return }
+        if !isPlus { demoLikeAllowance.recordLike(at: now()) }
         if !alreadyMatched && isMatched(id) {
             presentedMatch = state.matches.first { $0.memberID == id }
             feedback = nil
@@ -249,9 +368,15 @@ final class AppStore {
         do {
             try await backend.block(id, session: session)
             guard accountSession?.loginID == session.loginID else { return }
-            mutate({ try repository.block(memberID: memberID) }, feedback: "Profile blocked")
+            let refreshIncoming = liveIncoming.contains(where: { $0.id == memberID })
+            liveIncoming.removeAll { $0.id == memberID }
+            if state.members.contains(where: { $0.id == memberID }) {
+                mutate({ try repository.block(memberID: memberID) }, feedback: "Profile blocked")
+            }
+            await refreshAccountBlocks()
             await refreshActivity()
             await refreshDiscovery()
+            if refreshIncoming { await refreshIncomingLikes() }
         } catch { errorMessage = error.localizedDescription }
     }
 
@@ -372,7 +497,16 @@ final class AppStore {
             guard accountSession?.loginID == session.loginID else { return nil }
             return result
         } catch {
-            if accountSession?.loginID == session.loginID { errorMessage = error.localizedDescription }
+            if accountSession?.loginID == session.loginID {
+                if case BackendAccount.RequestError.likeLimitReached(let allowance) = error {
+                    liveLikesRemaining = allowance.remaining
+                    liveLikeReset = allowance.resetsAtEpoch.map(Date.init(timeIntervalSince1970:))
+                    isShowingPlus = true
+                    await refreshActivity()
+                } else {
+                    errorMessage = error.localizedDescription
+                }
+            }
             return nil
         }
     }
@@ -386,7 +520,16 @@ final class AppStore {
             guard !Task.isCancelled, revision == activityRevision, accountSession?.loginID == session.loginID,
                   let accountRepository = repository as? InMemoryKindredRepository else { return }
             activityLoadError = nil
-            unseenLikeIDs = activity.unseenLikeIDs ?? []
+            unseenLikesCount = activity.unseenIncomingCount ?? 0
+            incomingActivityCount = activity.incomingLikesCount
+            liveLikesRemaining = activity.likesRemaining
+            liveLikeReset = activity.likesResetAtEpoch.map(Date.init(timeIntervalSince1970:))
+            entitlement = activity.entitlement
+            if isPlus { isPlusActivationPending = false }
+            if !isPlus && !liveIncoming.isEmpty {
+                liveIncoming = []
+                incomingLikesRevision += 1
+            }
             if !loadedInitialActivity {
                 let sent = activity.likes.filter { $0.senderID == "me" }.map(\.recipientID)
                 dismissedLikedMembers.formUnion(sent.filter { memberID in
@@ -587,8 +730,20 @@ final class AppStore {
             isSending.removeAll()
             pendingMatchMember = nil
             activityLoadError = nil
-            unseenLikeIDs.removeAll()
-            markingLikesSeen.removeAll()
+            purchases.setAccount(nil)
+            entitlement = nil
+            isPlusActivationPending = false
+            liveLikesRemaining = nil
+            liveLikeReset = nil
+            unseenLikesCount = 0
+            markingLikesSeen = false
+            incomingActivityCount = nil
+            liveIncomingCount = nil
+            liveIncoming = []
+            incomingLikesRevision += 1
+            incomingLikesError = nil
+            passedIncomingIDs.removeAll()
+            isShowingPlus = false
             isRefreshingDiscovery = false
             discoveryLoadError = nil
             repository = demoRepository
@@ -614,6 +769,7 @@ final class AppStore {
                      staffOnly: Bool = false) {
         startAccountOnboarding(displayName: displayName)
         accountSession = session
+        purchases.setAccount(session.user.id)
         if persistLogin {
             do { try AccountKeychain.save(session, for: .session) }
             catch { errorMessage = error.localizedDescription }
