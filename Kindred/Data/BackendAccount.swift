@@ -370,7 +370,7 @@ struct BackendAccount {
         let reason: String
         let details: String
         let created_at: Date
-        let reported_id: UUID
+        let reported_id: UUID?
         let reported_name: String?
         let assigned_to_me: Bool
         let assigned: Bool

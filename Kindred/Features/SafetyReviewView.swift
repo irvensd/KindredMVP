@@ -82,10 +82,13 @@ struct SafetyReviewView: View {
 
     private func reportSection(_ report: BackendAccount.SafetyReport) -> some View {
         Section {
-            Text(report.reported_name ?? "Member").font(.headline)
-            Text("Member ID: \(report.reported_id.uuidString.lowercased())")
-                .font(.caption).foregroundStyle(Color.muted)
-                .textSelection(.enabled)
+            Text(report.reported_name ?? (report.reported_id == nil ? "Deleted account" : "Member"))
+                .font(.headline)
+            if let reportedID = report.reported_id {
+                Text("Member ID: \(reportedID.uuidString.lowercased())")
+                    .font(.caption).foregroundStyle(Color.muted)
+                    .textSelection(.enabled)
+            }
             Text(report.created_at.formatted(date: .abbreviated, time: .shortened))
                 .font(.caption).foregroundStyle(Color.muted)
             if !report.details.isEmpty { Text(report.details) }

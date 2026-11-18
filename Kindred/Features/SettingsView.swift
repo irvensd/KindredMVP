@@ -600,6 +600,9 @@ private struct DeleteAccountView: View {
                         .accessibilityAddTraits(.isHeader)
                     Text("Your account, profile, and conversations will be permanently removed. This can’t be undone.")
                         .foregroundStyle(Color.muted)
+                    Text("Kindred retains safety reports for staff review.")
+                        .font(.footnote)
+                        .foregroundStyle(Color.muted)
                     if store.isPlus {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Apple will continue billing until you cancel your subscription. Please cancel Kindred Plus before deleting your account.")
