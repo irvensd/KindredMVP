@@ -46,6 +46,14 @@ struct DemoLikeAllowance {
         let remaining = remaining(at: now)
         guard remaining > 0 else { return }
         used = LikeAllowance.dailyLimit - remaining + 1
-        reset = used == LikeAllowance.dailyLimit ? now.addingTimeInterval(LikeAllowance.cooldown) : nil
+        let cooldown: TimeInterval
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        cooldown = arguments.contains("--uitesting") && arguments.contains("--short-free-like-cooldown")
+            ? 30 : LikeAllowance.cooldown
+        #else
+        cooldown = LikeAllowance.cooldown
+        #endif
+        reset = used == LikeAllowance.dailyLimit ? now.addingTimeInterval(cooldown) : nil
     }
 }

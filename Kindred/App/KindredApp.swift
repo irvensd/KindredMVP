@@ -7,6 +7,13 @@ struct KindredApp: App {
         if ProcessInfo.processInfo.arguments.contains("--locked-likes-demo") {
             let store = AppStore()
             store.demoPlusEnabled = false
+            if ProcessInfo.processInfo.arguments.contains("--exhausted-free-likes-demo") {
+                store.exhaustDemoFreeLikes()
+            }
+            if ProcessInfo.processInfo.arguments.contains("--pending-plus-demo"),
+               let id = ProcessInfo.processInfo.environment["KINDRED_TEST_PLUS_ACCOUNT"].flatMap(UUID.init(uuidString:)) {
+                store.restoreDemoPlusActivation(for: id)
+            }
             return store
         }
         if ProcessInfo.processInfo.arguments.contains("--free-like-limit-demo") {

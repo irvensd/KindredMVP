@@ -2,8 +2,17 @@ import Foundation
 import Security
 
 enum AccountKeychain {
-    enum Item: String {
+    enum Item {
         case session, passwordRecovery
+        case plusActivation(UUID)
+
+        var account: String {
+            switch self {
+            case .session: "session"
+            case .passwordRecovery: "passwordRecovery"
+            case .plusActivation(let userID): "plusActivation.\(userID.uuidString.lowercased())"
+            }
+        }
     }
 
     struct StorageError: LocalizedError {
@@ -42,7 +51,7 @@ enum AccountKeychain {
     private static func query(for item: Item) -> [String: Any] {
         [kSecClass as String: kSecClassGenericPassword,
          kSecAttrService as String: "com.kindred.prototype.auth",
-         kSecAttrAccount as String: item.rawValue,
+         kSecAttrAccount as String: item.account,
          kSecUseDataProtectionKeychain as String: true]
     }
 }

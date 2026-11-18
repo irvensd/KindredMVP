@@ -2,43 +2,31 @@ import SwiftUI
 
 struct WelcomeView: View {
     @Environment(AppStore.self) private var store
+    @Environment(\.dynamicTypeSize) private var typeSize
     @State private var accountMode: BackendAccountView.Mode?
     @State private var completedAccount: (String, BackendAccount.Session, BackendAccount.DiscoveryProfile?, Bool)?
     var body: some View {
-        ScrollView {
-            VStack(spacing: 25) {
-                HStack(spacing: 9) {
-                    BrandMark(size: 25)
-                    Text("kindred").font(.system(.title, design: .rounded, weight: .semibold)).tracking(-1)
-                }.padding(.top, 26)
-                ZStack {
-                    RoundedRectangle(cornerRadius: 150).fill(Color.sand).frame(width: 265, height: 310).rotationEffect(.degrees(-12))
-                    HStack(spacing: -24) {
-                        PhotoView(photo: DemoData.people[1].photos.first).frame(width: 170, height: 245).clipShape(RoundedRectangle(cornerRadius: 90)).rotationEffect(.degrees(-10)).offset(y: 22)
-                        PhotoView(photo: DemoData.people[0].photos.first).frame(width: 183, height: 280).clipShape(RoundedRectangle(cornerRadius: 95)).rotationEffect(.degrees(9)).offset(y: -10)
+        GeometryReader { viewport in
+            let portraitScale = min(1, viewport.size.width / 385, viewport.size.height / 790)
+            ScrollView {
+                VStack(spacing: 18) {
+                    wordmark
+                    if !typeSize.isAccessibilitySize {
+                        portraitPair(scale: portraitScale)
                     }
-                    Image(systemName: "sparkle").font(.system(size: 34, weight: .light)).foregroundStyle(Color.plum).offset(x: -140, y: -130)
-                    Text("Something real starts here.").font(.caption.weight(.medium)).padding(.horizontal, 18).padding(.vertical, 11).background(Color.surface, in: Capsule()).rotationEffect(.degrees(-5)).offset(y: 137)
-                }.frame(height: 335).accessibilityElement(children: .ignore).accessibilityLabel("Two fictional adults, smiling. AI-generated sample portraits.")
-                VStack(spacing: 14) {
-                    Overline(text: "A little faith. A little spark.")
-                    Text("Shared faith.\nGenuine connection.").font(.system(.largeTitle, design: .rounded, weight: .semibold)).tracking(-1.1).multilineTextAlignment(.center)
-                    Text("Meet Adventist singles who share your values — and bring something beautifully their own.")
-                        .font(.body).foregroundStyle(Color.muted).multilineTextAlignment(.center).padding(.horizontal, 8)
+                    introduction
+                    accountActions
+                    if typeSize.isAccessibilitySize {
+                        portraitPair(scale: portraitScale)
+                    }
                 }
-                VStack(spacing: 10) {
-                    PrimaryButton(title: "Create account", symbol: "arrow.right") { accountMode = .create }
-                    Button("Sign in") { accountMode = .signIn }
-                        .accessibilityIdentifier("openAccountSignIn")
-                        .font(.headline).frame(minHeight: 44)
-                    Button("Explore the demo") { store.startDemoOnboarding() }
-                        .font(.subheadline.weight(.medium)).frame(minHeight: 44)
-                        .accessibilityIdentifier("getStarted")
-                    Text("18+ · Demo profiles and activity are fictional.")
-                        .font(.caption).foregroundStyle(Color.muted).multilineTextAlignment(.center)
-                }
-            }.padding(.horizontal, 24).padding(.bottom, 24)
-        }.background(Color.paper).sheet(item: $accountMode, onDismiss: {
+                .padding(.horizontal, 24)
+                .padding(.vertical, 18)
+                .frame(maxWidth: 480)
+                .frame(maxWidth: .infinity, minHeight: viewport.size.height)
+            }
+        }
+        .background(Color.paper).sheet(item: $accountMode, onDismiss: {
             guard let (name, session, profile, staffOnly) = completedAccount else { return }
             completedAccount = nil
             store.openAccount(displayName: name, session: session, profile: profile, staffOnly: staffOnly)
@@ -49,4 +37,99 @@ struct WelcomeView: View {
             }.tint(Color.plum)
         }
     }
+
+    private var wordmark: some View {
+        HStack(spacing: 9) {
+            BrandMark(size: 25)
+            Text("kindred")
+                .font(.system(.title, design: .rounded, weight: .semibold))
+                .tracking(-1)
+        }
+    }
+
+    private func portraitPair(scale: CGFloat) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 130 * scale)
+                .fill(Color.sand)
+                .frame(width: 242 * scale, height: 268 * scale)
+                .rotationEffect(.degrees(-12))
+            HStack(spacing: -24 * scale) {
+                PhotoView(photo: DemoData.people[1].photos.first)
+                    .frame(width: 159 * scale, height: 223 * scale)
+                    .clipShape(RoundedRectangle(cornerRadius: 83 * scale))
+                    .rotationEffect(.degrees(-10))
+                    .offset(y: 17 * scale)
+                PhotoView(photo: DemoData.people[0].photos.first)
+                    .frame(width: 172 * scale, height: 258 * scale)
+                    .clipShape(RoundedRectangle(cornerRadius: 90 * scale))
+                    .rotationEffect(.degrees(9))
+                    .offset(y: -7 * scale)
+            }
+            Image(systemName: "sparkle")
+                .font(.system(size: 28 * scale, weight: .light))
+                .foregroundStyle(Color.plum)
+                .offset(x: -130 * scale, y: -106 * scale)
+        }
+        .frame(height: 294 * scale)
+        .accessibilityHidden(true)
+    }
+
+    private var introduction: some View {
+        VStack(spacing: 8) {
+            Text("Shared faith.\nGenuine connection.")
+                .font(.system(.largeTitle, design: .rounded, weight: .semibold))
+                .tracking(-1.1)
+                .accessibilityAddTraits(.isHeader)
+            Text("Dating for Seventh-day Adventist singles.")
+                .font(.body)
+                .foregroundStyle(Color.muted)
+        }
+        .multilineTextAlignment(.center)
+    }
+
+    private var accountActions: some View {
+        VStack(spacing: 6) {
+            PrimaryButton(title: "Create account", symbol: "arrow.right") { accountMode = .create }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 20) {
+                    signInButton
+                    demoButton
+                }
+                .fixedSize(horizontal: true, vertical: false)
+                VStack(spacing: 0) {
+                    signInButton
+                    demoButton
+                }
+            }
+            Text("18+ · Demo profiles and activity are fictional.")
+                .font(.caption)
+                .foregroundStyle(Color.muted)
+                .multilineTextAlignment(.center)
+        }
+    }
+
+    private var signInButton: some View {
+        Button {
+            accountMode = .signIn
+        } label: {
+            Text("Sign in")
+                .font(.subheadline.weight(.semibold))
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityIdentifier("openAccountSignIn")
+    }
+
+    private var demoButton: some View {
+        Button {
+            store.startDemoOnboarding()
+        } label: {
+            Text("Explore the demo")
+                .font(.subheadline.weight(.medium))
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityIdentifier("getStarted")
+    }
+
 }

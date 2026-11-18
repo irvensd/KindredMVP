@@ -45,6 +45,9 @@ final class AppStore {
     var demoPlusEnabled = true
     var isShowingPlus = false
     private(set) var isPlusActivationPending = false
+    #if DEBUG
+    private var demoPlusActivationID: UUID?
+    #endif
     private let purchases = PlusPurchases()
     private(set) var incomingActivityCount: Int?
     private var liveIncomingCount: Int?
@@ -214,6 +217,10 @@ final class AppStore {
     }
 
     func activatePlus(offer: PlusPurchases.Offer? = nil) async throws -> String? {
+        let noSubscription = "No active Kindred Plus subscription was found. If you subscribed before, use the Apple Account you used to subscribe, then try Restore Purchases again."
+        #if DEBUG
+        if isDemoSession, offer == nil, plusErrorScenario == "empty-restore" { return noSubscription }
+        #endif
         guard let session = accountSession else { throw KindredError.unavailable }
         guard !isPlusActivationPending, !isPlus else { return nil }
         if let offer {
@@ -221,29 +228,67 @@ final class AppStore {
         } else {
             let found = try await purchases.restore(for: session.user.id)
             guard accountSession?.loginID == session.loginID else { return nil }
-            guard found else { return "No active Kindred Plus subscription was found." }
+            guard found else { return noSubscription }
         }
         guard accountSession?.loginID == session.loginID, !isPlus else { return nil }
-        isPlusActivationPending = true
+        setPlusActivationPending(true, userID: session.user.id)
         return nil
+    }
+
+    private func restorePlusActivation(for userID: UUID) {
+        isPlusActivationPending = false
+        do { isPlusActivationPending = try AccountKeychain.load(Bool.self, for: .plusActivation(userID)) == true }
+        catch { errorMessage = error.localizedDescription }
+    }
+
+    private func setPlusActivationPending(_ pending: Bool, userID: UUID?) {
+        isPlusActivationPending = pending
+        guard let userID else { return }
+        do {
+            if pending { try AccountKeychain.save(true, for: .plusActivation(userID)) }
+            else { try AccountKeychain.remove(.plusActivation(userID)) }
+        } catch { errorMessage = error.localizedDescription }
     }
 
     func checkPlusActivation() async {
         guard isPlusActivationPending else { return }
         #if DEBUG
         if isDemoSession {
+            if plusErrorScenario == "offline-activation" {
+                activityLoadError = URLError(.notConnectedToInternet).localizedDescription
+                return
+            }
             demoPlusEnabled = true
-            isPlusActivationPending = false
+            setPlusActivationPending(false, userID: demoPlusActivationID)
             return
         }
         #endif
-        await refreshActivity()
+        await refreshActivity(reportSessionFailure: true)
+    }
+
+    var plusErrorScenario: String? {
+        #if DEBUG
+        if isDemoSession, ProcessInfo.processInfo.arguments.contains("--uitesting") {
+            return ProcessInfo.processInfo.environment["KINDRED_TEST_PLUS_ERROR"]
+        }
+        #endif
+        return nil
     }
 
     #if DEBUG
+    func exhaustDemoFreeLikes() {
+        let timestamp = now()
+        for _ in 0..<LikeAllowance.dailyLimit { demoLikeAllowance.recordLike(at: timestamp) }
+    }
+
+    func restoreDemoPlusActivation(for id: UUID) {
+        demoPlusActivationID = id
+        restorePlusActivation(for: id)
+    }
+
     func simulatePendingPlusActivation() {
         guard isDemoSession else { return }
-        isPlusActivationPending = true
+        setPlusActivationPending(true, userID: demoPlusActivationID)
     }
     #endif
 
@@ -511,8 +556,13 @@ final class AppStore {
         }
     }
 
-    func refreshActivity() async {
-        guard let session = await activeAccountSession(), hasCompletedOnboarding else { return }
+    func refreshActivity(reportSessionFailure: Bool = false) async {
+        guard let session = await activeAccountSession(), hasCompletedOnboarding else {
+            if reportSessionFailure, !Task.isCancelled, accountSession != nil {
+                activityLoadError = "Couldn’t reach Kindred to check your subscription."
+            }
+            return
+        }
         activityRevision += 1
         let revision = activityRevision
         do {
@@ -525,7 +575,9 @@ final class AppStore {
             liveLikesRemaining = activity.likesRemaining
             liveLikeReset = activity.likesResetAtEpoch.map(Date.init(timeIntervalSince1970:))
             entitlement = activity.entitlement
-            if isPlus { isPlusActivationPending = false }
+            if isPlus && isPlusActivationPending {
+                setPlusActivationPending(false, userID: session.user.id)
+            }
             if !isPlus && !liveIncoming.isEmpty {
                 liveIncoming = []
                 incomingLikesRevision += 1
@@ -701,6 +753,7 @@ final class AppStore {
     func deleteAccount(password: String) async throws {
         guard let session = accountSession else { throw KindredError.invalid("Sign in to delete your account.") }
         try await backend.deleteAccount(session: session, password: password)
+        try? AccountKeychain.remove(.plusActivation(session.user.id))
         guard accountSession?.loginID == session.loginID else { return }
         returnToWelcome()
     }
@@ -769,6 +822,7 @@ final class AppStore {
                      staffOnly: Bool = false) {
         startAccountOnboarding(displayName: displayName)
         accountSession = session
+        restorePlusActivation(for: session.user.id)
         purchases.setAccount(session.user.id)
         if persistLogin {
             do { try AccountKeychain.save(session, for: .session) }

@@ -68,7 +68,7 @@ enum DemoData {
     }
 
     static func snapshot(now: Date) -> SessionSnapshot {
-        let me = MemberProfile(id: "me", name: "Alex", age: 28, gender: .male, city: "Chicago, IL", distanceMiles: 0, occupation: "Making room for connection", bio: "A curious soul, a generous table, and a little adventure. Here to find something meaningful.", intention: .relationship, faith: .init(), interests: [.hiking, .cooking, .books], prompts: people[0].prompts.enumerated().map { .init(id: "own-\($0.offset)", question: $0.element.question, answer: $0.element.answer) }, photos: [.bundled("rowan", caption: "AI-generated sample portrait for Alex")], isDemo: false)
+        let me = MemberProfile(id: "me", name: "Alex", age: 28, gender: .male, city: "Chicago, IL", distanceMiles: 0, occupation: "Making room for connection", bio: "A curious soul, a generous table, and a little adventure. Here to find something meaningful.", intention: .relationship, faith: .init(), interests: [.hiking, .cooking, .books], prompts: people[0].prompts.enumerated().map { .init(id: "own-\($0.offset)", question: $0.element.question, answer: $0.element.answer) }, photos: [.bundled("alex", caption: "AI-generated sample portrait for Alex")], isDemo: false)
         return .init(currentProfile: me, members: people,
                      likes: [.init(id: "incoming-amara", senderID: "amara", recipientID: "me", promptID: nil, createdAt: now), .init(id: "incoming-june", senderID: "june", recipientID: "me", promptID: nil, createdAt: now)],
                      matches: [.init(id: "match-eli", memberID: "eli", createdAt: now)],

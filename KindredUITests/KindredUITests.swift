@@ -4,10 +4,11 @@ import XCTest
 final class KindredUITests: XCTestCase {
     var app: XCUIApplication!
     override func setUpWithError() throws { continueAfterFailure = false }
-    func launch(demo: Bool = true, options: [String] = []) {
+    func launch(demo: Bool = true, options: [String] = [], environment: [String: String] = [:]) {
         app = XCUIApplication()
         app.launchArguments = demo ? ["--uitesting", "--demo"] : ["--uitesting"]
         app.launchArguments += options
+        app.launchEnvironment = environment
         app.launchArguments += ["-UIPreferredContentSizeCategoryName", options.contains("--large-text") ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryL"]
         app.launch()
     }
@@ -90,7 +91,17 @@ final class KindredUITests: XCTestCase {
     }
 
     func testFreeDiscoverStopsAtTwelveLikesAndKeepsCurrentProfile() {
-        launch(options: ["--free-like-limit-demo", "--reduce-motion"])
+        checkFreeDiscoverLimit(waitForRefill: false)
+    }
+
+    func testFreeLikesRefillWhilePaywallStaysOpen() {
+        checkFreeDiscoverLimit(waitForRefill: true)
+    }
+
+    private func checkFreeDiscoverLimit(waitForRefill: Bool) {
+        var options = ["--free-like-limit-demo", "--reduce-motion"]
+        if waitForRefill { options.append("--short-free-like-cooldown") }
+        launch(options: options)
         let like = app.buttons["likeProfile"]
 
         func counter(_ remaining: Int) -> XCUIElement {
@@ -111,13 +122,193 @@ final class KindredUITests: XCTestCase {
         waitForProfile(13)
         let monthly = app.buttons["demoPlan-kindred_plus_monthly"]
         XCTAssertTrue(tapAndWait(like, for: monthly))
-        let reset = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "They reset")).firstMatch
+        let reset = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Free likes refill")).firstMatch
         XCTAssertTrue(reset.exists)
+        if waitForRefill {
+            XCTAssertTrue(reset.waitForNonExistence(timeout: 40), "The reset notice should clear while the paywall stays open")
+            XCTAssertTrue(monthly.exists)
+        }
         app.buttons["Close"].tap()
         XCTAssertTrue(monthly.waitForNonExistence(timeout: 8))
         waitForProfile(13)
         XCTAssertTrue(like.isEnabled)
-        XCTAssertTrue(counter(0).exists)
+        guard waitForRefill else {
+            XCTAssertTrue(counter(0).exists)
+            return
+        }
+
+        XCTAssertTrue(counter(12).waitForExistence(timeout: 8))
+        let portrait = app.descendants(matching: .any).matching(identifier: "discoveryPortrait").firstMatch
+        XCTAssertTrue(portrait.isHittable)
+        let start = portrait.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.4))
+        let end = start.withOffset(CGVector(dx: 120, dy: 0))
+        start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
+        XCTAssertTrue(counter(11).waitForExistence(timeout: 8), "The first right swipe after refill should spend one like")
+        XCTAssertFalse(monthly.exists)
+    }
+
+    func testCooldownAndUnmatchLargestTextVisualPass() {
+        let options = ["--dark", "--large-text", "--largest-text", "--reduce-motion"]
+        launch(options: options + ["--locked-likes-demo", "--exhausted-free-likes-demo"])
+        let like = app.buttons["likeProfile"]
+        let monthly = app.buttons["demoPlan-kindred_plus_monthly"]
+        let close = app.buttons["Close"]
+        let portrait = app.descendants(matching: .any).matching(identifier: "discoveryPortrait").firstMatch
+        XCTAssertTrue(like.waitForExistence(timeout: 8))
+        let profileBefore = like.label
+        let portraitBefore = portrait.frame
+        XCTAssertTrue(tapAndWait(like, for: close))
+        capture("Cooldown paywall top")
+        XCTAssertGreaterThan(app.staticTexts["See who likes you"].frame.height, 60)
+        let reset = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Free likes refill")).firstMatch
+        scrollForVisualPass(reset, top: 145, bottom: app.frame.maxY - 20)
+        capture("Cooldown notice")
+        scrollForVisualPass(monthly, top: 145, bottom: app.frame.maxY - 20)
+        let threeMonths = app.buttons["demoPlan-kindred_plus_3month"]
+        scrollForVisualPass(threeMonths, top: 145, bottom: app.frame.maxY - 20)
+        capture("Cooldown paywall plans")
+        XCTAssertTrue(close.isHittable)
+        close.tap()
+        XCTAssertTrue(close.waitForNonExistence(timeout: 8))
+        XCTAssertEqual(like.label, profileBefore)
+        XCTAssertEqual(portrait.frame.minY, portraitBefore.minY, accuracy: 4)
+        capture("Discover after paywall dismissal")
+
+        launch(options: options)
+        let keepDiscovering = app.buttons["matchKeepDiscovering"]
+        XCTAssertTrue(tapAndWait(app.buttons["likeProfile"], for: keepDiscovering))
+        keepDiscovering.tap()
+        let unmatch = app.buttons["unmatch-amara"]
+        let tabBar = app.tabBars.firstMatch
+        XCTAssertTrue(tapAndWait(tabBar.buttons["Likes"], for: app.staticTexts["Mutual connections"]))
+        scrollForVisualPass(unmatch, top: 60, bottom: tabBar.frame.minY)
+        let unmatchBefore = unmatch.frame.minY
+        let confirmation = app.staticTexts["unmatchConfirmationTitle"]
+        XCTAssertTrue(tapAndWait(unmatch, for: confirmation))
+        capture("Unmatch sheet top")
+        let keep = app.buttons["Keep connection"]
+        let confirm = app.buttons["Unmatch"]
+        scrollForVisualPass(confirm, top: 90, bottom: app.frame.maxY - 20)
+        capture("Unmatch sheet actions")
+        scrollForVisualPass(keep, top: 90, bottom: app.frame.maxY - 20)
+        keep.tap()
+        XCTAssertTrue(confirmation.waitForNonExistence(timeout: 8))
+        XCTAssertTrue(unmatch.isHittable)
+        XCTAssertEqual(unmatch.frame.minY, unmatchBefore, accuracy: 4)
+        capture("Likes after Unmatch dismissal")
+    }
+
+    private func scrollForVisualPass(_ element: XCUIElement, top: CGFloat, bottom: CGFloat) {
+        for _ in 0..<16 {
+            if element.isHittable, element.frame.minY >= top, element.frame.maxY <= bottom { return }
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: 0.57))
+            let down = element.exists && element.frame.minY < top
+            let end = start.withOffset(CGVector(dx: 0, dy: down ? 110 : -110))
+            start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.15)
+        }
+        XCTAssertTrue(element.isHittable, element.debugDescription)
+        XCTAssertGreaterThanOrEqual(element.frame.minY, top)
+        XCTAssertLessThanOrEqual(element.frame.maxY, bottom)
+    }
+
+    func testPlusPlanLoadingFailureCanRetryAndClose() {
+        openPlusErrorDemo("plans-offline")
+        let error = app.staticTexts["Couldn’t load subscription plans. Check your connection, then try again."]
+        let retry = app.buttons["Retry loading plans"]
+        XCTAssertTrue(error.waitForExistence(timeout: 8))
+        reveal(retry)
+        XCTAssertTrue(retry.isHittable)
+        retry.tap()
+        XCTAssertTrue(error.waitForExistence(timeout: 8))
+        XCTAssertTrue(retry.isEnabled)
+        closePlusErrorDemo()
+    }
+
+    func testPlusActivationOfflineKeepsPurchaseButtonsHiddenAndCanClose() {
+        openPlusErrorDemo("offline-activation")
+        let monthly = app.buttons["demoPlan-kindred_plus_monthly"]
+        let confirm = app.alerts.buttons["Simulate purchase"]
+        XCTAssertTrue(tapAndWait(monthly, for: confirm))
+        let check = app.buttons["Check again"]
+        XCTAssertTrue(tapAndWait(confirm, for: check))
+        reveal(check)
+        let error = app.staticTexts["Couldn’t check your subscription. Try again when you’re connected."]
+        XCTAssertTrue(tapAndWait(check, for: error))
+        XCTAssertTrue(app.staticTexts["Activating Plus"].exists)
+        XCTAssertTrue(check.isEnabled)
+        XCTAssertFalse(monthly.exists)
+        XCTAssertFalse(app.buttons["demoPlan-kindred_plus_3month"].exists)
+        closePlusErrorDemo()
+    }
+
+    func testPlusRestoreWithoutSubscriptionExplainsHowToRetryAndCanClose() {
+        openPlusErrorDemo("empty-restore")
+        let restore = app.buttons["Restore Purchases"]
+        reveal(restore)
+        XCTAssertTrue(restore.isHittable)
+        let message = app.staticTexts.matching(NSPredicate(
+            format: "label BEGINSWITH %@", "No active Kindred Plus subscription was found."
+        )).firstMatch
+        XCTAssertTrue(tapAndWait(restore, for: message))
+        XCTAssertTrue(message.label.contains("Apple Account"))
+        XCTAssertTrue(restore.isEnabled)
+        XCTAssertFalse(app.staticTexts["Activating Plus"].exists)
+        closePlusErrorDemo()
+    }
+
+    private func openPlusErrorDemo(_ scenario: String) {
+        launch(options: ["--locked-likes-demo", "--pending-plus-demo", "--reduce-motion"],
+               environment: ["KINDRED_TEST_PLUS_ERROR": scenario])
+        let entry = app.buttons["settingsKindredPlus"]
+        XCTAssertTrue(tapAndWait(app.tabBars.buttons["You"], for: entry))
+        reveal(entry)
+        XCTAssertTrue(tapAndWait(entry, for: app.buttons["Close"]))
+    }
+
+    private func closePlusErrorDemo() {
+        let close = app.buttons["Close"]
+        XCTAssertTrue(close.isEnabled)
+        close.tap()
+        XCTAssertTrue(close.waitForNonExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["settingsKindredPlus"].exists)
+    }
+
+    func testPendingPlusSurvivesTerminationAndIsScopedToAccount() {
+        let options = ["--locked-likes-demo", "--pending-plus-demo", "--reduce-motion"]
+        let account = ["KINDRED_TEST_PLUS_ACCOUNT": UUID().uuidString]
+        let otherAccount = ["KINDRED_TEST_PLUS_ACCOUNT": UUID().uuidString]
+
+        func openPlus(expected: XCUIElement) {
+            let entry = app.buttons["settingsKindredPlus"]
+            XCTAssertTrue(tapAndWait(app.tabBars.buttons["You"], for: entry))
+            reveal(entry)
+            XCTAssertTrue(tapAndWait(entry, for: expected))
+        }
+
+        launch(options: options, environment: account)
+        openPlus(expected: app.buttons["demoPlan-kindred_plus_monthly"])
+        let confirm = app.alerts.buttons["Simulate purchase"]
+        XCTAssertTrue(tapAndWait(app.buttons["demoPlan-kindred_plus_monthly"], for: confirm))
+        XCTAssertTrue(tapAndWait(confirm, for: app.buttons["Check again"]))
+        app.terminate()
+
+        launch(options: options, environment: otherAccount)
+        openPlus(expected: app.buttons["demoPlan-kindred_plus_monthly"])
+        XCTAssertFalse(app.buttons["Check again"].exists)
+        app.terminate()
+
+        launch(options: options, environment: account)
+        let check = app.buttons["Check again"]
+        openPlus(expected: check)
+        XCTAssertTrue(app.staticTexts["Activating Plus"].exists)
+        XCTAssertFalse(app.buttons["demoPlan-kindred_plus_monthly"].exists)
+        XCTAssertFalse(app.buttons["demoPlan-kindred_plus_3month"].exists)
+        XCTAssertTrue(tapAndWait(check, for: app.buttons["Continue exploring"]))
+        app.terminate()
+
+        launch(options: options, environment: account)
+        openPlus(expected: app.buttons["demoPlan-kindred_plus_monthly"])
+        XCTAssertFalse(app.buttons["Check again"].exists)
     }
 
     func testPendingPlusHidesPurchaseButtonsUntilActivationIsConfirmed() {
@@ -327,9 +518,9 @@ final class KindredUITests: XCTestCase {
         let zoom = app.sliders["Photo zoom"]; reveal(zoom); let zoomValue = zoom.value as? String
         XCTAssertNotEqual(zoomValue, "0%")
         app.buttons["Apply"].tap()
-        let remove = app.buttons["removePhoto-rowan"]; reveal(remove); remove.tap()
-        XCTAssertFalse(app.buttons["editPhoto-rowan"].exists)
-        XCTAssertTrue(app.buttons["editPhoto-amara"].exists, "Removing Rowan must preserve Amara")
+        let remove = app.buttons["removePhoto-alex"]; reveal(remove); remove.tap()
+        XCTAssertFalse(app.buttons["editPhoto-alex"].exists)
+        XCTAssertTrue(app.buttons["editPhoto-amara"].exists, "Removing Alex’s photo must preserve Amara’s photo")
         app.buttons["saveProfile"].tap()
         XCTAssertTrue(app.buttons["saveProfile"].waitForNonExistence(timeout: 3))
         let preview = app.buttons["publicPreview"]
@@ -347,16 +538,16 @@ final class KindredUITests: XCTestCase {
         launch()
         app.tabBars.buttons["You"].tap(); app.buttons["editProfile"].tap()
         let add = app.buttons["Use demo portrait Amara"]; reveal(add, attempts: 20); add.tap()
-        let primary = app.buttons["removePhoto-rowan"]
+        let primary = app.buttons["removePhoto-alex"]
         reveal(primary); XCTAssertEqual(primary.label, "Remove photo 1"); primary.tap()
         XCTAssertTrue(app.buttons["editPhoto-amara"].exists)
         let undo = app.buttons["undoPhotoRemoval"]; reveal(undo); undo.tap()
-        XCTAssertEqual(app.buttons["editPhoto-rowan"].label, "Edit photo 1")
+        XCTAssertEqual(app.buttons["editPhoto-alex"].label, "Edit photo 1")
         XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier == %@ AND label == %@", "editPhoto-amara", "Edit photo 2")).firstMatch.waitForExistence(timeout: 5))
         primary.tap()
         let second = app.buttons["removePhoto-amara"]; reveal(second); second.tap()
         reveal(undo); undo.tap(); reveal(undo); undo.tap()
-        XCTAssertEqual(app.buttons["editPhoto-rowan"].label, "Edit photo 1")
+        XCTAssertEqual(app.buttons["editPhoto-alex"].label, "Edit photo 1")
         XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier == %@ AND label == %@", "editPhoto-amara", "Edit photo 2")).firstMatch.waitForExistence(timeout: 5))
         XCTAssertFalse(undo.exists)
         app.buttons["saveProfile"].tap()
@@ -478,7 +669,7 @@ final class KindredUITests: XCTestCase {
             capture("Largest Likes \(mode.isEmpty ? "light" : "dark")")
             app.tabBars.buttons["You"].tap()
             let edit = app.buttons["editProfile"]; reveal(edit, attempts: 15); edit.tap()
-            let photo = app.buttons["editPhoto-rowan"]; reveal(photo, attempts: 30)
+            let photo = app.buttons["editPhoto-alex"]; reveal(photo, attempts: 30)
             XCTAssertTrue(photo.isHittable)
             capture("Largest photo editor \(mode.isEmpty ? "light" : "dark")")
             photo.tap()
@@ -498,7 +689,7 @@ final class KindredUITests: XCTestCase {
             capture("Largest crop editor \(mode.isEmpty ? "light" : "dark")")
             app.buttons["cancelPhotoCrop"].tap()
             XCTAssertTrue(applyCrop.waitForNonExistence(timeout: 8))
-            let remove = app.buttons["removePhoto-rowan"]
+            let remove = app.buttons["removePhoto-alex"]
             for _ in 0..<20 {
                 if remove.isHittable && remove.frame.midY > 150 && remove.frame.midY < app.frame.maxY - 100 { break }
                 if remove.exists && remove.frame.midY < 150 { app.swipeDown() } else { app.swipeUp() }
@@ -506,7 +697,7 @@ final class KindredUITests: XCTestCase {
             remove.tap()
             XCTAssertTrue(remove.waitForNonExistence(timeout: 3))
             let undo = app.buttons["undoPhotoRemoval"]; reveal(undo, attempts: 15); undo.tap()
-            XCTAssertTrue(app.buttons["editPhoto-rowan"].exists)
+            XCTAssertTrue(app.buttons["editPhoto-alex"].exists)
         }
     }
     func testScrollingReadability() {
